@@ -7,7 +7,7 @@ Thimbleberry utilities offer support for writing WebGPU applications and WGSL sh
 for the browser.
 
 Note that the Thimbleberry utility modules are generally independent of each other.
-Feel free to pick and choose which ones are useful for you.
+Feel free to pick and choose the ones that are useful for you.
 
 You can see examples in the thimbleberry source of [shaders][], [app shaders][]
 and [shader tests][component-test] using most of the Thimbleberry utilities.
@@ -55,27 +55,28 @@ input and and output textures.
 This enables an `ImageChain` to sequence an arbitrary set of image transforming shaders, interspersing temporary buffers as needed.
 
 `ImageChain` and `ImageShaderComponent` are currently specialized for image processing,
-and so sited in the demo app not the utility library.
-But I expect we'll find more generic ways to stitch together modular shaders..
+and so they're in the demo app and not in the utility library for now.
+I expect we'll find more generic ways to stitch together modular shaders over time.
 
 ## Reactively
 [Reactively]: https://github.com/modderme123/reactively
 [decorate]: https://github.com/modderme123/reactively/tree/main/packages/decorate
 
 The current generation of fine grained reactive (signal) libraries in web
-frameworks offer several features that are useful for using the WebGPU API: 
+frameworks offers several features that are useful for using the WebGPU API: 
 dependency tracking, caching, and lazy recalculation.
 I've been using [Reactively][], a small, fast and standalone reactive library.
 Using Reactively's [decorate][] library,
 you can mark a property, getter, or method `@reactively`.
-Simply marking a property `@reactively` makes that property lazy, cached, and turns on dependency tracking.
+Simply marking a property `@reactively` makes that property lazy and cached. 
+It also turns on dependency tracking.
 
 GPU resources like textures and buffers are expensive to allocate,
 and the conditions that require rebuilding those resources can be complicated to track.
-The convenience of a reactive library makes for a good way to handle GPU resource allocation.
-By simply marking the GPU resource allocation with `@reactively`,
-the resource allocation immediately becomes lazy, saving startup time and memory for resources that might 
-not be used for a long time. 
+The convenience of a reactive library is a good way to handle GPU resource allocation.
+By marking the GPU resource allocation method or getter with `@reactively`,
+the resource allocation immediately becomes lazy, 
+saving startup time and memory for resources that might not be used for a long time. 
 
 More importantly, those GPUBuffers and GPUTextures 
 are rebuilt automatically when necessary. So if the user resizes a canvas, 
@@ -83,15 +84,14 @@ the shader wrapper will automatically allocate a larger GPUTexture.
 
 The lazy recalculation feature is useful even for methods that don't return a value.
 For example, I typically mark `@reactively` on a `writeUniforms(): void` 
-method that to copies over uniforms data from the CPU to the GPU. 
-If the source data hasn't changed, [Reactively][] will automatically skip the copy,
-so a little free optimization.
+method that copies over uniforms data from the CPU to the GPU. 
+If the source data hasn't changed, [Reactively][] will automatically skip the copy.
 
 #### Reactively tips
-To make dependency tracking work, note that its important to 
+To make dependency tracking work, note that it's important to 
 also mark the related properties with `@reactively`
 so that changes to those properties can be tracked by the reactive system. 
-So if allocation depends on `size`, both the allocator and the `size` property should be marked.
+If allocation depends on `size`, both the allocator and the `size` property should be marked.
 
 Passing `@reactively` tracked values between classes and modules works fine, but
 to preserve reactive change tracking,
@@ -103,21 +103,21 @@ share as `{srcParam: () => myObj.srcTexture}`.
 
 [wgsl-analzyer]: https://marketplace.visualstudio.com/items?itemName=wgsl-analyzer.wgsl-analyzer
 
-A simple text substitution macro facility is a time honored way of adding some
+A simple text substitution macro facility is a typical way of adding some
 richness to low level languages, and it's a useful way to extend WGSL.
 If two shaders differ only because one binds a `texture_2d` and the other binds
-a `texture_external`, a text substition template can capture the small difference
+a `texture_external`, a text substitution template can capture the small difference
 without making the programmer rewrite the entire shader.
 
 There are many javascript/typescript string templating systems,
 but they conflict with syntax aware editing for WGSL.
-There is already at least one promising WGSL editor for vscode: [wgsl-analzyer][].
-It already offers type hints, formatting, typechecking, etc.
+And there is already at least one promising WGSL editor for vscode: [wgsl-analzyer][].
+It offers type hints, formatting, typechecking, etc.
 
 Thimbleberry offers a simple templating system that's designed to fit inside WGSL comments
 so that WGSL syntax editors can parse the code without tripping over a template
 syntax.
-The idea is to write one version of the WGSL code normally,
+The idea is to write one version of the WGSL code normally
 and then to add specially formatted comments to describe template substitution patterns.
 Here's how it looks:
 
@@ -139,7 +139,7 @@ arbitrary binary operations (min, max, sum).
 
 WebGPU resources like textures and buffers are expensive,
 and garbage collection is uncertain.
-To free GPU resources more directly, thimbleberry offers utilities
+To free GPU resources more directly, Thimbleberry offers utilities
 for reference counting destroyable resources.
 
 - basic usage tracking
@@ -149,7 +149,7 @@ for reference counting destroyable resources.
 
 - grouping tracked resources
 
-  - `trackContext()` to identify a group of resources.
+  - `trackContext()` to identify a group of resources
     - `.finish()` to release an entire group of resources
 
 - scoped usage tracking
@@ -210,9 +210,8 @@ fronting the two APIs available in WebGPU.
 
   - `span.end()` - end the set
 
-  _Span timing is unreliable as of this writing on MacOS,
-  so I recommend using the above timestampWrites() API for now to time each pass.
-  Use `withTimestampGroup()` to coalesce the timing of multiple passes._
+- I recommend using the timestampWrites() API for now.
+  Span timing is unreliable on MacOS (though that may be fixed prior to general release of WebGPU). 
 
 For grouping timestamp records (e.g. to capture timing of multiple shaders in a frame), use:
 
@@ -264,7 +263,7 @@ to capture GPU performance metrics._
 [cypress.config.ts]: https://github.com/mighdoll/thimbleberry/tree/main/cypress.config.ts
 
 Cypress component testing is handy way to develop and maintain shaders in a test supported style.
-An example cypress configuration is in the thimbleberry tree.
+An example cypress configuration is in the Thimbleberry tree.
 
 Thimbleberry includes some useful examples and utilities for Cypress tests.
 

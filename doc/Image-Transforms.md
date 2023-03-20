@@ -5,7 +5,7 @@
 
 The Thimbleberry image demo application includes a simple [plugin api][] to add image transforms.
 
-1. Your plugin initialization function is passed a two arguments:
+1. Your plugin initialization function is passed two arguments:
    a `GPUDevice` and an `imageDirty()` function.
     - Use the provided `GPUDevice` to create your image transform shader.
     - Your shader should export the following properties:
@@ -21,7 +21,7 @@ The Thimbleberry image demo application includes a simple [plugin api][] to add 
     /** current plugins in the image demo app */
     export const plugins: SetupPlugin[] = [mosaicPlugin, equalizeUnitPlugin, /* your plugin here */];
     ```
-1. Optionally, create some UI controls so that user can modify your shader's settings.
+1. Optionally, create some UI controls so that the demo user can modify your shader's settings.
     - Along with your shader, return the settings UI as an HTML element or partially rendered Lit component.
     - Call `imageDirty()` if the settings change so that the image will update.
 

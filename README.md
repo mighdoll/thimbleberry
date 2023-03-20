@@ -8,9 +8,11 @@ Thimbleberry is a collection of reusable WebGPU shaders and library support func
 
 - A demo image processing app using Thimbleberry is available at [https://thimbleberry.dev](https://thimbleberry.dev). 
 
-It’s early days in WebGPU land. I hope the ideas in Thimbleberry will help you along as you get started with WebGPU. And I hope you’ll share your ideas too. Have you discovered some handy approaches to putting together browser WebGPU programs?
+It’s early days in WebGPU land. 
+I hope the ideas in Thimbleberry will help you along as you get started with WebGPU. 
+And I hope you’ll share your ideas. Have you discovered some handy approaches to putting together browser WebGPU programs?
 
-Contributions are welcome. I bet you’ll look at it and see a dozen things that can be made better.
+Contributions are welcome.
 
 **Utilities**
 
@@ -24,7 +26,7 @@ Contributions are welcome. I bet you’ll look at it and see a dozen things that
 - [GPU Performance Reports](./doc/Utilities.md#CPU-Performance-Reports)
 - [Cypress Component Tests](./doc/Utilities.md#Cypress-Component-Tests)
 
-**Image Transfomer Demo App**
+**Image Transformer Demo App**
 
 - [Adding an Image Transform](./doc/Image-Transforms.md)
 
