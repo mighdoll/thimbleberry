@@ -1,0 +1,33 @@
+#!/bin/sh 
+
+main () {
+  git checkout -q main || exit $?
+  ensure_clean
+  commit_hash=$(git rev-parse --short HEAD)
+  commit_message=$(git log -1 --pretty=%s HEAD)
+
+  pnpm wrangler pages publish dist \
+    --project-name thimbleberry \
+    --branch main \
+    --commit-hash $commit \
+    --commit-message "Deployed $commit_hash" 
+
+}
+
+die () {
+  echo "$@" >&2
+  exit 1
+}
+
+ensure_clean () {
+	if ! git diff-index HEAD --exit-code --quiet 2>&1
+	then
+		die "fatal: working tree has modifications.  Cannot add."
+	fi
+	if ! git diff-index --cached HEAD --exit-code --quiet 2>&1
+	then
+		die "fatal: index has modifications.  Cannot add."
+	fi
+}
+
+main "$@"

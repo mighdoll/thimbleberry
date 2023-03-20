@@ -1,0 +1,5 @@
+{
+  "printWidth": 90,
+  "bracketSameLine": true,
+  "arrowParens": "avoid"
+}
