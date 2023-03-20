@@ -10,8 +10,8 @@ Thimbleberry is a collection of reusable WebGPU shaders and library support func
 
 It’s early days in WebGPU land. 
 I hope the ideas in Thimbleberry will help you along as you get started with WebGPU. 
-And I hope you’ll share your ideas. Have you discovered some handy approaches to putting together browser WebGPU programs?
-
+Have you discovered some handy approaches to putting together browser WebGPU programs?
+I hope you’ll share your ideas. 
 Contributions are welcome.
 
 **Utilities**
