@@ -8,13 +8,13 @@ import {
   gpuTiming,
   placeholderTexture,
   reactiveTrackUse,
+  SampledTextureType2D,
   ShaderComponent,
   textureResource,
   trackContext,
   Vec2,
   Vec4,
 } from "thimbleberry/shader-util";
-import { SampledTextureType2D } from "./../../../src/shader-util/TextureFormats";
 import { mosaicPipeline } from "./MosaicPipeline";
 
 const squareVertsNDC: Vec2[] = [
