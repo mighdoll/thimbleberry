@@ -40,8 +40,8 @@
   "license": "ISC",
   "dependencies": {
     "@petamoriken/float16": "^3.7.1",
-    "@reactively/core": "link:/Users/lee/reactively/packages/core",
-    "@reactively/decorate": "link:/Users/lee/reactively/packages/decorate",
+    "@reactively/core": "0.0.8",
+    "@reactively/decorate": "0.0.3",
     "berry-pretty": "0.0.1",
     "bowser": "^2.11.0",
     "fast-deep-equal": "^3.1.3",

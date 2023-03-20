@@ -5,8 +5,8 @@ importers:
   .:
     specifiers:
       '@petamoriken/float16': ^3.7.1
-      '@reactively/core': link:/Users/lee/reactively/packages/core
-      '@reactively/decorate': link:/Users/lee/reactively/packages/decorate
+      '@reactively/core': 0.0.8
+      '@reactively/decorate': 0.0.3
       '@types/jest': ^29.5.0
       '@types/sortablejs': ^1.15.1
       '@typescript-eslint/eslint-plugin': ^5.55.0
@@ -32,8 +32,8 @@ importers:
       wrangler: ^2.12.3
     dependencies:
       '@petamoriken/float16': 3.7.1
-      '@reactively/core': link:../reactively/packages/core
-      '@reactively/decorate': link:../reactively/packages/decorate
+      '@reactively/core': 0.0.8
+      '@reactively/decorate': 0.0.3
       berry-pretty: 0.0.1
       bowser: 2.11.0
       fast-deep-equal: 3.1.3
@@ -61,9 +61,9 @@ importers:
 
   image-demo:
     specifiers:
-      '@reactively/core': link:/Users/lee/reactively/packages/core
-      '@reactively/decorate': link:/Users/lee/reactively/packages/decorate
-      '@reactively/lit': link:/Users/lee/reactively/packages/lit
+      '@reactively/core': 0.0.8
+      '@reactively/decorate': 0.0.3
+      '@reactively/lit': 0.0.3
       '@spectrum-web-components/accordion': ^0.7.10
       '@spectrum-web-components/action-button': ^0.10.13
       '@spectrum-web-components/action-group': ^0.12.9
@@ -97,12 +97,12 @@ importers:
       thimb-media: github:mighdoll/thimb-media#7e5ab8b
       thimbleberry: workspace:*
       typescript: ^5.0.2
-      vite: ^4.2.0
+      vite: 4.0.4
       vite-tsconfig-paths: ^4.0.7
     dependencies:
-      '@reactively/core': link:../../reactively/packages/core
-      '@reactively/decorate': link:../../reactively/packages/decorate
-      '@reactively/lit': link:../../reactively/packages/lit
+      '@reactively/core': 0.0.8
+      '@reactively/decorate': 0.0.3
+      '@reactively/lit': 0.0.3
       '@spectrum-web-components/accordion': 0.7.10
       '@spectrum-web-components/action-button': 0.10.13
       '@spectrum-web-components/action-group': 0.12.9
@@ -137,8 +137,8 @@ importers:
       esbuild: 0.17.12
       rimraf: 4.4.0
       typescript: 5.0.2
-      vite: 4.2.0
-      vite-tsconfig-paths: 4.0.7_rn5le4pusnctvs35nlnpu7hrue
+      vite: 4.0.4
+      vite-tsconfig-paths: 4.0.7_iq5pcpvektb4kc2qlc3jfkyfkq
 
 packages:
 
@@ -998,6 +998,23 @@ packages:
 
   /@petamoriken/float16/3.7.1:
     resolution: {integrity: sha512-oXZOc+aePd0FnhTWk15pyqK+Do87n0TyLV1nxdEougE95X/WXWDqmQobfhgnSY7QsWn5euZUWuDVeTQvoQ5VNw==}
+    dev: false
+
+  /@reactively/core/0.0.8:
+    resolution: {integrity: sha512-5uAnNf2gQSm3gM7z6Lx079H1/MuDQQI+5aYfwyDFGR9nHZj8yblLY/6aOJVWp+NcBwXVBKuWQ28qWHD9F1qN1w==}
+    dev: false
+
+  /@reactively/decorate/0.0.3:
+    resolution: {integrity: sha512-UWggN98HUMqiPiT2q4SHPe+lISpZKR8vssAm+bRoZbSO0yLA2/K2iHmUIzkbH5LTz96M+2Afs/u6Apz0CDQkLQ==}
+    dependencies:
+      '@reactively/core': 0.0.8
+    dev: false
+
+  /@reactively/lit/0.0.3:
+    resolution: {integrity: sha512-a3AljypzE/NmCdMOo4tja2GjO+805Nj/d5PkUw4JnoIJdQJ6PDthO4WeGfIJfalcEV9FlMrk6SI+kXL0MgNOmg==}
+    dependencies:
+      '@reactively/core': 0.0.8
+      '@reactively/decorate': 0.0.3
     dev: false
 
   /@sinclair/typebox/0.25.24:
@@ -5076,7 +5093,7 @@ packages:
       mlly: 1.2.0
       pathe: 1.1.0
       picocolors: 1.0.0
-      vite: 4.2.0_@types+node@18.15.3
+      vite: 4.0.4_@types+node@18.15.3
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -5099,23 +5116,6 @@ packages:
       globrex: 0.1.2
       tsconfck: 2.1.0_typescript@5.0.2
       vite: 4.0.4
-    transitivePeerDependencies:
-      - supports-color
-      - typescript
-    dev: true
-
-  /vite-tsconfig-paths/4.0.7_rn5le4pusnctvs35nlnpu7hrue:
-    resolution: {integrity: sha512-MwIYaby6kcbQGZqMH+gAK6h0UYQGOkjsuAgw4q6bP/5vWkn8VKvnmLuCQHA2+IzHAJHnE8OFTO4lnJLFMf9+7Q==}
-    peerDependencies:
-      vite: '*'
-    peerDependenciesMeta:
-      vite:
-        optional: true
-    dependencies:
-      debug: 4.3.4
-      globrex: 0.1.2
-      tsconfck: 2.1.0_typescript@5.0.2
-      vite: 4.2.0
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -5154,41 +5154,8 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vite/4.2.0:
-    resolution: {integrity: sha512-AbDTyzzwuKoRtMIRLGNxhLRuv1FpRgdIw+1y6AQG73Q5+vtecmvzKo/yk8X/vrHDpETRTx01ABijqUHIzBXi0g==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': '>= 14'
-      less: '*'
-      sass: '*'
-      stylus: '*'
-      sugarss: '*'
-      terser: ^5.4.0
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      less:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-    dependencies:
-      esbuild: 0.17.12
-      postcss: 8.4.21
-      resolve: 1.22.1
-      rollup: 3.19.1
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: true
-
-  /vite/4.2.0_@types+node@18.15.3:
-    resolution: {integrity: sha512-AbDTyzzwuKoRtMIRLGNxhLRuv1FpRgdIw+1y6AQG73Q5+vtecmvzKo/yk8X/vrHDpETRTx01ABijqUHIzBXi0g==}
+  /vite/4.0.4_@types+node@18.15.3:
+    resolution: {integrity: sha512-xevPU7M8FU0i/80DMR+YhgrzR5KS2ORy1B4xcX/cXLsvnUWvfHuqMmVU6N0YiJ4JWGRJJsLCgjEzKjG9/GKoSw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
@@ -5213,7 +5180,7 @@ packages:
         optional: true
     dependencies:
       '@types/node': 18.15.3
-      esbuild: 0.17.12
+      esbuild: 0.16.3
       postcss: 8.4.21
       resolve: 1.22.1
       rollup: 3.19.1
@@ -5264,7 +5231,7 @@ packages:
       tinybench: 2.4.0
       tinypool: 0.3.1
       tinyspy: 1.1.1
-      vite: 4.2.0_@types+node@18.15.3
+      vite: 4.0.4_@types+node@18.15.3
       vite-node: 0.29.3_@types+node@18.15.3
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
