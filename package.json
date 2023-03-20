@@ -1,6 +1,6 @@
 {
   "name": "thimbleberry",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "",
   "type": "module",
   "scripts": {
@@ -13,6 +13,7 @@
     "format": "prettier-eslint \"src/**/*.ts\" --write",
     "lint": "eslint ."
   },
+  "repository": "github:mighdoll/thimbleberry",
   "exports": {
     "./*": {
       "import": "./dist/*/index.js",
