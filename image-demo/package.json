@@ -59,7 +59,7 @@
     "esbuild": "^0.17.12",
     "rimraf": "^4.4.0",
     "typescript": "^5.0.2",
-    "vite": "^4.2.0",
+    "vite": "4.0.4",
     "vite-tsconfig-paths": "^4.0.7"
   }
 }
