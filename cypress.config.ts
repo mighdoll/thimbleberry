@@ -8,12 +8,6 @@ export default defineConfig({
       bundler: "vite",
       viteConfig: {
         plugins: [tsconfigPaths()],
-        server: {
-          fs: {
-            // TODO temporary, to allow serving locally built reactively
-            allow: [".."],
-          },
-        },
       },
     },
     setupNodeEvents(on: Cypress.PluginEvents) {
