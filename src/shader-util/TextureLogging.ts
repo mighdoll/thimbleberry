@@ -122,8 +122,8 @@ export function imageArrayToRows(
 ): Sliceable<number>[] {
   const imageWidth = imageArray.length / imageHeight;
   const rows = [...partitionBySize(imageArray, imageWidth)];
-  const result = rows.map((row) => {
-    if (selectComponent) {
+  const result = rows.map(row => {
+    if (selectComponent !== undefined) {
       return [...filterNth(row, selectComponent, components)];
     } else {
       return row;
