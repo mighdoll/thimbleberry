@@ -30,7 +30,7 @@ export async function withTextureCopy<T>(
   fn: (data: Sliceable<number>) => T
 ): Promise<T> {
   const imageTexture: GPUImageCopyTexture = {
-    texture
+    texture,
   };
 
   // create buffer, padded if necessary to 256 bytes per row
@@ -44,19 +44,19 @@ export async function withTextureCopy<T>(
   const buffer = device.createBuffer({
     label: "textureCopy",
     size: bufferBytes,
-    usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST
+    usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST,
   });
 
   // copy image to buffer
   const imageDestination: GPUImageCopyBuffer = {
     buffer,
     bytesPerRow: bufferByteWidth,
-    rowsPerImage: texture.height
+    rowsPerImage: texture.height,
   };
   const copySize: GPUExtent3DStrict = {
     width: texture.width,
     height: texture.height,
-    depthOrArrayLayers: texture.depthOrArrayLayers
+    depthOrArrayLayers: texture.depthOrArrayLayers,
   };
   const commands = device.createCommandEncoder({});
   commands.copyTextureToBuffer(imageTexture, imageDestination, copySize);
