@@ -81,7 +81,7 @@ class MosaicSettings extends LitElement {
     return html`
       <div>
         <sp-field-label>tile shape</sp-field-label>
-        <sp-picker @change=${this.pickShape} value="square" size="s">
+        <sp-picker @change=${this.pickShape} value=${this.mosaic.mosaicShape} size="s">
           <sp-menu-item value="square">square</sp-menu-item>
           <sp-menu-item value="circle">circle</sp-menu-item>
         </sp-picker>
