@@ -225,7 +225,7 @@ export class MosaicShader extends HasReactive implements ShaderComponent {
   @reactively private get uniforms(): GPUBuffer {
     const buffer = this.device.createBuffer({
       label: "mosaic-uniforms",
-      size: Float32Array.BYTES_PER_ELEMENT * 2,
+      size: Float32Array.BYTES_PER_ELEMENT * 8,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
     reactiveTrackUse(buffer, this.usageContext);
@@ -234,8 +234,9 @@ export class MosaicShader extends HasReactive implements ShaderComponent {
 
   @reactively private updateUniforms(): void {
     if (this.mosaicShape === "circle") {
+      const color = this.backgroundColor;
       const innerRadius = this.circleRadius - circleFeather;
-      const floats = new Float32Array([innerRadius, circleFeather]);
+      const floats = new Float32Array([...color, innerRadius, circleFeather, ]);
       this.device.queue.writeBuffer(this.uniforms, 0, floats);
     }
   }

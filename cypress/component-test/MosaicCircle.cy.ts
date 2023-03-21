@@ -29,7 +29,7 @@ it("render circle mosaic", async () => {
       destTexture,
       mosaicSize: size,
       spacing: [0, 0],
-      backgroundColor: [0, 0, 0, 1],
+      backgroundColor: [0, 0, 1, 1],
       mosaicShape: "circle",
     });
 

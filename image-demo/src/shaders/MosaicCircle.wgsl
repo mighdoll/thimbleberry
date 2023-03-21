@@ -1,10 +1,12 @@
 // draw antialized circles
 //
-// The color of each shape is determined by sampling the source texture in the same location
+// The color of each shape is determined by sampling the source texture in the center of the circle
+//
 
 struct Uniforms {
-  innerRadius: f32, // unfeathered radius in pixels
-  feather: f32  // antialias width in pixels
+  backgroundColor: vec4<f32>,    // background color to use when antialiasing
+  innerRadius: f32,             // unfeathered part of the radius in pixels
+  feather: f32                 // antialias width in pixels
 }
 
 struct VertexOutput {
@@ -49,25 +51,13 @@ fn fragMain(
     @location(0) @interpolate(flat) color: vec4<f32>,
     @location(1) distanceToCenter: f32
 ) -> @location(0) vec4<f32> {
-    var blend = 1.0;
 
     if distanceToCenter > u.innerRadius && u.feather > 0.0 {
-        blend -= (distanceToCenter - u.innerRadius) / u.feather;
+        var blend = 1.0 - (distanceToCenter - u.innerRadius) / u.feather;
+        blend *= color.a;
+        var outColor = blend * color.rgb + (1.0 - blend) * u.backgroundColor.rgb;
+        return vec4(outColor, 1.0);
+    } else {
+        return color;
     }
-    blend *= color.a;
-    // if fbSpot.y == 0.5 && fbSpot.x == 1.5 {
-    //     debug[0] = fbSpot.x;
-    //     debug[1] = fbSpot.y;
-    //     debug[2] = distanceToCenter;
-    //     debug[3] = blend;
-    //     debug[4] = u.feather;
-    //     debug[5] = u.radius;
-    //     debug[6] = 99.0;
-    //     debug[7] = color.r;
-    //     debug[8] = color.g;
-    //     debug[9] = color.b;
-    //     debug[10] = color.a;
-    // }
-
-    return vec4(color.rgb * blend, 1.0); 
 }
