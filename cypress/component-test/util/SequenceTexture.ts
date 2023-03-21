@@ -4,7 +4,7 @@ import {
   numComponents,
   Vec2,
 } from "thimbleberry/shader-util";
-import { mapN } from "./MapN";
+import { mapN } from "../../../src/shader-util/MapN";
 
 interface SequenceTexture {
   texture: GPUTexture;

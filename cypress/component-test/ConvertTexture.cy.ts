@@ -11,7 +11,7 @@ import { withTextureCopy } from "thimbleberry/shader-util";
 import { ShaderGroup } from "thimbleberry/shader-util";
 import { rgbaFloatRedToFloat, rgbaUintRedToFloat } from "thimbleberry/shader-util";
 import { make3dSequence, makeEmptyTexture, makeTexture } from "./util/MakeTexture";
-import { mapN } from "./util/MapN";
+import { mapN } from "../../src/shader-util/MapN";
 
 it("rgba8unorm to r32float", () => {
   cy.then(async () => {

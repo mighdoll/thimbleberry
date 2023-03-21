@@ -1,5 +1,6 @@
 export * from "./BinOpTemplate";
 export * from "./CacheKeyWithDevice";
+export * from "./CircleVertices";
 export * from "./ConfigureCanvas";
 export * from "./ConvertTemplate";
 export * from "./CreateDebugBuffer";
@@ -13,6 +14,7 @@ export * from "./ImageToTexture";
 export * from "./LabeledGpuDevice";
 export * from "./LimitWorkgroupLength";
 export * from "./LoadTemplate";
+export * from "./MapN";
 export * from "./MemoMemo";
 export * from "./PlaceholderTexture";
 export * from "./PromiseDelay";
