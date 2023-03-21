@@ -42,7 +42,6 @@ fn fragMain(
     @builtin(position) spot: vec4<f32>,
     @location(0) @interpolate(flat) color: vec4<f32>
 ) -> @location(0) vec4<f32> {
-    debug[0] = u.size;
 
     return color;
 }
