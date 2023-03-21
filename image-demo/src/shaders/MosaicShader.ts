@@ -1,5 +1,5 @@
 import { HasReactive, reactively } from "@reactively/decorate";
-import { dsert } from "berry-pretty";
+import { dlog, dsert } from "berry-pretty";
 import deepEqual from "fast-deep-equal";
 import {
   assignParams,
@@ -17,7 +17,7 @@ import {
   Vec2,
   Vec4,
 } from "thimbleberry/shader-util";
-import { mosaicPipeline } from "./MosaicPipeline";
+import { mosaicPipeline, RenderShape } from "./MosaicPipeline";
 
 const squareVertsNDC: Vec2[] = [
   [-1, 1],
@@ -40,11 +40,16 @@ export interface MosaicShaderArgs {
 const defaults: Partial<MosaicShaderArgs> = {
   mosaicShape: "square",
   mosaicSize: [5, 5],
-  spacing: [0, 0],
   backgroundColor: [0.1, 0.3, 0.4, 1],
+  spacing: [0, 0],
+  // mosaicShape: "circle",
+  // mosaicSize: [100, 100],
+  // backgroundColor: [0, 0, 0, 1],
 };
 
 const placeholderSize: Vec2 = [50, 50];
+
+const circleFeather = 1; // width in pixels to antialias (only for circle reandering)
 
 type MosaicShape = "square" | "circle";
 
@@ -93,10 +98,18 @@ export class MosaicShader extends HasReactive implements ShaderComponent {
   }
 
   @reactively private get pipeline(): GPURenderPipeline {
+    let renderShape: RenderShape;
+    if (this.mosaicShape === "circle" && this.spacing[0] >= 0 && this.spacing[1] >= 0) {
+      renderShape = "circle";
+    } else {
+      renderShape = "polygon";
+    }
+
     return mosaicPipeline({
       device: this.device,
       destFormat: this.destTexture.format,
       srcTextureType: this.srcTextureType,
+      renderShape,
     });
   }
 
@@ -220,8 +233,11 @@ export class MosaicShader extends HasReactive implements ShaderComponent {
   }
 
   @reactively private updateUniforms(): void {
-    const floats = new Float32Array(this.mosaicSize);
-    this.device.queue.writeBuffer(this.uniforms, 0, floats);
+    if (this.mosaicShape === "circle") {
+      const innerRadius = this.circleRadius - circleFeather;
+      const floats = new Float32Array([innerRadius, circleFeather]);
+      this.device.queue.writeBuffer(this.uniforms, 0, floats);
+    }
   }
 
   @reactively private get bindGroup(): GPUBindGroup {

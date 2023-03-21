@@ -3,19 +3,24 @@ import {
   memoizeWithDevice,
   SampledTextureType2D,
 } from "thimbleberry/shader-util";
-import shaderWGSL from "./Mosaic.wgsl?raw";
+import polygonWGSL from "./Mosaic.wgsl?raw";
+import circleWGSL from "./MosaicCircle.wgsl?raw";
+
+export type RenderShape = "polygon" | "circle";
 
 export interface MosaicPipelineArgs {
   device: GPUDevice;
   destFormat: GPUTextureFormat;
   srcTextureType: SampledTextureType2D;
   srcSampleType?: GPUTextureSampleType;
+  renderShape?: RenderShape;
 }
 
 export const mosaicPipeline = memoizeWithDevice(createMosaicPipeline);
 
 export function createMosaicPipeline(params: MosaicPipelineArgs): GPURenderPipeline {
   const { device, destFormat, srcTextureType, srcSampleType } = params;
+  const { renderShape = "polygon" } = params;
 
   let srcLayout: GPUTextureBindingLayout | GPUExternalTextureBindingLayout;
 
@@ -51,7 +56,9 @@ export function createMosaicPipeline(params: MosaicPipelineArgs): GPURenderPipel
     ],
   });
 
-  const processedWGSL: string = applyTemplate(shaderWGSL, {
+  const srcWGSL = renderShape === "polygon" ? polygonWGSL : circleWGSL;
+
+  const processedWGSL: string = applyTemplate(srcWGSL, {
     srcTextureType,
     loadLevel: srcTextureType === "texture_external" ? "" : ", 0",
   });
@@ -62,10 +69,23 @@ export function createMosaicPipeline(params: MosaicPipelineArgs): GPURenderPipel
 
   const target: GPUColorTargetState = {
     format: destFormat,
+    blend: {
+      color: {
+        operation: "add",
+        srcFactor: "one",
+        dstFactor: "one-minus-src-alpha",
+      },
+      alpha: {
+        operation: "add",
+        srcFactor: "zero",
+        dstFactor: "one",
+      },
+    },
   };
 
   const pipeline = device.createRenderPipeline({
     label: "Mosaic Pipeline",
+
     vertex: {
       module,
       entryPoint: "vertMain",
