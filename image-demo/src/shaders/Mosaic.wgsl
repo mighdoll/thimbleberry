@@ -2,16 +2,11 @@
 //
 // The color of each shape is determined by sampling the source texture in the same location
 
-struct Uniforms {
-  size: f32,
-}
-
 struct VertexOutput {
   @builtin(position) spot: vec4<f32>,
   @location(0) @interpolate(flat) color: vec4<f32>,
 }
 
-@group(0) @binding(0) var<uniform> u:Uniforms;
 @group(0) @binding(1) var srcTexture: texture_2d<f32>;  //! texture_2d<f32>=srcTextureType 
 @group(0) @binding(11) var<storage, read_write> debug: array<f32>; 
 
