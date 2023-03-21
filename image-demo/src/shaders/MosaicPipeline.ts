@@ -14,9 +14,7 @@ export interface MosaicPipelineArgs {
 
 export const mosaicPipeline = memoizeWithDevice(createMosaicPipeline);
 
-export function createMosaicPipeline(
-  params: MosaicPipelineArgs
-): GPURenderPipeline {
+export function createMosaicPipeline(params: MosaicPipelineArgs): GPURenderPipeline {
   const { device, destFormat, srcTextureType, srcSampleType } = params;
 
   let srcLayout: GPUTextureBindingLayout | GPUExternalTextureBindingLayout;
