@@ -15,11 +15,12 @@ export function circleVerts(n: number): Vec2[] {
   return vertices;
 }
 
-/** @returns a triangle strip for a circle with with vertices between [-1,1] centered at 0,0 */
-export function circleStrip(radius: number): Vec2[] {
-  const e = 0.4; // target error in pixels from ideal curve
-  const r = radius;
-  const proposedVerts = Math.ceil(Math.PI / Math.acos(1 - e / r));
+/** @returns a triangle strip for a circle with with vertices between [-1,1] centered at 0,0
+ * @param radius radius in pixels
+ * @param error  target error in pixels from ideal curve
+ */
+export function circleStrip(radius: number, error = 0.15): Vec2[] {
+  const proposedVerts = Math.ceil(Math.PI / Math.acos(1 - error / radius));
   const numVerts = Math.max(proposedVerts, 6);
 
   const center: Vec2 = [0, 0];
