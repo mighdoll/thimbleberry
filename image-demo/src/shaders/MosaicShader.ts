@@ -170,8 +170,10 @@ export class MosaicShader extends HasReactive implements ShaderComponent {
     const spaceXndc = (2 * spaceX) / width;
     const spaceYndc = (2 * spaceY) / height;
 
-    const dx = sizeXndc + 2 * spaceXndc;
-    const dy = sizeYndc + 2 * spaceYndc;
+    const minStep = 2 / Math.max(width, height); // ensure tiles are at least 1x1 pixel
+
+    const dx = Math.max(sizeXndc + 2 * spaceXndc, minStep);
+    const dy = Math.max(sizeYndc + 2 * spaceYndc, minStep);
     const halfDx = dx / 2;
     const halfDy = dy / 2;
 
