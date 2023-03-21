@@ -3,9 +3,10 @@ import { Vec2 } from "./Vec";
 
 /** a circle with vertices between [-1,1] centered at 0,0 */
 export function circleVerts(n: number): Vec2[] {
-  const sliceAngle = (2 * Math.PI) / n;
+  const numVerts = Math.ceil(n);
+  const sliceAngle = (2 * Math.PI) / numVerts;
   let angle = sliceAngle;
-  const vertices = [...mapN(n)].map(() => {
+  const vertices = [...mapN(numVerts)].map(() => {
     const vec: Vec2 = [Math.sin(angle), Math.cos(angle)];
     angle += sliceAngle;
     return vec;
