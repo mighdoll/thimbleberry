@@ -1,12 +1,12 @@
 import { dsert } from "berry-pretty";
-import { Vec2 } from "thimbleberry/shader-util";
-import { mapN } from "../../../src/shader-util/MapN";
 import {
   arrayToBuffer,
   componentByteSize,
+  mapN,
   numComponents,
   renderAttachable,
   storageBindable,
+  Vec2,
 } from "thimbleberry/shader-util";
 
 /** @return a test texture containing the supplied data */
@@ -76,7 +76,7 @@ export function make3dSequence(size: Vec2, numComponents = 1): number[][][] {
   let i = 0;
   return mapN(size[0], () =>
     mapN(size[1], () => {
-      const rgba = mapN(numComponents, (c) => i + c * 10);
+      const rgba = mapN(numComponents, c => i + c * 10);
       i++;
       return rgba;
     })
