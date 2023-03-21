@@ -151,16 +151,17 @@ export class MosaicShader extends HasReactive implements ShaderComponent {
   @reactively private get rawVerts(): Vec2[] {
     const shapeType = this.mosaicShape;
     if (shapeType == "circle") {
-      return this.circleVerts;
+      return circleStrip(this.circleRadius);
     } else {
       dsert(shapeType === "square");
       return squareVertsNDC;
     }
   }
 
-  @reactively private get circleVerts(): Vec2[] {
-    const maxSize = Math.max(...this.mosaicSize);
-    return circleStrip(maxSize * 3);
+  @reactively private get circleRadius(): number {
+    const maxDim = Math.max(...this.mosaicSize);
+    const radius = Math.max(maxDim / 2, 0.5);
+    return radius;
   }
 
   @reactively private get positionsBuffer(): GPUBuffer {

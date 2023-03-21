@@ -15,12 +15,15 @@ export function circleVerts(n: number): Vec2[] {
   return vertices;
 }
 
-/** @returns a triangle strip for a circle with with vertices between [-1,1] centered at 0,0
- * @param numCircleVerts the number of verticies on the circumference
- */
-export function circleStrip(numCircleVerts: number): Vec2[] {
+/** @returns a triangle strip for a circle with with vertices between [-1,1] centered at 0,0 */
+export function circleStrip(radius: number): Vec2[] {
+  const e = 0.4; // target error in pixels from ideal curve
+  const r = radius;
+  const proposedVerts = Math.ceil(Math.PI / Math.acos(1 - e / r));
+  const numVerts = Math.max(proposedVerts, 6);
+
   const center: Vec2 = [0, 0];
-  const circle = circleVerts(numCircleVerts);
+  const circle = circleVerts(numVerts);
   const verts = [...partitionBySize(circle, 2)].flatMap(([a, b]) => {
     if (b !== undefined) {
       return [center, a, b];
