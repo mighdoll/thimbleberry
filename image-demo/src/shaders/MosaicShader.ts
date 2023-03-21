@@ -188,18 +188,20 @@ export class MosaicShader extends HasReactive implements ShaderComponent {
 
     const sizeXndc = (2 * sizeX) / width;
     const sizeYndc = (2 * sizeY) / height;
-    const spaceXndc = (2 * spaceX) / width;
-    const spaceYndc = (2 * spaceY) / height;
+    const spaceXndc = (4 * spaceX) / width; // 2x for space on both sides
+    const spaceYndc = (4 * spaceY) / height;
 
     const minStep = 2 / Math.max(width, height); // ensure tiles are at least 1x1 pixel
 
-    const dx = Math.max(sizeXndc + 2 * spaceXndc, minStep);
-    const dy = Math.max(sizeYndc + 2 * spaceYndc, minStep);
+    const dx = Math.max(sizeXndc + spaceXndc, minStep);
+    const dy = Math.max(sizeYndc + spaceYndc, minStep);
     const halfDx = dx / 2;
     const halfDy = dy / 2;
 
-    for (let y = -1 + halfDy; y < 1 + halfDy; y += dy) {
-      for (let x = -1 + halfDx; x < 1 + halfDx; x += dx) {
+    const colStart = -1 + sizeXndc / 2 + spaceYndc;
+    const rowStart = -1 + sizeXndc / 2 + spaceXndc;
+    for (let y = colStart; y < 1 + halfDy; y += dy) {
+      for (let x = rowStart; x < 1 + halfDx; x += dx) {
         spots.push([x, y]);
       }
     }
