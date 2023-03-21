@@ -1,8 +1,10 @@
 import { HasReactive, reactively } from "@reactively/decorate";
+import { dsert } from "berry-pretty";
 import deepEqual from "fast-deep-equal";
 import {
   assignParams,
   CanBeReactive,
+  circleStrip,
   createDebugBuffer,
   filledGPUBuffer,
   gpuTiming,
@@ -32,15 +34,19 @@ export interface MosaicShaderArgs {
   spacing?: CanBeReactive<Vec2>;
   backgroundColor?: CanBeReactive<Vec4>;
   srcSize?: CanBeReactive<Vec2>;
+  mosaicShape?: CanBeReactive<MosaicShape>;
 }
 
 const defaults: Partial<MosaicShaderArgs> = {
+  mosaicShape: "square",
   mosaicSize: [5, 5],
   spacing: [0, 0],
   backgroundColor: [0.1, 0.3, 0.4, 1],
 };
 
 const placeholderSize: Vec2 = [50, 50];
+
+type MosaicShape = "square" | "circle";
 
 export class MosaicShader extends HasReactive implements ShaderComponent {
   device!: GPUDevice;
@@ -50,6 +56,7 @@ export class MosaicShader extends HasReactive implements ShaderComponent {
   @reactively({ equals: deepEqual }) spacing!: Vec2;
   @reactively({ equals: deepEqual }) backgroundColor!: Vec4;
   @reactively({ equals: deepEqual }) srcSize!: Vec2;
+  @reactively mosaicShape!: MosaicShape;
 
   private usageContext = trackContext();
 
@@ -133,13 +140,27 @@ export class MosaicShader extends HasReactive implements ShaderComponent {
   /** scale the shape to the requested size
    * returns verts in NDC coords [-1,1] */
   @reactively private get shapeVerts(): number[] {
-    const shape = squareVertsNDC;
     const { width, height } = this.destTexture;
-    const scaledVertsNDC = shape.map(([x, y]) => [
+    const scaledVertsNDC = this.rawVerts.map(([x, y]) => [
       (x * this.mosaicSize[0]) / width,
       (y * this.mosaicSize[1]) / height,
     ]);
     return scaledVertsNDC.flat();
+  }
+
+  @reactively private get rawVerts(): Vec2[] {
+    const shapeType = this.mosaicShape;
+    if (shapeType == "circle") {
+      return this.circleVerts;
+    } else {
+      dsert(shapeType === "square");
+      return squareVertsNDC;
+    }
+  }
+
+  @reactively private get circleVerts(): Vec2[] {
+    const maxSize = Math.max(...this.mosaicSize);
+    return circleStrip(maxSize * 3);
   }
 
   @reactively private get positionsBuffer(): GPUBuffer {

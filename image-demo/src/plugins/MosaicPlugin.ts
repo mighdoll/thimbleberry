@@ -3,8 +3,12 @@ import "@spectrum-web-components/color-area/sp-color-area.js";
 import { ColorSlider } from "@spectrum-web-components/color-slider";
 import "@spectrum-web-components/color-slider/sp-color-slider.js";
 import "@spectrum-web-components/field-label/sp-field-label.js";
+import "@spectrum-web-components/menu/sp-menu-item.js";
+import { Picker } from "@spectrum-web-components/picker";
+import "@spectrum-web-components/picker/sp-picker.js";
 import { Slider } from "@spectrum-web-components/slider";
 import "@spectrum-web-components/slider/sp-slider.js";
+import { dErr } from "berry-pretty";
 import { html, LitElement } from "lit";
 import { TemplateResult } from "lit-html";
 import { customElement } from "lit/decorators.js";
@@ -63,9 +67,24 @@ class MosaicSettings extends LitElement {
     return `rgb(${r * 255}, ${g * 255}, ${b * 255})`;
   }
 
+  private pickShape(e: Event & { target: Picker }): void {
+    const shape = e.target.value;
+    if (shape === "circle" || shape == "square") {
+      this.mosaic.mosaicShape = shape;
+      this.imageDirty();
+    } else {
+      dErr("unexpected shape", shape);
+    }
+  }
+
   render(): TemplateResult {
     return html`
       <div>
+        <sp-field-label>tile shape</sp-field-label>
+        <sp-picker @change=${this.pickShape} value="square" size="s">
+          <sp-menu-item value="square">square</sp-menu-item>
+          <sp-menu-item value="circle">circle</sp-menu-item>
+        </sp-picker>
         <sp-slider
           label="tile size"
           @input=${this.sizeSlide}
@@ -76,9 +95,9 @@ class MosaicSettings extends LitElement {
         <sp-slider
           label="tile spacing"
           @input=${this.spacingSlide}
-          min="-2"
+          min="-10"
           value=${this.mosaic.spacing[0]}
-          max="5"
+          max="10"
           step=".5">
         </sp-slider>
         <sp-field-label>background color</sp-field-label>
