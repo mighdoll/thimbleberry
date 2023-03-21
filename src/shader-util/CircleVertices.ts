@@ -21,7 +21,7 @@ export function circleStrip(numCircleVerts: number): Vec2[] {
   const center: Vec2 = [0, 0];
   const circle = circleVerts(numCircleVerts);
   const verts = [...partitionBySize(circle, 2)].flatMap(([a, b]) => {
-    if (b != undefined) {
+    if (b !== undefined) {
       return [center, a, b];
     } else {
       return [center, a];
