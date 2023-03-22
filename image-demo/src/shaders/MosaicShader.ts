@@ -42,9 +42,6 @@ const defaults: Partial<MosaicShaderArgs> = {
   mosaicSize: [5, 5],
   backgroundColor: [0.1, 0.3, 0.4, 1],
   spacing: [0, 0],
-  // mosaicShape: "circle",
-  // mosaicSize: [100, 100],
-  // backgroundColor: [0, 0, 0, 1],
 };
 
 const placeholderSize: Vec2 = [50, 50];
@@ -212,10 +209,10 @@ export class MosaicShader extends HasReactive implements ShaderComponent {
     const halfDx = dx / 2;
     const halfDy = dy / 2;
 
-    const colStart = -1 + sizeXndc / 2 + spaceYndc;
-    const rowStart = -1 + sizeXndc / 2 + spaceXndc;
-    for (let y = colStart; y < 1 + halfDy; y += dy) {
-      for (let x = rowStart; x < 1 + halfDx; x += dx) {
+    const xStart = -1 + sizeXndc / 2 + spaceYndc;
+    const yStart = -1 + sizeYndc / 2 + spaceXndc;
+    for (let y = yStart; y < 1 + halfDy; y += dy) {
+      for (let x = xStart; x < 1 + halfDx; x += dx) {
         spots.push([x, y]);
       }
     }
@@ -236,7 +233,7 @@ export class MosaicShader extends HasReactive implements ShaderComponent {
     if (this.mosaicShape === "circle") {
       const color = this.backgroundColor;
       const innerRadius = this.circleRadius - circleFeather;
-      const floats = new Float32Array([...color, innerRadius, circleFeather, ]);
+      const floats = new Float32Array([...color, innerRadius, circleFeather]);
       this.device.queue.writeBuffer(this.uniforms, 0, floats);
     }
   }

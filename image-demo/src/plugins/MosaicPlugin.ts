@@ -12,6 +12,7 @@ import { dErr } from "berry-pretty";
 import { html, LitElement } from "lit";
 import { TemplateResult } from "lit-html";
 import { customElement } from "lit/decorators.js";
+import { Vec2 } from "thimbleberry/shader-util";
 import { InitializedPlugin, PluginSetup } from "../ImagePlugins";
 import { MosaicShader } from "../shaders/MosaicShader";
 
@@ -27,10 +28,30 @@ class MosaicSettings extends LitElement {
     this.imageDirty = imageDirty;
   }
 
-  private sizeSlide(e: Event): void {
-    const size = (e.target as Slider).value;
-    this.mosaic.mosaicSize = [size, size];
+  private sizeSlide(e: Event & { target: Slider }): void {
+    const targetLength = e.target.value;
+    const mosaicSize = this.mosaic.mosaicSize;
+    const longSide = Math.max(...mosaicSize);
+    const scale = targetLength / longSide;
+    this.mosaic.mosaicSize = mosaicSize.map(s => s * scale) as Vec2;
     this.imageDirty();
+    this.requestUpdate();
+  }
+
+  private widthSlide(e: Event & { target: Slider }): void {
+    const width = e.target.value;
+    const size = this.mosaic.mosaicSize;
+    this.mosaic.mosaicSize = [width, size[1]];
+    this.imageDirty();
+    this.requestUpdate();
+  }
+
+  private heightSlide(e: Event & { target: Slider }): void {
+    const height = e.target.value;
+    const size = this.mosaic.mosaicSize;
+    this.mosaic.mosaicSize = [size[0], height];
+    this.imageDirty();
+    this.requestUpdate();
   }
 
   private spacingSlide(e: Event): void {
@@ -89,7 +110,23 @@ class MosaicSettings extends LitElement {
           label="tile size"
           @input=${this.sizeSlide}
           min="1"
+          value=${Math.max(...this.mosaic.mosaicSize)}
+          max="100">
+        </sp-slider>
+        <sp-slider
+          label="tile width"
+          @input=${this.widthSlide}
+          min="1"
           value=${this.mosaic.mosaicSize[0]}
+          step="1"
+          max="100">
+        </sp-slider>
+        <sp-slider
+          label="tile height "
+          @input=${this.heightSlide}
+          min="1"
+          value=${this.mosaic.mosaicSize[1]}
+          step="1"
           max="100">
         </sp-slider>
         <sp-slider
