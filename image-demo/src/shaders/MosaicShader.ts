@@ -35,13 +35,15 @@ export interface MosaicShaderArgs {
   backgroundColor?: CanBeReactive<Vec4>;
   srcSize?: CanBeReactive<Vec2>;
   mosaicShape?: CanBeReactive<MosaicShape>;
+  rowOffset?: CanBeReactive<number>;
 }
 
 const defaults: Partial<MosaicShaderArgs> = {
   mosaicShape: "square",
-  mosaicSize: [5, 5],
+  mosaicSize: [18, 12],
   backgroundColor: [0.1, 0.3, 0.4, 1],
-  spacing: [0, 0],
+  spacing: [0.5, 0.5],
+  rowOffset: 10,
 };
 
 const placeholderSize: Vec2 = [50, 50];
@@ -59,6 +61,7 @@ export class MosaicShader extends HasReactive implements ShaderComponent {
   @reactively({ equals: deepEqual }) backgroundColor!: Vec4;
   @reactively({ equals: deepEqual }) srcSize!: Vec2;
   @reactively mosaicShape!: MosaicShape;
+  @reactively rowOffset!: number;
 
   private usageContext = trackContext();
 
@@ -209,11 +212,17 @@ export class MosaicShader extends HasReactive implements ShaderComponent {
     const halfDx = dx / 2;
     const halfDy = dy / 2;
 
+    const rowOffsetNdc = (this.rowOffset * 2) / width;
     const xStart = -1 + sizeXndc / 2 + spaceYndc;
     const yStart = -1 + sizeYndc / 2 + spaceXndc;
+    let rowStart = xStart;
     for (let y = yStart; y < 1 + halfDy; y += dy) {
-      for (let x = xStart; x < 1 + halfDx; x += dx) {
+      for (let x = rowStart; x < 1 + halfDx; x += dx) {
         spots.push([x, y]);
+      }
+      rowStart -= rowOffsetNdc;
+      if (rowStart < xStart - sizeXndc) {
+        rowStart = xStart;
       }
     }
     return spots;

@@ -54,6 +54,11 @@ class MosaicSettings extends LitElement {
     this.requestUpdate();
   }
 
+  private rowOffsetSlide(e: Event & { target: Slider }): void {
+    this.mosaic.rowOffset = e.target.value;
+    this.imageDirty();
+  }
+
   private spacingSlide(e: Event): void {
     const spacing = (e.target as Slider).value;
     this.mosaic.spacing = [spacing, spacing];
@@ -107,14 +112,14 @@ class MosaicSettings extends LitElement {
           <sp-menu-item value="circle">circle</sp-menu-item>
         </sp-picker>
         <sp-slider
-          label="tile size"
+          label="size"
           @input=${this.sizeSlide}
           min="1"
           value=${Math.max(...this.mosaic.mosaicSize)}
           max="100">
         </sp-slider>
         <sp-slider
-          label="tile width"
+          label="width"
           @input=${this.widthSlide}
           min="1"
           value=${this.mosaic.mosaicSize[0]}
@@ -122,7 +127,7 @@ class MosaicSettings extends LitElement {
           max="100">
         </sp-slider>
         <sp-slider
-          label="tile height "
+          label="height "
           @input=${this.heightSlide}
           min="1"
           value=${this.mosaic.mosaicSize[1]}
@@ -130,7 +135,15 @@ class MosaicSettings extends LitElement {
           max="100">
         </sp-slider>
         <sp-slider
-          label="tile spacing"
+          label="row offset"
+          @input=${this.rowOffsetSlide}
+          min="0"
+          value=${this.mosaic.rowOffset}
+          max="50"
+          step="1">
+        </sp-slider>
+        <sp-slider
+          label="spacing"
           @input=${this.spacingSlide}
           min="-10"
           value=${this.mosaic.spacing[0]}
