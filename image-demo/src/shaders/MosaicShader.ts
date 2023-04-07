@@ -1,5 +1,5 @@
 import { HasReactive, reactively } from "@reactively/decorate";
-import { dlog, dsert } from "berry-pretty";
+import { dsert } from "berry-pretty";
 import deepEqual from "fast-deep-equal";
 import {
   assignParams,
@@ -98,19 +98,25 @@ export class MosaicShader extends HasReactive implements ShaderComponent {
   }
 
   @reactively private get pipeline(): GPURenderPipeline {
-    let renderShape: RenderShape;
-    if (this.mosaicShape === "circle" && this.spacing[0] >= 0 && this.spacing[1] >= 0) {
-      renderShape = "circle";
-    } else {
-      renderShape = "polygon";
-    }
-
     return mosaicPipeline({
       device: this.device,
-      destFormat: this.destTexture.format,
+      destFormat: this.destFormat,
       srcTextureType: this.srcTextureType,
-      renderShape,
+      renderShape: this.renderShape,
     });
+  }
+
+  @reactively private get destFormat(): GPUTextureFormat {
+    return this.destTexture.format;
+  }
+
+  @reactively private get renderShape(): RenderShape {
+    const spacing = this.spacing;
+    if (this.mosaicShape === "circle" && spacing[0] >= 0 && spacing[1] >= 0) {
+      return "circle";
+    } else {
+      return "polygon";
+    }
   }
 
   @reactively private get srcTextureType(): SampledTextureType2D {
@@ -153,12 +159,16 @@ export class MosaicShader extends HasReactive implements ShaderComponent {
   /** scale the shape to the requested size
    * returns verts in NDC coords [-1,1] */
   @reactively private get shapeVerts(): number[] {
-    const { width, height } = this.destTexture;
-    const scaledVertsNDC = this.rawVerts.map(([x, y]) => [
-      (x * this.mosaicSize[0]) / width,
-      (y * this.mosaicSize[1]) / height,
-    ]);
+    const window = this.destSize;
+    const [xt, yt] = this.mosaicSize.map((tile, i) => tile / window[i]);
+
+    const scaledVertsNDC = this.rawVerts.map(([x, y]) => [x * xt, y * yt]);
     return scaledVertsNDC.flat();
+  }
+
+  @reactively({ equals: deepEqual }) private get destSize(): Vec2 {
+    const { width, height } = this.destTexture;
+    return [width, height];
   }
 
   @reactively private get rawVerts(): Vec2[] {
@@ -179,13 +189,14 @@ export class MosaicShader extends HasReactive implements ShaderComponent {
 
   @reactively private get positionsBuffer(): GPUBuffer {
     const usage = GPUBufferUsage.VERTEX;
+    const positions = this.tilePositions;
     const buffer = this.device.createBuffer({
       label: "mosaic-positions",
-      size: this.tilePositions.length * Float32Array.BYTES_PER_ELEMENT * 2,
+      size: positions.length * Float32Array.BYTES_PER_ELEMENT * 2,
       usage,
       mappedAtCreation: true,
     });
-    new Float32Array(buffer.getMappedRange()).set(this.tilePositions.flat());
+    new Float32Array(buffer.getMappedRange()).set(positions.flat());
     buffer.unmap();
     reactiveTrackUse(buffer, this.usageContext);
     return buffer;
@@ -196,7 +207,7 @@ export class MosaicShader extends HasReactive implements ShaderComponent {
    * return center of shapes in NDC coords [-1,1] */
   @reactively private get tilePositions(): Vec2[] {
     const spots: Vec2[] = [];
-    const { width, height } = this.destTexture;
+    const [width, height] = this.destSize;
     const [sizeX, sizeY] = this.mosaicSize;
     const [spaceX, spaceY] = this.spacing;
 
