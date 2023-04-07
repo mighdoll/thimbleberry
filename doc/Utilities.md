@@ -43,7 +43,7 @@ to record a few values from within the wgsl, and then log them with `printBuffer
 
 [shadercomponent]: ../src/shader-util/ShaderComponent.ts
 
-The `ShaderComponent` is a start towards making shaders more modular: [ShaderComponent][].
+The `ShaderComponent` is a start towards making shaders more modular: [ShaderComponent].
 Simply implement the `encodeCommands()` function and then multiple shaders can be dispatched together in a `ShaderGroup`.
 
 I'm interested in evolving `ShaderComponent` to support richer api options.
@@ -65,8 +65,8 @@ I expect we'll find more generic ways to stitch together modular shaders over ti
 The current generation of fine grained reactive (signal) libraries in web
 frameworks offers several features that are useful for using the WebGPU API: 
 dependency tracking, caching, and lazy recalculation.
-I've been using [Reactively][], a small, fast and standalone reactive library.
-Using Reactively's [decorate][] library,
+I've been using [Reactively], a small, fast and standalone reactive library.
+Using Reactively's [decorate] library,
 you can mark a property, getter, or method `@reactively`.
 Simply marking a property `@reactively` makes that property lazy and cached. 
 It also turns on dependency tracking.
@@ -85,7 +85,7 @@ the shader wrapper will automatically allocate a larger GPUTexture.
 The lazy recalculation feature is useful even for methods that don't return a value.
 For example, I typically mark `@reactively` on a `writeUniforms(): void` 
 method that copies over uniforms data from the CPU to the GPU. 
-If the source data hasn't changed, [Reactively][] will automatically skip the copy.
+If the source data hasn't changed, [Reactively] will automatically skip the copy.
 
 #### Reactively tips
 To make dependency tracking work, note that it's important to 
@@ -111,7 +111,7 @@ without making the programmer rewrite the entire shader.
 
 There are many javascript/typescript string templating systems,
 but they conflict with syntax aware editing for WGSL.
-And there is already at least one promising WGSL editor for vscode: [wgsl-analzyer][].
+And there is already at least one promising WGSL editor for vscode: [wgsl-analzyer].
 It offers type hints, formatting, typechecking, etc.
 
 Thimbleberry offers a simple templating system that's designed to fit inside WGSL comments
@@ -191,8 +191,8 @@ After initialization, accessing the api through the global `gpuTiming` variable 
 Thimbleberry offers two methods of capturing GPU timing,
 fronting the two APIs available in WebGPU.
 
-- `gpuTiming?.timestampWrites()` - returns part of the descriptor to [beginRenderPass][] or
-  [beginComputePass][] to time a render or compute pass.
+- `gpuTiming?.timestampWrites()` - returns part of the descriptor to [beginRenderPass] or
+  [beginComputePass] to time a render or compute pass.
 
   Here's an example:
 
@@ -270,9 +270,9 @@ Thimbleberry includes some useful examples and utilities for Cypress tests.
 - The [debug](#debug-logging--testing) functions like `withTextureCopy()` are purpose built for debugging and testing.
 - Convenience routines in [component-test/util][component-test-util]
   such as `makeTexture()`, `sequenceTexture()`, `makeBuffer()` are useful for setting up test scenarios.
-- Take note of the configuration in [cypress.config.ts][], e.g. for setting browser command line arguments.
+- Take note of the configuration in [cypress.config.ts], e.g. for setting browser command line arguments.
 
-For examples, take a look at [Mosaic.cy.ts][mosaic-cy] or the other tests in [component-test][].
+For examples, take a look at [Mosaic.cy.ts][mosaic-cy] or the other tests in [component-test].
 
 Shader development and debugging is more difficult than typical web programming.
 I've found it useful to develop shaders incrementally from small test examples.
