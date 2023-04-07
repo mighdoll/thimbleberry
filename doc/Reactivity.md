@@ -217,12 +217,8 @@ and that `vertexBuffer` depends on `shapeVerts`.
 That is, just from the `@reactively` annotations, 
 [Reactively] detects the dependency relationships:
 
-```mermaid
-graph TD
-  mosaicSize --> shapeVerts --> vertexBuffer
-  destSize --> shapeVerts
-  rawVerts --> shapeVerts
-```
+<img width="465" alt="image" src="https://user-images.githubusercontent.com/63816/230543686-469f61a5-0b61-4d2a-b1df-8b8318250fdb.png">
+
 
 ### Lazy Recalculation
 When the user changes the tile size in the control panel, 
@@ -231,16 +227,8 @@ When the application next asks for `vertexBuffer`,
 [Reactively] will automatically re-execute the function 
 bodies of `shapeVerts` and `vertexBuffer`.
 
-```mermaid
-graph TD
-  mosaicSize ==> shapeVerts ==> vertexBuffer
-  destSize --> shapeVerts
-  rawVerts --> shapeVerts
+<img width="466" alt="image" src="https://user-images.githubusercontent.com/63816/230543818-0b75c946-db7e-4fd8-9b9b-d0460778d19b.png">
 
-  style mosaicSize fill:yellow
-  style shapeVerts fill:orange
-  style vertexBuffer fill:orange
-```
 
 ### Resource Cleanup
 After we create a new buffer for newly changed vertices, what happens to the old GPUBuffer? 
@@ -321,40 +309,7 @@ we don't need to write and maintain separate logic for dirty checking,
 and eager resource destruction is easier to manage.
 
 Here's a more complete look at the dependencies in the Mosaic shader:
-
-```mermaid
-graph TD
-    shapeVerts --> vertexBuffer
-    mosaicShape -----> updateUniforms
-    mosaicShape --> renderShape
-    mosaicSize --> shapeVerts
-    destSize --> shapeVerts
-    destTexture --> destSize
-    rawVerts --> shapeVerts
-    mosaicShape --> rawVerts
-    circleRadius --> rawVerts
-    mosaicSize --> circleRadius
-    backgroundColor -----> updateUniforms
-    circleRadius ----> updateUniforms
-    uniforms --> updateUniforms
-    tilePositions --> positionsBuffer
-    destSize --> tilePositions
-    mosaicSize --> tilePositions
-    spacing ----> tilePositions
-    rowOffset ----> tilePositions
-    srcTexture --> bindGroup
-    pipeline --> bindGroup
-    destFormat --> pipeline
-    destTexture ---> destFormat
-    srcTextureType --> pipeline
-    srcTexture ---> srcTextureType
-    renderShape --> pipeline
-    spacing --> renderShape
-    uniforms --> bindGroup
-    debugBuffer --> bindGroup
-    destTexture -----> colorAttachments
-    backgroundColor -----> colorAttachments
-```
+<img width="1338" alt="image" src="https://user-images.githubusercontent.com/63816/230544196-a0b69a85-8c67-47e7-b563-32d08d601d91.png">
 
 We could work out the logic to update the GPU resources 
 and write the update code manually, 
