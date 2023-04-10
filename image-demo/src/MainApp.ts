@@ -37,7 +37,6 @@ export class MainApp extends ReactiveLitElement {
       appState.gpuDevice = device;
       const { transformFrame } = setupImagePlugins();
       new ImageProcessing(transformFrame);
-      // this.tray = tray;
     } else {
       appState.gpuUnavailable = true;
     }
