@@ -38,3 +38,7 @@ Uses reduce-buffer internally for larger textures.
 - [prefix-scan](./src/prefix-scan/) - Useful for many purposes including radix sorts and histogram equalization.
 (Also called prefix sum or parallel scan.) 
 - [convert-texture](./src/convert-texture/) - Template based conversion, e.g. for converting RGB to HSV.
+
+**Blog Posts**
+
+- [Reactive WebGPU](https://dev.to/mighdoll/reactive-webgpu-52h0)
