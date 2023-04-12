@@ -9,6 +9,7 @@ export default defineConfig({
       viteConfig: {
         plugins: [tsconfigPaths()],
       },
+      // experimentalRunAllSpecs: true, // NYI https://github.com/cypress-io/cypress/issues/25636
     },
     setupNodeEvents(on: Cypress.PluginEvents) {
       on("before:browser:launch", (browser: Cypress.Browser, launchOptions) => {
@@ -21,6 +22,5 @@ export default defineConfig({
       });
     },
     supportFile: false,
-    // experimentalRunAllSpecs: true,
   },
 });
