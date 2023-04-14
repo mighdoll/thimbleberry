@@ -31,9 +31,9 @@ struct Output {
 @group(0) @binding(3) var<storage, read_write> blockSum: array<Output>;   // output block sums //! IF blockSums
 @group(0) @binding(11) var<storage, read_write> debug: array<f32>;     // buffer to hold debug values
 
-let workgroupSizeX = 4u;      //! let="const" 4=workgroupSizeX
+const workgroupSizeX = 4u;      //! 4=workgroupSizeX
 
-let srcElems = workgroupSizeX * 2u; //! let="const" 
+const srcElems = workgroupSizeX * 2u; 
 
 // doubled buffered intermediate sums
 var <workgroup> bankA: array<Output, workgroupSizeX>; 
