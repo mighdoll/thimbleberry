@@ -26,10 +26,10 @@ struct Output {
     sum: u32,  //! "sum: u32,"=outputStruct 
 }
 
-@group(0) @binding(1) var<storage, read> src: array<Input>;              // input source values
+@group(0) @binding(1) var<storage, read> src: array<Input>;               // input source values
 @group(0) @binding(2) var<storage, read_write> prefixScan: array<Output>; // output prefix scan
 @group(0) @binding(3) var<storage, read_write> blockSum: array<Output>;   // output block sums //! IF blockSums
-@group(0) @binding(11) var<storage, read_write> debug: array<f32>;     // buffer to hold debug values
+@group(0) @binding(11) var<storage, read_write> debug: array<f32>;        // buffer to hold debug values
 
 const workgroupSizeX = 4u;      //! 4=workgroupSizeX
 
@@ -49,12 +49,6 @@ fn workgroupPrefixScan(
     sumSrcLayer(localGrid.x, grid.x);
     let aIn = sumMiddleLayers(localGrid.x);
     sumFinalLayer(localGrid.x, grid.x, workGrid.x, aIn);
-
-    // if (grid.x == 0u) {
-    //     for (var i = 0u; i < workgroupSizeX; i++) {
-    //         debug[i] = f32(bankB[i]);
-    //     }
-    // }
 }
 
 
