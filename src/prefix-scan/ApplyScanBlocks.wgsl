@@ -7,7 +7,7 @@ struct Output {
 @group(0) @binding(4) var<storage, read_write> prefixScan: array<Output>; // output prefix scan
 @group(0) @binding(11) var<storage, read_write> debug: array<f32>;     // buffer to hold debug values
 
-let workgroupSizeX = 4u;      //! let="const" 4=workgroupSizeX
+const workgroupSizeX = 4u;      //! 4=workgroupSizeX
 
 // apply block sums to partial scan results
 @compute
