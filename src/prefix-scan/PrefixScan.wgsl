@@ -36,15 +36,15 @@ const workgroupSizeX = 4u;      //! 4=workgroupSizeX
 const srcElems = workgroupSizeX * 2u; 
 
 // doubled buffered intermediate sums
-var <workgroup> bankA: array<Output, workgroupSizeX>; 
-var <workgroup> bankB: array<Output, workgroupSizeX>; 
+var <workgroup> bankA: array<Output, workgroupSizeX>;  
+var <workgroup> bankB: array<Output, workgroupSizeX>; // TODO: should only need size / 2 
 
 @compute
 @workgroup_size(workgroupSizeX, 1, 1) 
 fn workgroupPrefixScan(
     @builtin(global_invocation_id) grid: vec3<u32>,
-    @builtin(local_invocation_id) localGrid: vec3<u32>, // coords inside the this workgroup
-    @builtin(workgroup_id) workGrid: vec3<u32>, // coords of the this workgroup 
+    @builtin(local_invocation_id) localGrid: vec3<u32>, 
+    @builtin(workgroup_id) workGrid: vec3<u32>, 
 ) {
     sumSrcLayer(localGrid.x, grid.x);
     let aIn = sumMiddleLayers(localGrid.x);
@@ -74,7 +74,7 @@ fn sumMiddleLayers(localX: u32) -> bool {
     var aIn = true;
     for (var offset = 2u; offset <= lastMiddle; offset <<= 1u) {
         if (aIn) {
-            sumAtoB(localX, offset);
+            sumAtoB(localX, offset); // CONSIDER is there wgsl way to DRY these, perhaps refs to bankA vs bankB?
         } else {
             sumBtoA(localX, offset);
         }
