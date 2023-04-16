@@ -5,9 +5,9 @@ import { gpuTiming } from "../shader-util/GpuPerf";
 import { limitWorkgroupLength } from "../shader-util/LimitWorkgroupLength";
 import { MemoCache } from "../shader-util/MemoMemo";
 import {
-  assignParams,
   CanBeReactive,
-  reactiveTrackUse
+  assignParams,
+  reactiveTrackUse,
 } from "../shader-util/ReactiveUtil";
 import { ShaderComponent } from "../shader-util/ShaderComponent";
 import { trackContext } from "../shader-util/TrackUse";
@@ -27,18 +27,18 @@ const defaults: Partial<PrefixScanParams> = {
   emitBlockSums: true,
   pipelineCache: undefined,
   label: "prefix scan",
-  reduceTemplate: sumTemplateUnsigned
+  reduceTemplate: sumTemplateUnsigned,
 };
 
-/** 
- * Prefix scan operation on workgroup sized blocks of data. 
- * 
+/**
+ * Prefix scan operation on workgroup sized blocks of data.
+ *
  * Internally allocates an output buffer for the prefix scan results.
  * The output buffer will be the same dimensions as the input buffer.
- * 
+ *
  * Optionally allocates a block level summary buffer, containing
  * one summariy entry per input block.
-*/
+ */
 export class PrefixScanShader extends HasReactive implements ShaderComponent {
   @reactively source!: GPUBuffer;
   @reactively workgroupLength?: number;
@@ -70,7 +70,7 @@ export class PrefixScanShader extends HasReactive implements ShaderComponent {
   }
 
   @reactively private get dispatchSize(): number {
-    const sourceElems = this.source.size / Uint32Array.BYTES_PER_ELEMENT;
+    const sourceElems = this.sourceSize / Uint32Array.BYTES_PER_ELEMENT;
     const dispatchSize = Math.ceil(sourceElems / this.actualWorkgroupLength);
     return dispatchSize;
   }
@@ -81,7 +81,7 @@ export class PrefixScanShader extends HasReactive implements ShaderComponent {
         device: this.device,
         workgroupSize: this.actualWorkgroupLength,
         blockSums: this.emitBlockSums,
-        reduceTemplate: this.reduceTemplate
+        reduceTemplate: this.reduceTemplate,
       },
       this.pipelineCache
     );
@@ -100,16 +100,20 @@ export class PrefixScanShader extends HasReactive implements ShaderComponent {
         { binding: 1, resource: { buffer: this.source } },
         { binding: 2, resource: { buffer: this.prefixScan } },
         ...blockSumsEntry,
-        { binding: 11, resource: { buffer: this.debugBuffer } }
-      ]
+        { binding: 11, resource: { buffer: this.debugBuffer } },
+      ],
     });
+  }
+
+  @reactively get sourceSize(): number {
+    return this.source.size;
   }
 
   @reactively get prefixScan(): GPUBuffer {
     const buffer = this.device.createBuffer({
       label: `prefix scan ${this.label}`,
-      size: this.source.size,
-      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC
+      size: this.sourceSize,
+      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
     });
     reactiveTrackUse(buffer, this.usageContext);
     return buffer;
@@ -120,7 +124,7 @@ export class PrefixScanShader extends HasReactive implements ShaderComponent {
     const buffer = this.device.createBuffer({
       label: `prefix scan block sums ${this.label}`,
       size: this.dispatchSize * Uint32Array.BYTES_PER_ELEMENT,
-      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC
+      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
     });
     reactiveTrackUse(buffer, this.usageContext);
     return buffer;

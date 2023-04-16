@@ -54,8 +54,12 @@ export class ApplyScanBlocksShader extends HasReactive implements ShaderComponen
     this.usageContext.finish();
   }
 
+  @reactively private get partialScanSize():number {
+    return this.partialScan.size;
+  } 
+
   @reactively private get dispatchSize(): number {
-    const sourceElems = this.partialScan.size / Uint32Array.BYTES_PER_ELEMENT;
+    const sourceElems = this.partialScanSize / Uint32Array.BYTES_PER_ELEMENT;
     const dispatchSize = Math.ceil(sourceElems / this.workgroupLength);
     return dispatchSize;
   }
@@ -87,7 +91,7 @@ export class ApplyScanBlocksShader extends HasReactive implements ShaderComponen
   @reactively get prefixScan(): GPUBuffer {
     const buffer = this.device.createBuffer({
       label: `prefix scan ${this.label}`,
-      size: this.partialScan.size,
+      size: this.partialScanSize,
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC
     });
     reactiveTrackUse(buffer, this.usageContext);

@@ -96,7 +96,7 @@ export class ScanSequence extends HasReactive implements ShaderComponent {
   }
 
   @reactively get blockScans(): PrefixScanShader[] {
-    const sourceElements = this.source.size / Uint32Array.BYTES_PER_ELEMENT;
+    const sourceElements = this.sourceSize / Uint32Array.BYTES_PER_ELEMENT;
     const wl = this.actualWorkgroupLength;
     const shaders: PrefixScanShader[] = [];
 
@@ -122,8 +122,12 @@ export class ScanSequence extends HasReactive implements ShaderComponent {
     return shaders;
   }
 
+  @reactively get sourceSize():number {
+    return this.source.size;
+  }
+
   @reactively get fitsInWorkGroup(): boolean {
-    const sourceElems = this.source.size / Uint32Array.BYTES_PER_ELEMENT;
+    const sourceElems = this.sourceSize / Uint32Array.BYTES_PER_ELEMENT;
     return sourceElems <= this.sourceScan.actualWorkgroupLength;
   }
 
