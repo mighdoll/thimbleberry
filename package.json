@@ -1,11 +1,11 @@
 {
   "name": "thimbleberry",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "",
   "type": "module",
   "scripts": {
     "prepublish": "rimraf dist && pnpm run build && pnpm run build:types",
-    "build": "esbuild src/*/*.ts --format=esm --loader:.wgsl=text --sourcemap --outdir=dist",
+    "build": "esbuild src/**/*.ts src/*.ts --format=esm --loader:.wgsl=text --sourcemap --outdir=dist",
     "build:types": "tsc --project tsconfig.build.json",
     "test": "vitest",
     "cypress-component": "cypress open --component --browser chrome:canary",
