@@ -1,5 +1,6 @@
-import { mapN, partitionBySize } from "thimbleberry/shader-util";
-import { Vec2 } from "./Vec";
+import { mapN } from "./MapN.js";
+import { partitionBySize } from "./Sliceable.js";
+import { Vec2 } from "./Vec.js";
 
 /** a circle with vertices between [-1,1] centered at 0,0 */
 export function circleVerts(n: number): Vec2[] {
