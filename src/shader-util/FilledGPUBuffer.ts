@@ -10,7 +10,9 @@ export interface HasSet {
 export function filledGPUBuffer(
   device: GPUDevice,
   data: number[],
-  usage: GPUBufferUsageFlags,
+  usage: GPUBufferUsageFlags = GPUBufferUsage.COPY_SRC |
+    GPUBufferUsage.COPY_DST |
+    GPUBufferUsage.STORAGE,
   label?: string,
   ArrayConstructor: ConstructArray = Float32Array
 ): GPUBuffer {
@@ -18,7 +20,7 @@ export function filledGPUBuffer(
     label,
     size: data.length * ArrayConstructor.BYTES_PER_ELEMENT,
     usage,
-    mappedAtCreation: true
+    mappedAtCreation: true,
   });
   new ArrayConstructor(buffer.getMappedRange()).set(data);
   buffer.unmap();
