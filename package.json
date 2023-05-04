@@ -14,20 +14,8 @@
     "lint": "eslint ."
   },
   "repository": "github:mighdoll/thimbleberry",
-  "exports": {
-    "./*": {
-      "import": "./dist/*/index.js",
-      "module": "./dist/*/index.js",
-      "main": "./dist/*/index.js"
-    }
-  },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "dist/*/index.d.ts"
-      ]
-    }
-  },
+  "main": "./dist/thimbleberry.js",
+  "module": "./dist/thimbleberry.js",
   "files": [
     "dist"
   ],
