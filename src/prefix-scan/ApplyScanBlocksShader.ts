@@ -40,7 +40,7 @@ export class ApplyScanBlocksShader extends HasReactive implements ShaderComponen
     this.reduceTemplate = params.reduceTemplate || sumTemplateUnsigned;
   }
 
-  encodeCommands(commandEncoder: GPUCommandEncoder): void {
+  commands(commandEncoder: GPUCommandEncoder): void {
     const timestampWrites = gpuTiming?.timestampWrites(this.label) ?? [];
     const passEncoder = commandEncoder.beginComputePass({ timestampWrites });
     passEncoder.label = this.label;

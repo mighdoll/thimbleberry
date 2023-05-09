@@ -56,7 +56,7 @@ export class TextureReduceShader extends HasReactive implements ShaderComponent 
     assignParams<TextureReduceShader>(this, params, defaults);
   }
 
-  encodeCommands(commandEncoder: GPUCommandEncoder): void {
+  commands(commandEncoder: GPUCommandEncoder): void {
     const { dispatchSize } = this;
 
     const timestampWrites = gpuTiming?.timestampWrites("reduceTexture") ?? [];

@@ -61,8 +61,8 @@ export class ScanSequence extends HasReactive implements ShaderComponent {
     assignParams<ScanSequence>(this, args, defaults);
   }
 
-  encodeCommands(commandEncoder: GPUCommandEncoder): void {
-    this.shaders.forEach(s => s.encodeCommands(commandEncoder));
+  commands(commandEncoder: GPUCommandEncoder): void {
+    this.shaders.forEach(s => s.commands(commandEncoder));
   }
 
   destroy(): void {

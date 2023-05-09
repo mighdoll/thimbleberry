@@ -80,7 +80,7 @@ export class MosaicShader extends HasReactive implements ShaderComponent {
     this.usageContext.finish();
   }
 
-  encodeCommands(commandEncoder: GPUCommandEncoder): void {
+  commands(commandEncoder: GPUCommandEncoder): void {
     this.updateUniforms();
     const timestampWrites = gpuTiming?.timestampWrites("mosaic");
     const passEncoder = commandEncoder.beginRenderPass({

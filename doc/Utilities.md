@@ -44,7 +44,7 @@ to record a few values from within the wgsl, and then log them with `printBuffer
 [shadercomponent]: ../src/shader-util/ShaderComponent.ts
 
 The `ShaderComponent` is a start towards making shaders more modular: [ShaderComponent].
-Simply implement the `encodeCommands()` function and then multiple shaders can be dispatched together in a `ShaderGroup`.
+Simply implement the `commands()` function and then multiple shaders can be dispatched together in a `ShaderGroup`.
 
 I'm interested in evolving `ShaderComponent` to support richer api options.
 Suggestions welcome.

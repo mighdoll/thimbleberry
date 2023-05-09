@@ -53,7 +53,7 @@ export class ConvertTextureShader extends HasReactive implements ShaderComponent
     assignParams<ConvertTextureShader>(this, params, defaults);
   }
 
-  encodeCommands(commandEncoder: GPUCommandEncoder): void {
+  commands(commandEncoder: GPUCommandEncoder): void {
     const timestampWrites = gpuTiming?.timestampWrites("convertTexture") ?? [];
     const passEncoder = commandEncoder.beginComputePass({ timestampWrites });
     passEncoder.label = "convertTexture pass";

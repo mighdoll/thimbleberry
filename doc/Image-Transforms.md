@@ -12,9 +12,9 @@ The Thimbleberry image demo application includes a simple [plugin api][] to add 
       - `.srcTexture`, `.srcSize`, and `.destTexture` as mutable properties. 
       Read the latest values of these properties when rendering,
       the app may change them with every frame.
-      - `.encodeCommands()` - implement this function to add the rendering commands for
+      - `.commands()` - implement this function to add the rendering commands for
       your shader to a provided `GPUCommandEncoder`.
-      The app will call `encodeCommands()` so your shader can participate in rendering each frame.
+      The app will call `commands()` so your shader can participate in rendering each frame.
     - Return your shader and its name.
 1. Edit the app's list of image transform plugins to include yours:
     ```

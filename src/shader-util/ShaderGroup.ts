@@ -18,7 +18,7 @@ export class ShaderGroup {
     const label = `frame ${frameNumber++}`;
     const stampRange = withTimestampGroup(label, () => {
       const commands = device.createCommandEncoder({ label });
-      this.shaders.forEach(s => s.encodeCommands(commands));
+      this.shaders.forEach(s => s.commands(commands));
       device.queue.submit([commands.finish()]);
     });
     return stampRange.span;

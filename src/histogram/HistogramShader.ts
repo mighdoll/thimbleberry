@@ -71,7 +71,7 @@ export class HistogramShader extends HasReactive implements ShaderComponent {
     assignParams<HistogramShader>(this, params, defaults);
   }
 
-  encodeCommands(commandEncoder: GPUCommandEncoder): void {
+  commands(commandEncoder: GPUCommandEncoder): void {
     const timestampWrites = gpuTiming?.timestampWrites("histogram") ?? [];
     this.updateUniforms();
     const passEncoder = commandEncoder.beginComputePass({ timestampWrites });

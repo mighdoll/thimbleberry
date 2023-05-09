@@ -60,7 +60,7 @@ export class BufferReduceShader extends HasReactive implements ShaderComponent {
     assignParams<BufferReduceShader>(this, params, defaults);
   }
 
-  encodeCommands(commandEncoder: GPUCommandEncoder): void {
+  commands(commandEncoder: GPUCommandEncoder): void {
     const bindGroup = this.bindGroup();
 
     const elems = this.source.size;

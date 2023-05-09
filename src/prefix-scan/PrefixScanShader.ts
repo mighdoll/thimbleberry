@@ -55,7 +55,7 @@ export class PrefixScanShader extends HasReactive implements ShaderComponent {
     assignParams<PrefixScanShader>(this, params, defaults);
   }
 
-  encodeCommands(commandEncoder: GPUCommandEncoder): void {
+  commands(commandEncoder: GPUCommandEncoder): void {
     const timestampWrites = gpuTiming?.timestampWrites(this.label) ?? [];
     const passEncoder = commandEncoder.beginComputePass({ timestampWrites });
     passEncoder.label = this.label;
