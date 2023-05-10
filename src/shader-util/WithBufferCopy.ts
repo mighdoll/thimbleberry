@@ -1,6 +1,10 @@
 import { Sliceable } from "./Sliceable";
 
-/** Run a function on the CPU over the copied contents of a gpu buffer.  */
+/** Run a function on the CPU over the copied contents of a gpu buffer.  
+ * 
+ * Note that it's normally required to copy a buffer to read it on the CPU
+ * because per spec a MAP_READ buffer cannot be a STORAGE buffer.
+*/
 export async function withBufferCopy<T>(
   device: GPUDevice,
   buffer: GPUBuffer,
