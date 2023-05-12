@@ -107,7 +107,7 @@ export class GpuTiming {
     };
 
     return {
-      end
+      end,
     };
   }
 
@@ -118,7 +118,7 @@ export class GpuTiming {
   mark(label: string, commands: GPUCommandEncoder): void {
     const markInfo: MarkInfo = {
       label,
-      stampDex: this.stampDex
+      stampDex: this.stampDex,
     };
     this.marks.push(markInfo);
     this.writeTimestamp(commands);
@@ -130,10 +130,11 @@ export class GpuTiming {
   timestampWrites(label: string): GPURenderPassTimestampWrites {
     const querySet = this.querySet;
     this.spans.push({ label, startDex: this.stampDex, endDex: this.stampDex + 1 });
-    return [
-      { querySet, queryIndex: this.stampDex++, location: "beginning" },
-      { querySet, queryIndex: this.stampDex++, location: "end" }
-    ];
+    return {
+      querySet,
+      beginningOfPassWriteIndex: this.stampDex++,
+      endOfPassWriteIndex: this.stampDex++,
+    };
   }
 
   /** fetch all results from the gpu and return a report */
@@ -166,7 +167,7 @@ export class GpuTiming {
 
     return {
       result,
-      span
+      span,
     };
   }
 
@@ -223,7 +224,7 @@ export class GpuTiming {
         start,
         label: s.label,
         _startDex: s.startDex,
-        _endDex: s.endDex!
+        _endDex: s.endDex!,
       };
     });
 
@@ -245,7 +246,7 @@ export class GpuTiming {
     const size = Float64Array.BYTES_PER_ELEMENT * querySet.count;
     const buffer = device.createBuffer({
       size,
-      usage: GPUBufferUsage.QUERY_RESOLVE | GPUBufferUsage.COPY_SRC
+      usage: GPUBufferUsage.QUERY_RESOLVE | GPUBufferUsage.COPY_SRC,
     });
     trackUse(querySet);
     return buffer;
@@ -256,7 +257,7 @@ export class GpuTiming {
     const querySet = this.device.createQuerySet({
       type: "timestamp",
       count: this.capacity,
-      label: "gpuTiming"
+      label: "gpuTiming",
     });
     trackUse(querySet);
     return querySet;
@@ -310,7 +311,7 @@ export function withTimestampGroup<T>(
     return gpuTiming.withGroup(label, fn);
   } else {
     return {
-      result: fn()
+      result: fn(),
     };
   }
 }

@@ -59,7 +59,7 @@ export class TextureReduceShader extends HasReactive implements ShaderComponent 
   commands(commandEncoder: GPUCommandEncoder): void {
     const { dispatchSize } = this;
 
-    const timestampWrites = gpuTiming?.timestampWrites("reduceTexture") ?? [];
+    const timestampWrites = gpuTiming?.timestampWrites("reduceTexture"); 
     const passEncoder = commandEncoder.beginComputePass({ timestampWrites });
     passEncoder.label = "textureReduce pass";
     passEncoder.setPipeline(this.pipeline());

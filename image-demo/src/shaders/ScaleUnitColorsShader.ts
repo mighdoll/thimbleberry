@@ -48,7 +48,7 @@ export class ScaleUnitColorsShader extends HasReactive implements ShaderComponen
   }
 
   commands(commandEncoder: GPUCommandEncoder): void {
-    const timestampWrites = gpuTiming?.timestampWrites("scaleUnitColors") ?? [];
+    const timestampWrites = gpuTiming?.timestampWrites("scaleUnitColors");
     const verts = fullFrameVertexBuffer({ device: this.device });
 
     const passEncoder = commandEncoder.beginRenderPass({

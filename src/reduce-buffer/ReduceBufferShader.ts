@@ -65,10 +65,8 @@ export class BufferReduceShader extends HasReactive implements ShaderComponent {
 
     const elems = this.source.size;
     const label = `bufferReduce ${elems}`;
-    const timestampWrites = gpuTiming?.timestampWrites(label) ?? [];
-    const passEncoder = commandEncoder.beginComputePass({
-      timestampWrites
-    });
+    const timestampWrites = gpuTiming?.timestampWrites(label);
+    const passEncoder = commandEncoder.beginComputePass({ timestampWrites });
     passEncoder.label = label;
     passEncoder.setPipeline(this.pipeline());
     passEncoder.setBindGroup(0, bindGroup);
