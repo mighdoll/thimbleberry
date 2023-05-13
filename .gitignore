@@ -13,3 +13,7 @@ dist
 # IDE
 .vscode/
 .VSCodeCounter/
+
+# yalc
+.yalc
+yalc.lock
