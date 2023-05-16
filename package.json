@@ -7,6 +7,7 @@
     "prepublish": "rimraf dist && pnpm run build && pnpm run build:types",
     "build": "esbuild src/thimbleberry.ts --bundle --format=esm  --packages=external --loader:.wgsl=text --sourcemap --outdir=dist",
     "build:types": "tsc --project tsconfig.build.json",
+    "demo": "cd image-demo && pnpm demo",
     "test": "vitest",
     "cypress-component": "cypress open --component --browser chrome:canary",
     "organize": "organize-imports-cli tsconfig.json",
