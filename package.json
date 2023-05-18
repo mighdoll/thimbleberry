@@ -4,8 +4,9 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "prepublish": "rimraf dist && pnpm run build && pnpm run build:types",
-    "build": "esbuild src/shader-util/index.ts --bundle --format=esm  --packages=external --loader:.wgsl=text --sourcemap --outdir=dist",
+    "prepublish": "rimraf dist && pnpm run build && pnpm run build:shaders && pnpm run build:types",
+    "build": "esbuild src/shader-util/index.ts --bundle --format=esm  --packages=external --loader:.wgsl=text --sourcemap --outfile=dist/thimbleberry.js",
+    "build:shaders": "esbuild src/shaders/index.ts --bundle --format=esm  --packages=external --loader:.wgsl=text --sourcemap --outfile=dist/shaders.js",
     "build:types": "tsc --project tsconfig.build.json",
     "demo": "cd image-demo && pnpm demo",
     "test": "vitest",
@@ -15,8 +16,20 @@
     "lint": "eslint ."
   },
   "repository": "github:mighdoll/thimbleberry",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
+  "main": "./dist/thimbleberry.js",
+  "module": "./dist/thimbleberry.js",
+  "exports": {
+    ".": {
+      "module": "./dist/thimbleberry.js",
+      "import": "./dist/thimbleberry.js",
+      "types": "./dist/thimbleberry.d.ts"
+    },
+    "./shaders": {
+      "module": "./dist/shaders.js",
+      "import": "./dist/shaders.js",
+      "types": "./dist/shaders/index.d.ts"
+    }
+  },
   "files": [
     "dist"
   ],
