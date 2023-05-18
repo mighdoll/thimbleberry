@@ -1,5 +1,3 @@
-import { dwarn, pretty } from "berry-pretty";
-
 /**
  * A simple engine for writing templated wgsl shaders while keeping the wgsl
  * code valid for tools and IDE support (like wgsl-analyzer).
@@ -99,17 +97,15 @@ export function applyTemplate(wgsl: string, dict: { [key: string]: any }): strin
         if (revised.newSuffix) {
           return { ...revised, replacedKey: replaceValue ?? replaceKey };
         } else {
-          dwarn(`${lineNum}: could not find '${find}' in ${src}`);
+          console.error(`${lineNum}: could not find '${find}' in ${src}`);
         }
       } else {
-        dwarn(
-          `${lineNum}: could not find replacement for '${replaceKey}' in:\n${pretty(
-            dict
-          )}`
+        console.error(
+          `${lineNum}: could not find replacement for '${replaceKey}' in:\n${dict}`
         );
       }
     } else {
-      dwarn(`${lineNum}: could not parse rule: ${patch}`);
+      console.error(`${lineNum}: could not parse rule: ${patch}`);
     }
     return { prefix: src, newSuffix: undefined };
   }
