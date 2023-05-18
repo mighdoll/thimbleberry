@@ -26,3 +26,48 @@ export function filledGPUBuffer(
   buffer.unmap();
   return buffer;
 }
+
+/** create a gpu buffer with integer data (handy for testing) */
+export function bufferI32(
+  device: GPUDevice,
+  data: number[],
+  label = "bufferI32"
+): GPUBuffer {
+  return filledGPUBuffer(
+    device,
+    data,
+    GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST | GPUBufferUsage.STORAGE,
+    label,
+    Int32Array
+  );
+}
+
+/** create a gpu buffer with unsigned integer data (handy for testing) */
+export function bufferU32(
+  device: GPUDevice,
+  data: number[],
+  label = "bufferU32"
+): GPUBuffer {
+  return filledGPUBuffer(
+    device,
+    data,
+    GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST | GPUBufferUsage.STORAGE,
+    label,
+    Uint32Array
+  );
+}
+
+/** create a gpu buffer with float data (handy for testing) */
+export function bufferF32(
+  device: GPUDevice,
+  data: number[],
+  label = "bufferF32"
+): GPUBuffer {
+  return filledGPUBuffer(
+    device,
+    data,
+    GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST | GPUBufferUsage.STORAGE,
+    label,
+    Float32Array
+  );
+}
