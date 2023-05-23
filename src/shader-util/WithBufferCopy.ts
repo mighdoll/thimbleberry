@@ -1,20 +1,22 @@
 import { Sliceable } from "./Sliceable";
 
-/** Run a function on the CPU over the copied contents of a gpu buffer.  
- * 
+type ElementFormat = "f32" | "u8" | "u32" | "u64" | "i32" | "i8";
+
+/** Run a function on the CPU over the copied contents of a gpu buffer.
+ *
  * Note that it's normally required to copy a buffer to read it on the CPU
  * because per spec a MAP_READ buffer cannot be a STORAGE buffer.
-*/
+ */
 export async function withBufferCopy<T>(
   device: GPUDevice,
   buffer: GPUBuffer,
-  fmt: "f32" | "u8" | "u32" | "u64" | "i32" | "i8",
+  fmt: ElementFormat,
   fn: (data: Sliceable<number>) => T
 ): Promise<T> {
   const size = buffer.size;
   const copy = device.createBuffer({
     size,
-    usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST
+    usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST,
   });
   const commands = device.createCommandEncoder({});
   commands.copyBufferToBuffer(buffer, 0, copy, 0, size);
@@ -29,6 +31,15 @@ export async function withBufferCopy<T>(
     copy.unmap();
     copy.destroy();
   }
+}
+
+/** Copy a GPU buffer to an array of numbers on the CPU */
+export async function copyBuffer(
+  device: GPUDevice,
+  buffer: GPUBuffer,
+  fmt: ElementFormat = "u32"
+): Promise<number[]> {
+  return withBufferCopy(device, buffer, fmt, d => [...d]);
 }
 
 /** console.log the contents of gpu buffer */
