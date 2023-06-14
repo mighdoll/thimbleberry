@@ -9,7 +9,7 @@ import {
   ValueOrFn,
   reactiveTrackUse
 } from "../shader-util/ReactiveUtil";
-import { ShaderComponent } from "../shader-util/ShaderComponent";
+import { ShaderComponent } from "../shader-util/ComposableShader";
 import { nativeSampleType } from "../shader-util/TextureFormats";
 import { textureResource } from "../shader-util/TextureResource";
 import { trackContext } from "../shader-util/TrackUse";

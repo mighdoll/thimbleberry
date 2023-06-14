@@ -9,7 +9,7 @@ import {
   assignParams,
   reactiveTrackUse,
 } from "../shader-util/ReactiveUtil";
-import { ShaderComponent } from "../shader-util/ShaderComponent";
+import { ShaderComponent } from "../shader-util/ComposableShader";
 import { trackContext } from "../shader-util/TrackUse";
 import { getWorkgroupScanPipeline } from "./PrefixScanPipeline";
 

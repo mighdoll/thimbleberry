@@ -1,6 +1,7 @@
 export type MemoFn<V extends object> = (...args: any[]) => V;
 export type StringKeyFn = (...args: any[]) => string;
 
+/** API for pluggable cache */
 export interface Cache<V extends object> {
   get(key: string): V | undefined;
   set(key: string, value: V): void;

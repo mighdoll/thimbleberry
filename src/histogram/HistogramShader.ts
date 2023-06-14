@@ -14,7 +14,7 @@ import {
   ValueOrFn,
   reactiveTrackUse
 } from "../shader-util/ReactiveUtil";
-import { ShaderComponent } from "../shader-util/ShaderComponent";
+import { ShaderComponent } from "../shader-util/ComposableShader";
 import { trackContext } from "../shader-util/TrackUse";
 import { Vec2 } from "../shader-util/Vec";
 import { getHistogramPipeline } from "./HistogramPipeline";

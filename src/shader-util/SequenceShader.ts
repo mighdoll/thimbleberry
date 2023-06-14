@@ -1,5 +1,5 @@
 import { HasReactive } from "@reactively/decorate";
-import { ShaderComponent } from "./ShaderComponent.js";
+import { ShaderComponent } from "./ComposableShader.js";
 
 /** A sequence of shaders exposed as a single ShaderComponent */
 export abstract class SequenceShader extends HasReactive implements ShaderComponent {

@@ -1,5 +1,5 @@
 import { CompletedSpan, withTimestampGroup } from "./GpuPerf";
-import { ShaderComponent } from "./ShaderComponent";
+import { ShaderComponent } from "./ComposableShader";
 
 let frameNumber = 0;
 

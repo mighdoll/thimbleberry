@@ -20,7 +20,7 @@ export * from "./PlaceholderTexture.js";
 export * from "./PromiseDelay.js";
 export * from "./ReactiveUtil.js";
 export * from "./SequenceShader.js";
-export * from "./ShaderComponent.js";
+export * from "./ComposableShader.js";
 export * from "./ShaderGroup.js";
 export * from "./Sliceable.js";
 export * from "./Template.js";

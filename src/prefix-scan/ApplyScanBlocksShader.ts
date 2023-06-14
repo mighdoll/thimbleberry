@@ -4,7 +4,7 @@ import { createDebugBuffer } from "../shader-util/CreateDebugBuffer";
 import { gpuTiming } from "../shader-util/GpuPerf";
 import { Cache } from "../shader-util/MemoMemo";
 import { reactiveTrackUse } from "../shader-util/ReactiveUtil";
-import { ShaderComponent } from "../shader-util/ShaderComponent";
+import { ShaderComponent } from "../shader-util/ComposableShader";
 import { trackContext } from "../shader-util/TrackUse";
 import { getApplyBlocksPipeline } from "./ApplyScanBlocksPipeline";
 

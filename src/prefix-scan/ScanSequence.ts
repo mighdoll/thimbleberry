@@ -7,7 +7,7 @@ import {
   ValueOrFn,
   reactiveTrackUse
 } from "../shader-util/ReactiveUtil";
-import { ShaderComponent } from "../shader-util/ShaderComponent";
+import { ShaderComponent } from "../shader-util/ComposableShader";
 import { trackContext, trackUse } from "../shader-util/TrackUse";
 import { ApplyScanBlocksShader } from "./ApplyScanBlocksShader";
 import { PrefixScanShader } from "./PrefixScanShader";
