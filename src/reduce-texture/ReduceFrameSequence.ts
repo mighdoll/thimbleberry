@@ -13,7 +13,7 @@ import {
   ValueOrFn,
   reactiveTrackUse
 } from "../shader-util/ReactiveUtil";
-import { ShaderComponent } from "../shader-util/ComposableShader";
+import { ComposableShader } from "../shader-util/ComposableShader";
 import { trackContext } from "../shader-util/TrackUse";
 import { Vec2 } from "../shader-util/Vec";
 import { TextureReduceShader } from "./ReduceTextureShader";
@@ -48,7 +48,7 @@ const defaults: Partial<ReduceFrameParams> = {
  * to end with a single value. The final result is stored in a single element
  * `reducedResult` buffer.
  */
-export class ReduceFrameSequence extends HasReactive implements ShaderComponent {
+export class ReduceFrameSequence extends HasReactive implements ComposableShader {
   @reactively srcTexture!: GPUTexture;
   @reactively blockLength!: number;
   @reactively workThreads: number | undefined;
@@ -78,7 +78,7 @@ export class ReduceFrameSequence extends HasReactive implements ShaderComponent 
   }
 
   /** all shaders needed to reduce the texture to a single reduced value */
-  @reactively get shaders(): ShaderComponent[] {
+  @reactively get shaders(): ComposableShader[] {
     return [this.textureReduce, ...this.bufShaders()];
   }
 

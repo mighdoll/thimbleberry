@@ -1,5 +1,5 @@
 import { TemplateResult } from "lit-html";
-import { ShaderComponent, Vec2 } from "thimbleberry/shader-util";
+import { ComposableShader, Vec2 } from "thimbleberry/shader-util";
 import { equalizeUnitPlugin } from "./plugins/EqualizePlugin";
 import { mosaicPlugin } from "./plugins/MosaicPlugin";
 
@@ -23,7 +23,7 @@ export interface InitializedPlugin {
 }
 
 /** a shader component that transforms an input texture to an output texture */
-export interface ImageShaderComponent extends ShaderComponent {
+export interface ImageShaderComponent extends ComposableShader {
   srcTexture: GPUTexture | GPUExternalTexture;
   destTexture: GPUTexture;
   srcSize: Vec2;

@@ -9,7 +9,7 @@ import {
   placeholderTexture,
   reactiveTrackUse,
   SequenceShader,
-  ShaderComponent,
+  ComposableShader,
   trackContext,
   Vec2
 } from "thimbleberry/shader-util";
@@ -79,7 +79,7 @@ export class ColorEqualizeUnit extends SequenceShader {
     this.usageContext.finish();
   }
 
-  @reactively override get shaders(): ShaderComponent[] {
+  @reactively override get shaders(): ComposableShader[] {
     return [
       this.convertToUnitTexture,
       this.reduceFrame,

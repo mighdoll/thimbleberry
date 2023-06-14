@@ -1,14 +1,14 @@
 import { CompletedSpan, withTimestampGroup } from "./GpuPerf";
-import { ShaderComponent } from "./ComposableShader";
+import { ComposableShader } from "./ComposableShader";
 
 let frameNumber = 0;
 
 /** A collection of shader components that can be dispatched.  */
 export class ShaderGroup {
-  private shaders: ShaderComponent[];
+  private shaders: ComposableShader[];
   private device: GPUDevice;
 
-  constructor(device: GPUDevice, ...shaders: ShaderComponent[]) {
+  constructor(device: GPUDevice, ...shaders: ComposableShader[]) {
     this.device = device;
     this.shaders = shaders;
   }

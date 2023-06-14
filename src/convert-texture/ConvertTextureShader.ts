@@ -9,7 +9,7 @@ import {
   ValueOrFn,
   reactiveTrackUse
 } from "../shader-util/ReactiveUtil";
-import { ShaderComponent } from "../shader-util/ComposableShader";
+import { ComposableShader } from "../shader-util/ComposableShader";
 import { nativeSampleType } from "../shader-util/TextureFormats";
 import { textureResource } from "../shader-util/TextureResource";
 import { trackContext } from "../shader-util/TrackUse";
@@ -39,7 +39,7 @@ const defaults: Partial<ConvertTextureParams> = {
  * 
  * Input and output textures must be the same size.
 */
-export class ConvertTextureShader extends HasReactive implements ShaderComponent {
+export class ConvertTextureShader extends HasReactive implements ComposableShader {
   @reactively srcTexture?: GPUTexture | GPUExternalTexture;
   @reactively destTexture!: GPUTexture;
   @reactively template!: ConvertTemplate;

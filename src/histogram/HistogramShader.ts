@@ -14,7 +14,7 @@ import {
   ValueOrFn,
   reactiveTrackUse
 } from "../shader-util/ReactiveUtil";
-import { ShaderComponent } from "../shader-util/ComposableShader";
+import { ComposableShader } from "../shader-util/ComposableShader";
 import { trackContext } from "../shader-util/TrackUse";
 import { Vec2 } from "../shader-util/Vec";
 import { getHistogramPipeline } from "./HistogramPipeline";
@@ -53,7 +53,7 @@ const defaults = {
  * When all invocations complete, one thread in the workgroup copies the
  * workgroup histogram to an output histogram GPUBuffer.
  */
-export class HistogramShader extends HasReactive implements ShaderComponent {
+export class HistogramShader extends HasReactive implements ComposableShader {
   private device!: GPUDevice;
   @reactively srcTexture!: GPUTexture;
   @reactively maxBuffer!: GPUBuffer;

@@ -4,7 +4,7 @@ import { createDebugBuffer } from "../shader-util/CreateDebugBuffer";
 import { gpuTiming } from "../shader-util/GpuPerf";
 import { Cache } from "../shader-util/MemoMemo";
 import { reactiveTrackUse } from "../shader-util/ReactiveUtil";
-import { ShaderComponent } from "../shader-util/ComposableShader";
+import { ComposableShader } from "../shader-util/ComposableShader";
 import { trackContext } from "../shader-util/TrackUse";
 import { getApplyBlocksPipeline } from "./ApplyScanBlocksPipeline";
 
@@ -19,7 +19,7 @@ export interface ApplyScanBlocksParams {
 }
 
 /** Shader stage used in a prefix scan, applies block summaries to block elements */
-export class ApplyScanBlocksShader extends HasReactive implements ShaderComponent {
+export class ApplyScanBlocksShader extends HasReactive implements ComposableShader {
   @reactively partialScan: GPUBuffer;
   @reactively blockSums: GPUBuffer;
   @reactively proposedWorkgroupLength?: number;

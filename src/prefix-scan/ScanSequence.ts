@@ -7,7 +7,7 @@ import {
   ValueOrFn,
   reactiveTrackUse
 } from "../shader-util/ReactiveUtil";
-import { ShaderComponent } from "../shader-util/ComposableShader";
+import { ComposableShader } from "../shader-util/ComposableShader";
 import { trackContext, trackUse } from "../shader-util/TrackUse";
 import { ApplyScanBlocksShader } from "./ApplyScanBlocksShader";
 import { PrefixScanShader } from "./PrefixScanShader";
@@ -47,7 +47,7 @@ const defaults: Partial<ScanSequenceArgs> = {
  * Each level of summing reduces the data set by a factor of the workgroup size.
  * So three levels handles e.g. 16M elements (256 ** 3).
  */
-export class ScanSequence extends HasReactive implements ShaderComponent {
+export class ScanSequence extends HasReactive implements ComposableShader {
   @reactively reduceTemplate!: BinOpTemplate;
   @reactively source!: GPUBuffer;
   @reactively workgroupLength?: number;
@@ -77,7 +77,7 @@ export class ScanSequence extends HasReactive implements ShaderComponent {
     }
   }
 
-  @reactively private get shaders(): ShaderComponent[] {
+  @reactively private get shaders(): ComposableShader[] {
     return [this.sourceScan, ...this.blockScans, ...this.applyScans];
   }
 

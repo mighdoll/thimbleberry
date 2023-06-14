@@ -9,7 +9,7 @@ import {
   assignParams,
   reactiveTrackUse,
 } from "../shader-util/ReactiveUtil";
-import { ShaderComponent } from "../shader-util/ComposableShader";
+import { ComposableShader } from "../shader-util/ComposableShader";
 import { trackContext } from "../shader-util/TrackUse";
 import { getWorkgroupScanPipeline } from "./PrefixScanPipeline";
 
@@ -39,7 +39,7 @@ const defaults: Partial<PrefixScanParams> = {
  * Optionally allocates a block level summary buffer, containing
  * one summariy entry per input block.
  */
-export class PrefixScanShader extends HasReactive implements ShaderComponent {
+export class PrefixScanShader extends HasReactive implements ComposableShader {
   @reactively source!: GPUBuffer;
   @reactively workgroupLength?: number;
   @reactively reduceTemplate!: BinOpTemplate;

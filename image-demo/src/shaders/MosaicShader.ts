@@ -11,7 +11,7 @@ import {
   placeholderTexture,
   reactiveTrackUse,
   SampledTextureType2D,
-  ShaderComponent,
+  ComposableShader,
   textureResource,
   trackContext,
   Vec2,
@@ -52,7 +52,7 @@ const circleFeather = 1; // width in pixels to antialias (only for circle reande
 
 type MosaicShape = "square" | "circle";
 
-export class MosaicShader extends HasReactive implements ShaderComponent {
+export class MosaicShader extends HasReactive implements ComposableShader {
   device!: GPUDevice;
   @reactively destTexture!: GPUTexture;
   @reactively srcTexture!: GPUTexture | GPUExternalTexture;

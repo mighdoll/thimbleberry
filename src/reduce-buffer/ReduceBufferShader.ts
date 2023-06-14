@@ -8,7 +8,7 @@ import {
   ValueOrFn,
   reactiveTrackUse
 } from "../shader-util/ReactiveUtil";
-import { ShaderComponent } from "../shader-util/ComposableShader";
+import { ComposableShader } from "../shader-util/ComposableShader";
 import { trackContext } from "../shader-util/TrackUse";
 import { getBufferReducePipeline } from "./ReduceBufferPipeline";
 
@@ -43,7 +43,7 @@ const defaults: Partial<BufferReduceParams> = {
  * 
  * The reduce operation is controlled by template: could be sum,min,max, etc.
 */
-export class BufferReduceShader extends HasReactive implements ShaderComponent {
+export class BufferReduceShader extends HasReactive implements ComposableShader {
   @reactively source!: GPUBuffer;
   @reactively reducedResult!: GPUBuffer;
   @reactively dispatchLength!: number;

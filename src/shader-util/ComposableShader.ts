@@ -1,5 +1,5 @@
 /** An interface for modular shaders */
-export interface ShaderComponent {
+export interface ComposableShader {
   /** add gpu passes and gpu commands to the shared gpu execution queue for the current frame */
   commands(encoder: GPUCommandEncoder): void;
 

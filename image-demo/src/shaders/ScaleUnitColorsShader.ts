@@ -7,7 +7,7 @@ import {
   gpuTiming,
   Cache,
   reactiveTrackUse,
-  ShaderComponent,
+  ComposableShader,
   trackContext,
 } from "thimbleberry/shader-util";
 import { defaultNumBuckets } from "thimbleberry/shaders";
@@ -30,7 +30,7 @@ const defaults = {
   pipelineCache: undefined,
 };
 
-export class ScaleUnitColorsShader extends HasReactive implements ShaderComponent {
+export class ScaleUnitColorsShader extends HasReactive implements ComposableShader {
   @reactively srcTexture!: GPUTexture;
   @reactively outputTexture!: GPUTexture;
   @reactively maxBuffer!: GPUBuffer;

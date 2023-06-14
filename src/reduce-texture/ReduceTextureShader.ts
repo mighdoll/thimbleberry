@@ -6,7 +6,7 @@ import { gpuTiming } from "../shader-util/GpuPerf";
 import { loadRedComponent, LoadTemplate } from "../shader-util/LoadTemplate";
 import { Cache } from "../shader-util/MemoMemo";
 import { assignParams, reactiveTrackUse } from "../shader-util/ReactiveUtil";
-import { ShaderComponent } from "../shader-util/ComposableShader";
+import { ComposableShader } from "../shader-util/ComposableShader";
 import { trackContext } from "../shader-util/TrackUse";
 import { Vec2 } from "../shader-util/Vec";
 import { getTextureReducePipeline } from "./ReduceTexturePipeline";
@@ -37,7 +37,7 @@ const defaults: Partial<TextureReduceParams> = {
  * 
  * The reduction operation is controlled by template (e.g. min,max);
 */
-export class TextureReduceShader extends HasReactive implements ShaderComponent {
+export class TextureReduceShader extends HasReactive implements ComposableShader {
   @reactively srcTexture!: GPUTexture;
   @reactively({ equals: deepEqual }) dispatchSize!: Vec2;
   @reactively({ equals: deepEqual }) workgroupSize!: Vec2;
