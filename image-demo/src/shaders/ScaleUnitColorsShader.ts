@@ -5,7 +5,7 @@ import {
   createDebugBuffer,
   fullFrameVertexBuffer,
   gpuTiming,
-  MemoCache,
+  Cache,
   reactiveTrackUse,
   ShaderComponent,
   trackContext,
@@ -21,7 +21,7 @@ export interface ScaleUnitColorsArgs {
   histogramCDF: ValueOrFn<GPUBuffer>;
   numBuckets?: ValueOrFn<number>;
   outputFormat?: ValueOrFn<GPUTextureFormat>;
-  pipelineCache?: <T extends object>() => MemoCache<T>;
+  pipelineCache?: <T extends object>() => Cache<T>;
 }
 
 const defaults = {
@@ -40,7 +40,7 @@ export class ScaleUnitColorsShader extends HasReactive implements ShaderComponen
 
   private device!: GPUDevice;
   private usageContext = trackContext();
-  private pipelineCache?: <T extends object>() => MemoCache<T>;
+  private pipelineCache?: <T extends object>() => Cache<T>;
 
   constructor(params: ScaleUnitColorsArgs) {
     super();

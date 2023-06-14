@@ -14,7 +14,7 @@ import { nativeSampleType } from "../shader-util/TextureFormats";
 import { textureResource } from "../shader-util/TextureResource";
 import { trackContext } from "../shader-util/TrackUse";
 import { Vec2 } from "../shader-util/Vec";
-import { MemoCache } from "./../shader-util/MemoMemo";
+import { Cache } from "./../shader-util/MemoMemo";
 import { getConvertTexturePipeline } from "./ConvertTexturePipeline";
 
 export interface ConvertTextureParams {
@@ -22,7 +22,7 @@ export interface ConvertTextureParams {
   srcTexture: ValueOrFn<GPUTexture | GPUExternalTexture>;
   destTexture: ValueOrFn<GPUTexture>;
   template: ValueOrFn<ConvertTemplate>;
-  pipelineCache?: <T extends object>() => MemoCache<T>;
+  pipelineCache?: <T extends object>() => Cache<T>;
 }
 
 const defaults: Partial<ConvertTextureParams> = {
@@ -44,7 +44,7 @@ export class ConvertTextureShader extends HasReactive implements ShaderComponent
   @reactively destTexture!: GPUTexture;
   @reactively template!: ConvertTemplate;
 
-  private pipelineCache?: () => MemoCache<any>;
+  private pipelineCache?: () => Cache<any>;
   private device!: GPUDevice;
   private usageContext = trackContext();
 

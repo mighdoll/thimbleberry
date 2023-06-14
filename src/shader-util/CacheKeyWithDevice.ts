@@ -1,4 +1,4 @@
-import { MemoCache, memoMemo } from "./MemoMemo";
+import { Cache, memoMemo } from "./MemoMemo";
 
 interface HasDevice {
   device: GPUDevice;
@@ -8,7 +8,7 @@ type DeviceMemoFn<T extends HasDevice, V extends object> = (paramsObj: T) => V;
 
 type MemoFnWithCacheControl<T extends HasDevice, V extends object> = (
   paramsObj: T,
-  memoCache?: () => MemoCache<V>
+  memoCache?: () => Cache<V>
 ) => V;
 
 /**
@@ -26,7 +26,7 @@ export function memoizeWithDevice<T extends HasDevice, V extends object>(
   const keyFn = cacheKeyWithDevice;
   let memoFn: DeviceMemoFn<T, V>;
 
-  return function (paramsObj: T, memoCache?: () => MemoCache<V>): V {
+  return function (paramsObj: T, memoCache?: () => Cache<V>): V {
     if (!memoFn) {
       memoFn = memoMemo(fn, { keyFn, memoCache });
     }

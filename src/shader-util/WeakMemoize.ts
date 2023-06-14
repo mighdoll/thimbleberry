@@ -1,8 +1,8 @@
-import { MemoCache, memoMemo, StringKeyFn } from "./MemoMemo";
+import { Cache, memoMemo, StringKeyFn } from "./MemoMemo";
 import { WeakCache } from "./WeakCache";
 
 /** Support for memoizing functions using a weak reference cache.  */
-export function weakMemoCache<V extends object>(): MemoCache<V> {
+export function weakMemoCache<V extends object>(): Cache<V> {
   return new WeakCache<string, V>();
 }
 

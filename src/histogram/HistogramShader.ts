@@ -8,7 +8,7 @@ import {
   loaderForComponent,
   LoadTemplate
 } from "../shader-util/LoadTemplate";
-import { MemoCache } from "../shader-util/MemoMemo";
+import { Cache } from "../shader-util/MemoMemo";
 import {
   assignParams,
   ValueOrFn,
@@ -29,7 +29,7 @@ export interface HistogramShaderArgs {
   workgroupSize?: Vec2; // allow setting workgroup size for testing
   numBuckets?: ValueOrFn<number>;
   loadComponent?: ValueOrFn<LoadableComponent>;
-  pipelineCache?: <T extends object>() => MemoCache<T>;
+  pipelineCache?: <T extends object>() => Cache<T>;
 }
 
 const defaults = {
@@ -61,7 +61,7 @@ export class HistogramShader extends HasReactive implements ShaderComponent {
   @reactively loadComponent!: LoadableComponent;
   @reactively reduceTemplate!: BinOpTemplate;
 
-  private pipelineCache?: () => MemoCache<any>;
+  private pipelineCache?: () => Cache<any>;
   private workgroupSize?: Vec2;
 
   private usageContext = trackContext();

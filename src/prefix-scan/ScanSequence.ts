@@ -1,7 +1,7 @@
 import { HasReactive, reactively } from "@reactively/decorate";
 import { BinOpTemplate, sumTemplateUnsigned } from "../shader-util/BinOpTemplate";
 import { limitWorkgroupLength } from "../shader-util/LimitWorkgroupLength";
-import { MemoCache } from "../shader-util/MemoMemo";
+import { Cache } from "../shader-util/MemoMemo";
 import {
   assignParams,
   ValueOrFn,
@@ -17,7 +17,7 @@ export interface ScanSequenceArgs {
   source: ValueOrFn<GPUBuffer>;
   reduceTemplate?: ValueOrFn<BinOpTemplate>;
   workgroupLength?: ValueOrFn<number>;
-  pipelineCache?: <T extends object>() => MemoCache<T>;
+  pipelineCache?: <T extends object>() => Cache<T>;
 }
 
 const defaults: Partial<ScanSequenceArgs> = {
@@ -54,7 +54,7 @@ export class ScanSequence extends HasReactive implements ShaderComponent {
 
   private device!: GPUDevice;
   private usageContext = trackContext();
-  private pipelineCache?: <T extends object>() => MemoCache<T>;
+  private pipelineCache?: <T extends object>() => Cache<T>;
 
   constructor(args: ScanSequenceArgs) {
     super();

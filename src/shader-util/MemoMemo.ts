@@ -1,7 +1,7 @@
 export type MemoFn<V extends object> = (...args: any[]) => V;
 export type StringKeyFn = (...args: any[]) => string;
 
-export interface MemoCache<V extends object> {
+export interface Cache<V extends object> {
   get(key: string): V | undefined;
   set(key: string, value: V): void;
 }
@@ -11,7 +11,7 @@ interface MemoizeOptions<V extends object> {
   keyFn?: StringKeyFn;
 
   /** a cache to hold memoized values from string keys */
-  memoCache?: () => MemoCache<V>;
+  memoCache?: () => Cache<V>;
 }
 
 /**
@@ -49,7 +49,7 @@ export function memoMemo<V extends object>(
 }
 
 /** default memoization cache is simply a javascript map. Entries will never expire. */
-function persistentMemoCache<V extends object>(): MemoCache<V> {
+function persistentMemoCache<V extends object>(): Cache<V> {
   return new Map<string, V>();
 }
 

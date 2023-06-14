@@ -2,7 +2,7 @@ import { HasReactive, reactively } from "@reactively/decorate";
 import { BinOpTemplate, maxTemplate } from "../shader-util/BinOpTemplate";
 import { createDebugBuffer } from "../shader-util/CreateDebugBuffer";
 import { gpuTiming } from "../shader-util/GpuPerf";
-import { MemoCache } from "../shader-util/MemoMemo";
+import { Cache } from "../shader-util/MemoMemo";
 import {
   assignParams,
   ValueOrFn,
@@ -22,7 +22,7 @@ export interface BufferReduceParams {
   blockLength?: ValueOrFn<number>;
   workgroupLength?: ValueOrFn<number>;
   reduceTemplate?: ValueOrFn<BinOpTemplate>;
-  pipelineCache?: <T extends object>() => MemoCache<T>;
+  pipelineCache?: <T extends object>() => Cache<T>;
 }
 
 const defaults: Partial<BufferReduceParams> = {
@@ -53,7 +53,7 @@ export class BufferReduceShader extends HasReactive implements ShaderComponent {
 
   private device!: GPUDevice;
   private usageContext = trackContext();
-  private pipelineCache?: <T extends object>() => MemoCache<T>;
+  private pipelineCache?: <T extends object>() => Cache<T>;
 
   constructor(params: BufferReduceParams) {
     super();

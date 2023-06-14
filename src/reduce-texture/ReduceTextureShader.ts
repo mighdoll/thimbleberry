@@ -4,7 +4,7 @@ import { BinOpTemplate, maxTemplate } from "../shader-util/BinOpTemplate";
 import { createDebugBuffer } from "../shader-util/CreateDebugBuffer";
 import { gpuTiming } from "../shader-util/GpuPerf";
 import { loadRedComponent, LoadTemplate } from "../shader-util/LoadTemplate";
-import { MemoCache } from "../shader-util/MemoMemo";
+import { Cache } from "../shader-util/MemoMemo";
 import { assignParams, reactiveTrackUse } from "../shader-util/ReactiveUtil";
 import { ShaderComponent } from "../shader-util/ShaderComponent";
 import { trackContext } from "../shader-util/TrackUse";
@@ -20,7 +20,7 @@ export interface TextureReduceParams {
   dispatchSize: Vec2;
   reduceTemplate: BinOpTemplate;
   loadTemplate: LoadTemplate;
-  pipelineCache?: <T extends object>() => MemoCache<T>;
+  pipelineCache?: <T extends object>() => Cache<T>;
 }
 
 const defaults: Partial<TextureReduceParams> = {
@@ -47,7 +47,7 @@ export class TextureReduceShader extends HasReactive implements ShaderComponent 
   @reactively loadTemplate!: LoadTemplate;
 
   private device!: GPUDevice;
-  private pipelineCache?: () => MemoCache<any>;
+  private pipelineCache?: () => Cache<any>;
   private usageContext = trackContext();
 
   constructor(params: TextureReduceParams) {

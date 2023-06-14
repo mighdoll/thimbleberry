@@ -2,7 +2,7 @@ import { HasReactive, reactively } from "@reactively/decorate";
 import { BinOpTemplate, sumTemplateUnsigned } from "../shader-util/BinOpTemplate";
 import { createDebugBuffer } from "../shader-util/CreateDebugBuffer";
 import { gpuTiming } from "../shader-util/GpuPerf";
-import { MemoCache } from "../shader-util/MemoMemo";
+import { Cache } from "../shader-util/MemoMemo";
 import { reactiveTrackUse } from "../shader-util/ReactiveUtil";
 import { ShaderComponent } from "../shader-util/ShaderComponent";
 import { trackContext } from "../shader-util/TrackUse";
@@ -15,7 +15,7 @@ export interface ApplyScanBlocksParams {
   workgroupLength?: number;
   label?: string;
   reduceTemplate?: BinOpTemplate;
-  pipelineCache?: <T extends object>() => MemoCache<T>;
+  pipelineCache?: <T extends object>() => Cache<T>;
 }
 
 /** Shader stage used in a prefix scan, applies block summaries to block elements */
@@ -28,7 +28,7 @@ export class ApplyScanBlocksShader extends HasReactive implements ShaderComponen
 
   private device: GPUDevice;
   private usageContext = trackContext();
-  private pipelineCache?: <T extends object>() => MemoCache<T>;
+  private pipelineCache?: <T extends object>() => Cache<T>;
 
   constructor(params: ApplyScanBlocksParams) {
     super();

@@ -3,7 +3,7 @@ import { BinOpTemplate, sumTemplateUnsigned } from "../shader-util/BinOpTemplate
 import { createDebugBuffer } from "../shader-util/CreateDebugBuffer";
 import { gpuTiming } from "../shader-util/GpuPerf";
 import { limitWorkgroupLength } from "../shader-util/LimitWorkgroupLength";
-import { MemoCache } from "../shader-util/MemoMemo";
+import { Cache } from "../shader-util/MemoMemo";
 import {
   ValueOrFn,
   assignParams,
@@ -20,7 +20,7 @@ export interface PrefixScanParams {
   workgroupLength?: ValueOrFn<number>;
   label?: ValueOrFn<string>;
   reduceTemplate?: ValueOrFn<BinOpTemplate>;
-  pipelineCache?: <T extends object>() => MemoCache<T>;
+  pipelineCache?: <T extends object>() => Cache<T>;
 }
 
 const defaults: Partial<PrefixScanParams> = {
@@ -47,7 +47,7 @@ export class PrefixScanShader extends HasReactive implements ShaderComponent {
   @reactively label!: string;
 
   private device!: GPUDevice;
-  private pipelineCache?: <T extends object>() => MemoCache<T>;
+  private pipelineCache?: <T extends object>() => Cache<T>;
   private usageContext = trackContext();
 
   constructor(params: PrefixScanParams) {

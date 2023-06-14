@@ -7,7 +7,7 @@ import {
   loaderForComponent,
   LoadTemplate
 } from "../shader-util/LoadTemplate";
-import { MemoCache } from "../shader-util/MemoMemo";
+import { Cache } from "../shader-util/MemoMemo";
 import {
   assignParams,
   ValueOrFn,
@@ -25,7 +25,7 @@ export interface ReduceFrameParams {
   workThreads?: ValueOrFn<number>;
   reduceTemplate?: ValueOrFn<BinOpTemplate>;
   loadComponent?: ValueOrFn<LoadableComponent>;
-  pipelineCache?: <T extends object>() => MemoCache<T>;
+  pipelineCache?: <T extends object>() => Cache<T>;
 }
 
 const defaults: Partial<ReduceFrameParams> = {
@@ -57,7 +57,7 @@ export class ReduceFrameSequence extends HasReactive implements ShaderComponent 
 
   private device!: GPUDevice;
   private usageContext = trackContext();
-  private pipelineCache?: <T extends object>() => MemoCache<T>;
+  private pipelineCache?: <T extends object>() => Cache<T>;
 
   constructor(params: ReduceFrameParams) {
     super();
