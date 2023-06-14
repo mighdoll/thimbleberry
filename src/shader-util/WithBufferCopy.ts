@@ -1,6 +1,6 @@
 import { Sliceable } from "./Sliceable";
 
-type ElementFormat = "f32" | "u8" | "u32" | "u64" | "i32" | "i8";
+export type ElementFormat = "f32" | "u8" | "u32" | "u64" | "i32" | "i8";
 
 /** Run a function on the CPU over the copied contents of a gpu buffer.
  *
