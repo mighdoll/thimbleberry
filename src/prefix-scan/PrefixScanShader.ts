@@ -5,7 +5,7 @@ import { gpuTiming } from "../shader-util/GpuPerf";
 import { limitWorkgroupLength } from "../shader-util/LimitWorkgroupLength";
 import { MemoCache } from "../shader-util/MemoMemo";
 import {
-  CanBeReactive,
+  ValueOrFn,
   assignParams,
   reactiveTrackUse,
 } from "../shader-util/ReactiveUtil";
@@ -15,11 +15,11 @@ import { getWorkgroupScanPipeline } from "./PrefixScanPipeline";
 
 export interface PrefixScanParams {
   device: GPUDevice;
-  source: CanBeReactive<GPUBuffer>;
-  emitBlockSums?: CanBeReactive<boolean>;
-  workgroupLength?: CanBeReactive<number>;
-  label?: CanBeReactive<string>;
-  reduceTemplate?: CanBeReactive<BinOpTemplate>;
+  source: ValueOrFn<GPUBuffer>;
+  emitBlockSums?: ValueOrFn<boolean>;
+  workgroupLength?: ValueOrFn<number>;
+  label?: ValueOrFn<string>;
+  reduceTemplate?: ValueOrFn<BinOpTemplate>;
   pipelineCache?: <T extends object>() => MemoCache<T>;
 }
 

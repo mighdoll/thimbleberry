@@ -7,7 +7,7 @@ import { HasDestroy, TrackContext, trackRelease, trackUse } from "./TrackUse";
  * Each key in the params object is the name of a property to initialize.
  */
 export type ReactiveParams<T> = {
-  [K in keyof T]?: CanBeReactive<T[K]>;
+  [K in keyof T]?: ValueOrFn<T[K]>;
 };
 
 /**
@@ -21,7 +21,7 @@ export type ReactiveParams<T> = {
  *   . Reactive properties containing a function will re-execute when they are referenced
  *       if any of their sources have changed.
  */
-export type CanBeReactive<T> = T | (() => T);
+export type ValueOrFn<T> = T | (() => T);
 
 /** initialize properties in a HasReactive or ExtendedReactive class from supplied and default parameters */
 export function assignParams<T>(

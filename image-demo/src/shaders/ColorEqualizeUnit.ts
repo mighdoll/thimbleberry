@@ -2,7 +2,7 @@ import { reactively } from "@reactively/decorate";
 import deepEqual from "fast-deep-equal";
 import {
   assignParams,
-  CanBeReactive,
+  ValueOrFn,
   ConvertTemplate,
   minMaxAlphaTemplate,
   minMaxTemplate,
@@ -28,10 +28,10 @@ import {
 
 export interface ColorEqualizeArgs {
   device: GPUDevice;
-  srcTexture?: CanBeReactive<GPUTexture | GPUExternalTexture>;
-  srcSize?: CanBeReactive<Vec2>;
-  destTexture?: CanBeReactive<GPUTexture>;
-  numBuckets?: CanBeReactive<number>;
+  srcTexture?: ValueOrFn<GPUTexture | GPUExternalTexture>;
+  srcSize?: ValueOrFn<Vec2>;
+  destTexture?: ValueOrFn<GPUTexture>;
+  numBuckets?: ValueOrFn<number>;
 }
 
 const defaults = {

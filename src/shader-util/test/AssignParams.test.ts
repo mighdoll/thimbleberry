@@ -1,9 +1,9 @@
 import { HasReactive, reactively } from "@reactively/decorate";
-import { assignParams, CanBeReactive } from "thimbleberry/shader-util";
+import { assignParams, ValueOrFn } from "thimbleberry/shader-util";
 import { expect, test } from "vitest";
 
 interface ExampleParams {
-  a: CanBeReactive<string>;
+  a: ValueOrFn<string>;
 }
 
 class Example extends HasReactive {
@@ -38,7 +38,7 @@ test("reactive fn param", () => {
 const roundEquals = (a: number, b: number): boolean => Math.round(a) === Math.round(b);
 
 interface ExampleEqualityParams {
-  a: CanBeReactive<number>;
+  a: ValueOrFn<number>;
 }
 
 class ExampleEquality extends HasReactive {

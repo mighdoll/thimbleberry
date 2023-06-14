@@ -10,7 +10,7 @@ import {
 import { MemoCache } from "../shader-util/MemoMemo";
 import {
   assignParams,
-  CanBeReactive,
+  ValueOrFn,
   reactiveTrackUse
 } from "../shader-util/ReactiveUtil";
 import { ShaderComponent } from "../shader-util/ShaderComponent";
@@ -20,11 +20,11 @@ import { TextureReduceShader } from "./ReduceTextureShader";
 
 export interface ReduceFrameParams {
   device: GPUDevice;
-  srcTexture: CanBeReactive<GPUTexture>;
-  blockLength?: CanBeReactive<number>;
-  workThreads?: CanBeReactive<number>;
-  reduceTemplate?: CanBeReactive<BinOpTemplate>;
-  loadComponent?: CanBeReactive<LoadableComponent>;
+  srcTexture: ValueOrFn<GPUTexture>;
+  blockLength?: ValueOrFn<number>;
+  workThreads?: ValueOrFn<number>;
+  reduceTemplate?: ValueOrFn<BinOpTemplate>;
+  loadComponent?: ValueOrFn<LoadableComponent>;
   pipelineCache?: <T extends object>() => MemoCache<T>;
 }
 

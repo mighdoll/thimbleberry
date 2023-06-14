@@ -6,7 +6,7 @@ import { createDebugBuffer } from "../shader-util/CreateDebugBuffer";
 import { gpuTiming } from "../shader-util/GpuPerf";
 import {
   assignParams,
-  CanBeReactive,
+  ValueOrFn,
   reactiveTrackUse
 } from "../shader-util/ReactiveUtil";
 import { ShaderComponent } from "../shader-util/ShaderComponent";
@@ -19,9 +19,9 @@ import { getConvertTexturePipeline } from "./ConvertTexturePipeline";
 
 export interface ConvertTextureParams {
   device: GPUDevice;
-  srcTexture: CanBeReactive<GPUTexture | GPUExternalTexture>;
-  destTexture: CanBeReactive<GPUTexture>;
-  template: CanBeReactive<ConvertTemplate>;
+  srcTexture: ValueOrFn<GPUTexture | GPUExternalTexture>;
+  destTexture: ValueOrFn<GPUTexture>;
+  template: ValueOrFn<ConvertTemplate>;
   pipelineCache?: <T extends object>() => MemoCache<T>;
 }
 

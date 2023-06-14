@@ -1,7 +1,7 @@
 import { HasReactive, reactively } from "@reactively/decorate";
 import {
   assignParams,
-  CanBeReactive,
+  ValueOrFn,
   createDebugBuffer,
   fullFrameVertexBuffer,
   gpuTiming,
@@ -15,12 +15,12 @@ import { getScaleUnitColorsPipeline } from "./ScaleUnitColorsPipeline";
 
 export interface ScaleUnitColorsArgs {
   device: GPUDevice;
-  srcTexture: CanBeReactive<GPUTexture>;
-  outputTexture: CanBeReactive<GPUTexture>;
-  maxBuffer: CanBeReactive<GPUBuffer>;
-  histogramCDF: CanBeReactive<GPUBuffer>;
-  numBuckets?: CanBeReactive<number>;
-  outputFormat?: CanBeReactive<GPUTextureFormat>;
+  srcTexture: ValueOrFn<GPUTexture>;
+  outputTexture: ValueOrFn<GPUTexture>;
+  maxBuffer: ValueOrFn<GPUBuffer>;
+  histogramCDF: ValueOrFn<GPUBuffer>;
+  numBuckets?: ValueOrFn<number>;
+  outputFormat?: ValueOrFn<GPUTextureFormat>;
   pipelineCache?: <T extends object>() => MemoCache<T>;
 }
 

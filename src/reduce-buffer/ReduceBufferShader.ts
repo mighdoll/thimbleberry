@@ -5,7 +5,7 @@ import { gpuTiming } from "../shader-util/GpuPerf";
 import { MemoCache } from "../shader-util/MemoMemo";
 import {
   assignParams,
-  CanBeReactive,
+  ValueOrFn,
   reactiveTrackUse
 } from "../shader-util/ReactiveUtil";
 import { ShaderComponent } from "../shader-util/ShaderComponent";
@@ -14,14 +14,14 @@ import { getBufferReducePipeline } from "./ReduceBufferPipeline";
 
 export interface BufferReduceParams {
   device: GPUDevice;
-  source: CanBeReactive<GPUBuffer>;
-  reducedResult: CanBeReactive<GPUBuffer>;
-  dispatchLength: CanBeReactive<number>;
-  sourceStart?: CanBeReactive<number>;
-  sourceEnd?: CanBeReactive<number>;
-  blockLength?: CanBeReactive<number>;
-  workgroupLength?: CanBeReactive<number>;
-  reduceTemplate?: CanBeReactive<BinOpTemplate>;
+  source: ValueOrFn<GPUBuffer>;
+  reducedResult: ValueOrFn<GPUBuffer>;
+  dispatchLength: ValueOrFn<number>;
+  sourceStart?: ValueOrFn<number>;
+  sourceEnd?: ValueOrFn<number>;
+  blockLength?: ValueOrFn<number>;
+  workgroupLength?: ValueOrFn<number>;
+  reduceTemplate?: ValueOrFn<BinOpTemplate>;
   pipelineCache?: <T extends object>() => MemoCache<T>;
 }
 

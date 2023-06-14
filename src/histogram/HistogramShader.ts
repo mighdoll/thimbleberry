@@ -11,7 +11,7 @@ import {
 import { MemoCache } from "../shader-util/MemoMemo";
 import {
   assignParams,
-  CanBeReactive,
+  ValueOrFn,
   reactiveTrackUse
 } from "../shader-util/ReactiveUtil";
 import { ShaderComponent } from "../shader-util/ShaderComponent";
@@ -23,12 +23,12 @@ export const defaultNumBuckets = 2 ** 8;
 
 export interface HistogramShaderArgs {
   device: GPUDevice;
-  srcTexture: CanBeReactive<GPUTexture>;
-  maxBuffer: CanBeReactive<GPUBuffer>;
-  reduceTemplate: CanBeReactive<BinOpTemplate>;
+  srcTexture: ValueOrFn<GPUTexture>;
+  maxBuffer: ValueOrFn<GPUBuffer>;
+  reduceTemplate: ValueOrFn<BinOpTemplate>;
   workgroupSize?: Vec2; // allow setting workgroup size for testing
-  numBuckets?: CanBeReactive<number>;
-  loadComponent?: CanBeReactive<LoadableComponent>;
+  numBuckets?: ValueOrFn<number>;
+  loadComponent?: ValueOrFn<LoadableComponent>;
   pipelineCache?: <T extends object>() => MemoCache<T>;
 }
 

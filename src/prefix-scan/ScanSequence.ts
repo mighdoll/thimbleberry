@@ -4,7 +4,7 @@ import { limitWorkgroupLength } from "../shader-util/LimitWorkgroupLength";
 import { MemoCache } from "../shader-util/MemoMemo";
 import {
   assignParams,
-  CanBeReactive,
+  ValueOrFn,
   reactiveTrackUse
 } from "../shader-util/ReactiveUtil";
 import { ShaderComponent } from "../shader-util/ShaderComponent";
@@ -14,9 +14,9 @@ import { PrefixScanShader } from "./PrefixScanShader";
 
 export interface ScanSequenceArgs {
   device: GPUDevice;
-  source: CanBeReactive<GPUBuffer>;
-  reduceTemplate?: CanBeReactive<BinOpTemplate>;
-  workgroupLength?: CanBeReactive<number>;
+  source: ValueOrFn<GPUBuffer>;
+  reduceTemplate?: ValueOrFn<BinOpTemplate>;
+  workgroupLength?: ValueOrFn<number>;
   pipelineCache?: <T extends object>() => MemoCache<T>;
 }
 

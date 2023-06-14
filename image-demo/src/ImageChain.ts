@@ -2,7 +2,7 @@ import { HasReactive, reactively } from "@reactively/decorate";
 import deepEqual from "fast-deep-equal";
 import {
   assignParams,
-  CanBeReactive,
+  ValueOrFn,
   placeholderTexture,
   reactiveTrackUse,
   ShaderGroup,
@@ -13,9 +13,9 @@ import { ImageShaderComponent } from "./ImagePlugins";
 
 export interface ImageChainParams {
   device: GPUDevice;
-  srcTexture?: CanBeReactive<GPUTexture | GPUExternalTexture>;
-  srcSize?: CanBeReactive<Vec2>;
-  destTexture?: CanBeReactive<GPUTexture>;
+  srcTexture?: ValueOrFn<GPUTexture | GPUExternalTexture>;
+  srcSize?: ValueOrFn<Vec2>;
+  destTexture?: ValueOrFn<GPUTexture>;
 }
 
 /** 

@@ -3,7 +3,7 @@ import { dsert } from "berry-pretty";
 import deepEqual from "fast-deep-equal";
 import {
   assignParams,
-  CanBeReactive,
+  ValueOrFn,
   circleStrip,
   createDebugBuffer,
   filledGPUBuffer,
@@ -28,14 +28,14 @@ const squareVertsNDC: Vec2[] = [
 
 export interface MosaicShaderArgs {
   device: GPUDevice;
-  srcTexture?: CanBeReactive<GPUTexture | GPUExternalTexture>;
-  destTexture?: CanBeReactive<GPUTexture>;
-  mosaicSize?: CanBeReactive<Vec2>;
-  spacing?: CanBeReactive<Vec2>;
-  backgroundColor?: CanBeReactive<Vec4>;
-  srcSize?: CanBeReactive<Vec2>;
-  mosaicShape?: CanBeReactive<MosaicShape>;
-  rowOffset?: CanBeReactive<number>;
+  srcTexture?: ValueOrFn<GPUTexture | GPUExternalTexture>;
+  destTexture?: ValueOrFn<GPUTexture>;
+  mosaicSize?: ValueOrFn<Vec2>;
+  spacing?: ValueOrFn<Vec2>;
+  backgroundColor?: ValueOrFn<Vec4>;
+  srcSize?: ValueOrFn<Vec2>;
+  mosaicShape?: ValueOrFn<MosaicShape>;
+  rowOffset?: ValueOrFn<number>;
 }
 
 const defaults: Partial<MosaicShaderArgs> = {
