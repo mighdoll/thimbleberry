@@ -1,6 +1,6 @@
 import { Sliceable } from "./Sliceable";
 
-export type ElementFormat = "f32" | "u8" | "u32" | "u64" | "i32" | "i8";
+export type GPUElementFormat = "f32" | "u8" | "u32" | "u64" | "i32" | "i8";
 
 /** Run a function on the CPU over the copied contents of a gpu buffer.
  *
@@ -10,7 +10,7 @@ export type ElementFormat = "f32" | "u8" | "u32" | "u64" | "i32" | "i8";
 export async function withBufferCopy<T>(
   device: GPUDevice,
   buffer: GPUBuffer,
-  fmt: ElementFormat,
+  fmt: GPUElementFormat,
   fn: (data: Sliceable<number>) => T
 ): Promise<T> {
   const size = buffer.size;
@@ -37,7 +37,7 @@ export async function withBufferCopy<T>(
 export async function copyBuffer(
   device: GPUDevice,
   buffer: GPUBuffer,
-  fmt: ElementFormat = "u32"
+  fmt: GPUElementFormat = "u32"
 ): Promise<number[]> {
   return withBufferCopy(device, buffer, fmt, d => [...d]);
 }
