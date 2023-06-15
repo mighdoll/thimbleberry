@@ -4,7 +4,6 @@ import {
   gpuTiming,
   initGpuTiming,
   labeledGpuDevice,
-  logCsvReport,
   minMaxTemplate,
   reportDuration,
   ShaderGroup,

@@ -59,7 +59,8 @@ export const gpuReportColumns = { name: 20, start: 8, duration: 9 };
 
 /** raw row data for callers making custom formatted csv reports */
 export function reportRows(
-  report: GpuPerfReport
+  report: GpuPerfReport,
+  labelTotal?: string
 ): ColumnValues<typeof gpuReportColumns>[] {
   const startTime = firstTime(report);
   const rows: ColumnValues<typeof gpuReportColumns>[] = [];
@@ -67,11 +68,15 @@ export function reportRows(
     const row = {
       name: span.label,
       start: (span.start - startTime).toFixed(2),
-      duration: span.duration.toFixed(2)
+      duration: span.duration.toFixed(2),
     };
     rows.push(row);
   }
   const total = reportDuration(report).toFixed(2);
-  rows.push({ name: "gpu-total", start: startTime.toFixed(2), duration: total });
+  rows.push({
+    name: labelTotal || "gpu-total",
+    start: startTime.toFixed(2),
+    duration: total,
+  });
   return rows;
 }
