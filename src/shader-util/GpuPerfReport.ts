@@ -75,27 +75,3 @@ export function reportRows(
   rows.push({ name: "gpu-total", start: startTime.toFixed(2), duration: total });
   return rows;
 }
-
-/**
- * Report gpu perf the console in formatted csv style
- *
- * Optionally add an extra row for total cpu clock time.
- */
-export function logCsvReport(report: GpuPerfReport, clockTime?: number): void {
-  const csv = new FormattedCsv(gpuReportColumns);
-  const gpuRows = reportRows(report);
-  const bodyRows = gpuRows.map(r => csv.row(r));
-  const clockRows: string[] = [];
-  if (clockTime !== undefined) {
-    const row = csv.row({
-      name: "clock-total",
-      start: (0).toFixed(2),
-      duration: clockTime.toFixed(2)
-    });
-    clockRows.push(row);
-  }
-
-  const lines = [csv.header(), ...bodyRows, ...clockRows, "\n"];
-  const text = lines.join("\n");
-  console.log(text);
-}

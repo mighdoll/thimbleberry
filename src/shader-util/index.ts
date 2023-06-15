@@ -4,6 +4,7 @@ export * from "./CircleVertices.js";
 export * from "./ConfigureCanvas.js";
 export * from "./ConvertTemplate.js";
 export * from "./CreateDebugBuffer.js";
+export * from "./CsvReport.js";
 export * from "./FilledGPUBuffer.js";
 export * from "./FormattedCsv.js";
 export * from "./FullFrameTriangles.js";

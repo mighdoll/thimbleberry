@@ -1,5 +1,6 @@
 import { dlog } from "berry-pretty";
 import {
+  csvReport,
   gpuTiming,
   initGpuTiming,
   labeledGpuDevice,
@@ -34,10 +35,11 @@ it("gpu perf measures time: frame sequence example", async () => {
     const start = performance.now();
     shaderGroup.dispatch();
     await device.queue.onSubmittedWorkDone;
-    const clockTime = performance.now() - start; 
+    const clockTime = performance.now() - start;
 
     const gpuPerf = await gpuTiming?.results();
-    logCsvReport(gpuPerf!);
+    const csv = csvReport(gpuPerf!);
+    console.log(csv);
     const resultTime = reportDuration(gpuPerf!);
     dlog({ resultTime, clockTime });
     // expect(resultTime).to.be.lessThan(clockTime); // TODO unreliable..

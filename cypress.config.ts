@@ -15,7 +15,8 @@ export default defineConfig({
       on("before:browser:launch", (browser: Cypress.Browser, launchOptions) => {
         if (browser.family === "chromium") {
           launchOptions.args.push(
-            "--disable-dawn-features=disallow_unsafe_apis"
+            "--disable-dawn-features=disallow_unsafe_apis",
+            "--enable-dawn-features=allow_unsafe_apis"
           );
         }
         return launchOptions;

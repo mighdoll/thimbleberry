@@ -1,11 +1,11 @@
 import { HasReactive, reactively } from "@reactively/decorate";
 import { dErr } from "berry-pretty";
 import {
-  configureCanvas,
-  gpuTiming,
-  logCsvReport,
-  textureFromImageUrl,
   Vec2,
+  configureCanvas,
+  csvReport,
+  gpuTiming,
+  textureFromImageUrl,
 } from "thimbleberry/shader-util";
 import { appState, appUI } from "./AppState";
 import { registerVideoLoop } from "./VideoLoop";
@@ -141,7 +141,8 @@ export class ImageProcessing extends HasReactive {
       this.timedFrames++;
       if (noSampling || this.timedFrames % 60 === 1) {
         const report = await gpuTiming.results();
-        logCsvReport(report, clockTime);
+        const csvText = csvReport(report, { clockTime: clockTime.toFixed(2) });
+        console.log(csvText);
       }
     }
     gpuTiming?.restart();
