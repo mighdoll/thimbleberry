@@ -1,7 +1,10 @@
-/** @return a compute workgroup length based on a proposed length
+/** @return a compute workgroup length in the X dimension based on a proposed length
  * and the maximum length supported by the device */
 export function limitWorkgroupLength(device: GPUDevice, proposedLength?: number): number {
-  const maxThreads = device.limits.maxComputeInvocationsPerWorkgroup;
+  const maxThreads = Math.min(
+    device.limits.maxComputeInvocationsPerWorkgroup,
+    device.limits.maxComputeWorkgroupSizeX
+  );
   let length: number;
   if (!proposedLength || proposedLength > maxThreads) {
     length = maxThreads;
