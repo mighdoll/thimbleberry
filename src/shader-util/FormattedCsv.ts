@@ -29,4 +29,9 @@ export class FormattedCsv<T extends ColumnDescription> {
     });
     return row.join(",");
   }
+
+  report(rowValues: ColumnValues<T>[]): string {
+    const rows = rowValues.map(r => this.row(r));
+    return [this.header(), ...rows].join("\n");
+  }
 }

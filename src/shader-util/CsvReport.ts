@@ -38,10 +38,7 @@ export function csvReport(
 
   const extraValues = tagColumnValues(tagColumns);
   const rows = allRows.map(g => ({ ...g, ...extraValues }));
-  const bodyRows = rows.map(r => csv.row(r));
-  const lines = [csv.header(), ...bodyRows, "\n"];
-
-  return lines.join("\n");
+  return csv.report(rows);
 }
 
 function tagColumWidths(tagColumns?: ExtraColumns): Record<string, number> {
