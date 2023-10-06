@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "site": "pnpm prepublish && ./bin/wrangler_deploy",
     "postinstall": "pnpm cpx \"node_modules/thimb-media/public/*\" public",
-    "mac-canary": "$npm_execPath open -a 'Google Chrome Canary' --args --disable-dawn-features=disallow_unsafe_apis "
+    "mac-canary": "$npm_execPath open -a 'Google Chrome Canary' --args --enable-dawn-features=allow_unsafe_apis"
   },
   "files": [
     "dist",
