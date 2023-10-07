@@ -6,6 +6,7 @@ export * from "./ConvertTemplate.js";
 export * from "./CreateDebugBuffer.js";
 export * from "./CsvReport.js";
 export * from "./FilledGPUBuffer.js";
+export * from "./FilledTexture.js";
 export * from "./FormattedCsv.js";
 export * from "./FullFrameTriangles.js";
 export * from "./FullFrameVertexBuffer.js";
