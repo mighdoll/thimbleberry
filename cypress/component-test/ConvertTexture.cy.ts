@@ -42,8 +42,7 @@ it("rgba8unorm to r32float", () => {
   });
 });
 
-it.only("rgba8uint to r32float", () => {
-  console.clear();
+it("rgba8uint to r32float", () => {
   cy.then(async () => {
     await withAsyncUsage(async () => {
       const device = await labeledGpuDevice();
