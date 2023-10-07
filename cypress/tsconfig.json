@@ -21,7 +21,8 @@
     "jsx": "react-jsx",
     "paths": {
       "thimbleberry/shaders": ["../src/shaders"],
-      "thimbleberry/shader-util": ["../src/shader-util"]
+      "thimbleberry/shader-util": ["../src/shader-util"],
+      "thimbleberry": ["../src/shader-util"]
     }
   },
   "include": ["**/*.ts"]
