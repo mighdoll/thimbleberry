@@ -23,16 +23,10 @@ importers:
       fast-deep-equal:
         specifier: ^3.1.3
         version: 3.1.3
-      sortablejs:
-        specifier: ^1.15.0
-        version: 1.15.0
     devDependencies:
       '@types/jest':
         specifier: ^29.5.1
         version: 29.5.1
-      '@types/sortablejs':
-        specifier: ^1.15.1
-        version: 1.15.1
       '@typescript-eslint/eslint-plugin':
         specifier: ^5.59.7
         version: 5.59.7(@typescript-eslint/parser@5.59.7)(eslint@8.41.0)(typescript@5.0.4)
@@ -183,6 +177,9 @@ importers:
       query-selector-shadow-dom:
         specifier: ^1.0.1
         version: 1.0.1
+      sortablejs:
+        specifier: ^1.15.0
+        version: 1.15.0
       thimb-media:
         specifier: github:mighdoll/thimb-media#7e5ab8b
         version: github.com/mighdoll/thimb-media/7e5ab8b
@@ -193,6 +190,9 @@ importers:
       '@types/query-selector-shadow-dom':
         specifier: ^1.0.1
         version: 1.0.1
+      '@types/sortablejs':
+        specifier: ^1.15.3
+        version: 1.15.3
       '@webgpu/types':
         specifier: ^0.1.32
         version: 0.1.32
@@ -1923,8 +1923,8 @@ packages:
     resolution: {integrity: sha512-JYM8x9EGF163bEyhdJBpR2QX1R5naCJHC8ucJylJ3w9/CVBaskdQ8WqBf8MmQrd1kRvp/a4TS8HJ+bxzR7ZJYQ==}
     dev: true
 
-  /@types/sortablejs@1.15.1:
-    resolution: {integrity: sha512-g/JwBNToh6oCTAwNS8UGVmjO7NLDKsejVhvE4x1eWiPTC3uCuNsa/TD4ssvX3du+MLiM+SHPNDuijp8y76JzLQ==}
+  /@types/sortablejs@1.15.3:
+    resolution: {integrity: sha512-v+zh6TZP/cLeMUK0MDx1onp8e7Jk2/4iTQ7sb/n80rTAvBm14yJkpOEfJdrTCkHiF7IZbPjxGX2NRJfogRoYIg==}
     dev: true
 
   /@types/stack-utils@2.0.1:
@@ -4819,6 +4819,7 @@ packages:
 
   /nan@2.17.0:
     resolution: {integrity: sha512-2ZTgtl0nJsO0KQCjEpxcIr5D+Yv90plTitZt9JBfQvVJDS5seMl3FOvsh3+9CoYWXf/1l5OaZzzF6nDm4cagaQ==}
+    requiresBuild: true
     dev: true
     optional: true
 

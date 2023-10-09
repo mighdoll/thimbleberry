@@ -1,6 +1,6 @@
 {
   "name": "thimb-image-demo",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "image and video processing with thimbleberry",
   "type": "module",
   "scripts": {
@@ -52,11 +52,13 @@
     "lit": "^2.7.2",
     "lit-html": "^2.7.2",
     "query-selector-shadow-dom": "^1.0.1",
+    "sortablejs": "^1.15.0",
     "thimb-media": "github:mighdoll/thimb-media#7e5ab8b",
     "thimbleberry": "workspace:*"
   },
   "devDependencies": {
     "@types/query-selector-shadow-dom": "^1.0.1",
+    "@types/sortablejs": "^1.15.3",
     "@webgpu/types": "^0.1.32",
     "cpx": "^1.5.0",
     "esbuild": "^0.17.15",
