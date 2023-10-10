@@ -10,7 +10,7 @@ import {
   reactiveTrackUse
 } from "../shader-util/ReactiveUtil";
 import { ComposableShader } from "../shader-util/ComposableShader";
-import { nativeSampleType } from "../shader-util/TextureFormats";
+import { textureSampleType } from "../shader-util/TextureFormats";
 import { textureResource } from "../shader-util/TextureResource";
 import { trackContext } from "../shader-util/TrackUse";
 import { Vec2 } from "../shader-util/Vec";
@@ -89,7 +89,7 @@ export class ConvertTextureShader extends HasReactive implements ComposableShade
 
   @reactively get srcSampleType(): GPUTextureSampleType {
     if (this.srcTexture instanceof GPUTexture) {
-      return nativeSampleType(this.srcTexture.format);
+      return textureSampleType(this.srcTexture.format);
     } else {
       // TODO per spec, always float. Should it be unfilterable?
       return "unfilterable-float";

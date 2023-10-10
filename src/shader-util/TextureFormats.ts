@@ -50,6 +50,7 @@ export function bufferToSliceable(
     case "rg16float":
     case "rgba16float":
       return new Float16Array(data.buffer);
+    // TODO support other texture types
     default:
       throw new Error(`Unknown texture format ${format}`);
   }
@@ -69,6 +70,7 @@ export function arrayToBuffer(
     case "rg16float":
     case "rgba16float":
       return floatsToUint16Array(data);
+    // TODO support other texture types
     default:
       throw new Error(`Unknown texture format ${format}`);
   }
@@ -135,9 +137,13 @@ function gpuArrayFormat(
   }
 }
 
-export function nativeSampleType(format: GPUTextureFormat): GPUTextureSampleType {
+/** return the sampling type for texture binding a certain  */
+export function textureSampleType(
+  format: GPUTextureFormat,
+  float32Filterable = false
+): GPUTextureSampleType {
   if (format.includes("32float")) {
-    return "unfilterable-float";
+    return float32Filterable ? "float" : "unfilterable-float";
   }
   if (format.includes("float") || format.includes("unorm")) {
     return "float";
