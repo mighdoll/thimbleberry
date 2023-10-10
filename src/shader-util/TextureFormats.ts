@@ -249,6 +249,15 @@ export function floatsToUint16Array(data: number[]): Uint16Array {
   return out;
 }
 
+/** return the element type for wgsl textureLoad() results */
+export function texelLoadType(format: GPUTextureFormat): "f32" | "u32" | "i32" {
+  if (format.includes("float")) return "f32";
+  if (format.includes("unorm")) return "f32";
+  if (format.includes("uint")) return "u32";
+  if (format.includes("sint")) return "i32";
+  throw new Error(`unknown format ${format}`);
+}
+
 /** return a function that converts numbers to their packed fp16 equivalents */
 function fp16Converter(): (n: number) => number {
   const ff = new Float16Array(1);
