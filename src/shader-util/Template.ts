@@ -14,6 +14,7 @@ const parseRule = new RegExp(
   "g"
 );
 const ifRule = /\s+IF\s+(?<ifKey>[\w-]+)/i;
+const ifNotRule = /\s+IF\s+!(?<ifKey>[\w-]+)/i;
 
 /**
  * find template patch rules in a source file string and apply the patches.
@@ -36,14 +37,16 @@ export function applyTemplate(wgsl: string, dict: { [key: string]: any }): strin
   const edit = wgsl
     .split("\n")
     .flatMap((line, i) => (line.includes("//!") ? changeLine(line, i + 1) : [line]));
-  const result = edit.join("\n");
-  // console.log(result);
-  return result;
+  return edit.join("\n");
 
   function changeLine(line: string, lineNum: number): string[] {
     const [text, comment] = line.split("//!");
     const ifKey = comment.match(ifRule)?.groups?.ifKey;
     if (ifKey && (!(ifKey in dict) || dict[ifKey] === false)) {
+      return [];
+    }
+    const ifNotKey = comment.match(ifNotRule)?.groups?.ifKey;
+    if (ifNotKey && (ifNotKey in dict && dict[ifNotKey] !== false)) {
       return [];
     }
 

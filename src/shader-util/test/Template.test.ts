@@ -58,3 +58,15 @@ test("apply two rules, 2nd matches first", () => {
   const applied = applyTemplate(wgsl, { srcType: "u32", destType: "f32" });
   expect(applied).toEqual("(texel: vec4<u32>) -> vec4<f32> { // srcType destType");
 });
+
+test("template if! test disables a line", () => {
+  const wgsl = `} //! if !defined`;
+  const applied = applyTemplate(wgsl, { defined: true });
+  expect(applied).toEqual("");
+});
+
+test("template if! test enables a line", () => {
+  const wgsl = `} //! if !defined`;
+  const applied = applyTemplate(wgsl, {});
+  expect(applied).toEqual("} ");
+});
