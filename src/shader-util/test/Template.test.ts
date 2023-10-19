@@ -82,3 +82,9 @@ test("template two if tests, both positive", () => {
   const applied = applyTemplate(wgsl, { defined: true, defined2: true });
   expect(applied).toEqual("} ");
 });
+
+test("template two if! tests, one postive, disable ", () => {
+  const wgsl = `} //! if !defined if !defined2`;
+  const applied = applyTemplate(wgsl, {defined2: true});
+  expect(applied).toEqual("");
+});
