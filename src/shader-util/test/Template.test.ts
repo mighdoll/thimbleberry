@@ -70,3 +70,15 @@ test("template if! test enables a line", () => {
   const applied = applyTemplate(wgsl, {});
   expect(applied).toEqual("} ");
 });
+
+test("template two if tests, one negative", () => {
+  const wgsl = `} //! if defined if notDefined`;
+  const applied = applyTemplate(wgsl, { defined: true });
+  expect(applied).toEqual("");
+});
+
+test("template two if tests, both positive", () => {
+  const wgsl = `} //! if defined if defined2`;
+  const applied = applyTemplate(wgsl, { defined: true, defined2: true });
+  expect(applied).toEqual("} ");
+});

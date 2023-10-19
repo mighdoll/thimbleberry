@@ -13,8 +13,8 @@ const parseRule = new RegExp(
   `${prefix}(${findUnquoted}|${findQuoted})=(${replaceKey}|${replaceValue})`,
   "g"
 );
-const ifRule = /\s+IF\s+(?<ifKey>[\w-]+)/i;
-const ifNotRule = /\s+IF\s+!(?<ifKey>[\w-]+)/i;
+const ifRule = /\s+IF\s+(?<ifKey>[\w-]+)/ig;
+const ifNotRule = /\s+IF\s+!\s*(?<ifKey>[\w-]+)/i;
 
 /**
  * find template patch rules in a source file string and apply the patches.
@@ -41,12 +41,16 @@ export function applyTemplate(wgsl: string, dict: { [key: string]: any }): strin
 
   function changeLine(line: string, lineNum: number): string[] {
     const [text, comment] = line.split("//!");
-    const ifKey = comment.match(ifRule)?.groups?.ifKey;
-    if (ifKey && (!(ifKey in dict) || dict[ifKey] === false)) {
-      return [];
+    const ifMatches = comment.matchAll(ifRule);
+    for (const m of ifMatches) {
+      const ifKey = m.groups?.ifKey;
+      if (ifKey && (!(ifKey in dict) || dict[ifKey] === false)) {
+        return [];
+      }
     }
+
     const ifNotKey = comment.match(ifNotRule)?.groups?.ifKey;
-    if (ifNotKey && (ifNotKey in dict && dict[ifNotKey] !== false)) {
+    if (ifNotKey && ifNotKey in dict && dict[ifNotKey] !== false) {
       return [];
     }
 
