@@ -6,6 +6,6 @@ export interface ComposableShader {
   /** std interface to pass flags to control logging  */
   debugLogging?: (debugFlags: Record<string, unknown>) => void;
 
-  /** cleanup unused gpu resources */
+  /** cleanup gpu resources */
   destroy?: () => void;
 }
