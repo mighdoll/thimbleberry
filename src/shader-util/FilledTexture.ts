@@ -1,6 +1,6 @@
 import {
   Vec2,
-  arrayToBuffer,
+  arrayToArrayBuffer,
   componentByteSize,
   mapN,
   numComponents,
@@ -16,20 +16,35 @@ export function makeTexture(
   label?: string
 ): GPUTexture {
   const components = numComponents(format);
+
   if (data[0][0] instanceof Array) {
     console.assert(components === data[0][0].length, "data must match format");
   } else {
     console.assert(components === 1, "data must match format");
   }
-  const size = { width: data[0].length, height: data.length };
-  const texture = makeEmptyTexture(device, [size.width, size.height], label, format);
-  const buffer = arrayToBuffer(format, data.flat(2));
+  const size: Vec2 = [data[0].length, data.length];
+
+  const arrayBuffer = arrayToArrayBuffer(format, data.flat(2));
+  return textureFromArray(device, arrayBuffer, size, format, label);
+}
+
+/** @return a test texture from the supplied array buffer data */
+export function textureFromArray(
+  device: GPUDevice,
+  data: ArrayBuffer,
+  size: Vec2,
+  format: GPUTextureFormat = "r16float",
+  label?: string
+): GPUTexture {
+  const components = numComponents(format);
+  const texture = makeEmptyTexture(device, size, label, format);
+
   device.queue.writeTexture(
     { texture },
-    buffer,
+    data,
     {
-      bytesPerRow: size.width * componentByteSize(format) * components,
-      rowsPerImage: data.length,
+      bytesPerRow: size[0] * componentByteSize(format) * components,
+      rowsPerImage: size[1],
     },
     size
   );

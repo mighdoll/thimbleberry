@@ -1,6 +1,6 @@
 import { dsert } from "berry-pretty";
 import {
-  arrayToBuffer,
+  arrayToArrayBuffer,
   componentByteSize,
   mapN,
   numComponents,
@@ -24,7 +24,7 @@ export function makeTexture(
   }
   const size = { width: data[0].length, height: data.length };
   const texture = makeEmptyTexture(device, [size.width, size.height], label, format);
-  const buffer = arrayToBuffer(format, data.flat(2));
+  const buffer = arrayToArrayBuffer(format, data.flat(2));
   device.queue.writeTexture(
     { texture },
     buffer,

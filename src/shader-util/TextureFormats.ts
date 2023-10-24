@@ -57,7 +57,7 @@ export function bufferToSliceable(
 }
 
 /** copy an array of numbers to packed ArrayBuffer suitable for sending to the gpu */
-export function arrayToBuffer(
+export function arrayToArrayBuffer(
   format: GPUTextureFormat,
   data: number[]
 ): ArrayBuffer & Sliceable<number> & HasArrayBuffer {
