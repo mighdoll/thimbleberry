@@ -26,7 +26,7 @@ export class FormattedCsv<T extends ColumnDescription> {
     const headerEntries = Object.keys(this.fields).map(k => [k, k]);
     const header = Object.fromEntries(headerEntries);
     const jsonRows = [header, ...values];
-    const columns = this.fixedColumns(values);
+    const columns = this.fixedColumns(jsonRows);
     const stringRows = jsonRows.map(r => this.row(r, columns));
     return stringRows.join("\n");
   }
@@ -44,7 +44,7 @@ export class FormattedCsv<T extends ColumnDescription> {
   private fixedColumns(values: ColumnValues<T>[]): ColumnWidths {
     const entries = Object.entries(this.fields).map(([name, width]) => {
       if (width === undefined || width === null) {
-        return [name, this.maxColumnWidth(values, name) + 1];
+        return [name, this.maxColumnWidth(values, name) + 2];
       } else {
         return [name, width];
       }
