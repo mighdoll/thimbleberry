@@ -1,16 +1,10 @@
 # Thimbleberry WebGPU Utilities
 
-[shaders]: https://github.com/mighdoll/thimbleberry/tree/main/src
-[app shaders]: https://github.com/mighdoll/thimbleberry/tree/main/image-demo/src/shaders
-
 Thimbleberry utilities offer support for writing WebGPU applications and WGSL shaders
 for the browser.
 
 Note that the Thimbleberry utility modules are generally independent of each other.
 Feel free to pick and choose the ones that are useful for you.
-
-You can see examples in the thimbleberry source of [shaders][], [app shaders][]
-and [shader tests][component-test] using most of the Thimbleberry utilities.
 
 Contents:
 

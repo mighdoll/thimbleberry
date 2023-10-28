@@ -4,8 +4,6 @@ Thimbleberry is a collection of reusable WebGPU shaders and library support func
 
 - Thimbleberry approaches some of the practical engineering problems that come up in writing WebGPU programs: modularization, debugging, testing, performance tracking, templating, resource cleanup, etc.
 
-- Thimbleberry also includes some sample shaders that might be useful for you: reduce, prefix scan, histogram equalization, etc.
-
 - A demo image processing app using Thimbleberry is available at [https://thimbleberry.dev](https://thimbleberry.dev). 
 
 It’s early days in WebGPU land. 
@@ -32,12 +30,9 @@ Contributions are welcome.
 
 **Sample Shaders**
 
-- [reduce-buffer](./src/reduce-buffer/) - Reduce a buffer to a single value (e.g. min, max, or sum).
-- [reduce-texture](./src/reduce-texture/) - Reduce a texture to a single value. 
-Uses reduce-buffer internally for larger textures.
-- [prefix-scan](./src/prefix-scan/) - Useful for many purposes including radix sorts and histogram equalization.
-(Also called prefix sum or parallel scan.) 
-- [convert-texture](./src/convert-texture/) - Template based conversion, e.g. for converting RGB to HSV.
+[stoneberry]: https://stoneberry.dev
+
+- See the [Stoneberry][] project for a variety of foundational shaders built using the Thimbleberry utilities.
 
 **Blog Posts**
 
