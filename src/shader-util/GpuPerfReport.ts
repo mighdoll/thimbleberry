@@ -1,5 +1,10 @@
-import { ColumnValues, FormattedCsv } from "./FormattedCsv";
 import { CompletedSpan } from "./GpuPerf";
+
+/** A report of timing data collected from the gpu. */
+export interface GpuPerfReport {
+  spans: GpuPerfSpan[];
+  marks: GpuPerfMark[];
+}
 
 export interface GpuPerfMark {
   label: string;
@@ -10,12 +15,6 @@ export interface GpuPerfMark {
 export interface GpuPerfSpan extends GpuPerfMark {
   duration: number; // in milliseconds
   _endDex: number; // index into the querySet
-}
-
-/** A report of timing data collected from the gpu */
-export interface GpuPerfReport {
-  spans: GpuPerfSpan[];
-  marks: GpuPerfMark[];
 }
 
 /** return a filtered report containing just the spans and marks within a containing span */
@@ -54,28 +53,34 @@ export function lastTime(report: GpuPerfReport): number {
   return Math.max(lastSpanEnd, lastMark);
 }
 
-/** typical size of the gpu columns, for callers making custom formatted csv reports */
-export const gpuReportColumns = { name: 20, start: 8, duration: 9 };
+/** JSON formatted result row for performance reports */
+export interface GpuReportJson {
+  name: string;
+  start: string;
+  duration: string;
+}
 
-/** raw row data for callers making custom formatted csv reports */
-export function reportRows(
+/** JSON formatted result rows for each span, and total report time.
+ * results are extracted and formatted from a GpuPerfReport */
+export function reportJson(
   report: GpuPerfReport,
-  labelTotal?: string
-): ColumnValues<typeof gpuReportColumns>[] {
+  labelTotal?: string,
+  precision = 2
+): GpuReportJson[] {
   const startTime = firstTime(report);
-  const rows: ColumnValues<typeof gpuReportColumns>[] = [];
+  const rows: GpuReportJson[] = [];
   for (const span of report.spans) {
     const row = {
       name: span.label,
-      start: (span.start - startTime).toFixed(2),
-      duration: span.duration.toFixed(2),
+      start: (span.start - startTime).toFixed(precision),
+      duration: span.duration.toFixed(precision),
     };
     rows.push(row);
   }
-  const total = reportDuration(report).toFixed(2);
+  const total = reportDuration(report).toFixed(precision);
   rows.push({
     name: labelTotal || "gpu-total",
-    start: startTime.toFixed(2),
+    start: startTime.toFixed(precision),
     duration: total,
   });
   return rows;

@@ -1,5 +1,7 @@
-import { ColumnValues, FormattedCsv } from "./FormattedCsv.js";
-import { GpuPerfReport, gpuReportColumns, reportRows } from "./GpuPerfReport.js";
+import { FormattedCsv, JsonRow } from "./FormattedCsv.js";
+import { GpuPerfReport, reportJson } from "./GpuPerfReport.js";
+
+// TODO get rid of this file
 
 /** name:time pairs for extra csv report rows */
 export type ExtraRows = Record<string, string>;
@@ -12,8 +14,6 @@ export interface ValueWidth {
   value: string;
   width?: number;
 }
-
-const defaultCsvPadding = 2;
 
 /**
  * @return a report of gpu timing in a csv formatted string.
@@ -28,28 +28,15 @@ export function csvReport(
   tagColumns?: ExtraColumns,
   label?: string
 ): string {
-  const extraColWidths = tagColumWidths(tagColumns);
-  const cols = { ...gpuReportColumns, ...extraColWidths };
-  const csv = new FormattedCsv(cols);
+  const csv = new FormattedCsv();
 
-  const gpuRows = reportRows(report, label);
+  const gpuRows = reportJson(report, label);
   const addedRows = additionalRows(extraRows);
   const allRows = [...gpuRows, ...addedRows];
 
   const extraValues = tagColumnValues(tagColumns);
   const rows = allRows.map(g => ({ ...g, ...extraValues }));
   return csv.report(rows);
-}
-
-function tagColumWidths(tagColumns?: ExtraColumns): Record<string, number> {
-  if (!tagColumns) return {};
-  const extraWidths = Object.entries(tagColumns).map(([name, combinedValue]) => {
-    const value = typeof combinedValue === "string" ? combinedValue : combinedValue.value;
-    const width = typeof combinedValue === "string" ? undefined : combinedValue.width;
-    const actualWidth = width ?? Math.max(name.length, value.length) + defaultCsvPadding;
-    return [name, actualWidth];
-  });
-  return Object.fromEntries(extraWidths);
 }
 
 function tagColumnValues(tagColumns?: ExtraColumns): Record<string, string> {
@@ -61,7 +48,7 @@ function tagColumnValues(tagColumns?: ExtraColumns): Record<string, string> {
   return Object.fromEntries(extraValues);
 }
 
-function additionalRows(extraRows?: ExtraRows): ColumnValues<typeof gpuReportColumns>[] {
+function additionalRows(extraRows?: ExtraRows): JsonRow[] {
   if (!extraRows) return [];
   const start = (0).toFixed(2);
   const columnValues = Object.entries(extraRows).map(([name, value]) => ({
