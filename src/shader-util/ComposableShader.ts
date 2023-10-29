@@ -8,4 +8,7 @@ export interface ComposableShader {
 
   /** cleanup gpu resources */
   destroy?: () => void;
+
+  /** optional name for logging and benchmarking */
+  name?: string;
 }
