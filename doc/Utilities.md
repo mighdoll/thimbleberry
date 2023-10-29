@@ -14,7 +14,7 @@ Contents:
 - [Resource Management](./Utilities.md#Resource-Management)
 - [Caching Compiled Shaders](./Utilities.md#Caching-Compiled-Shaders)
 - [WGSL templates](./Utilities.md#WGSL-templates)
-- [GPU Performance Reports](./Utilities.md#CPU-Performance-Reports)
+- [GPU Performance Reports](./Utilities.md#GPU-Performance-Reports)
 - [Reactively](./Utilities.md#Reactively)
 - [Cypress Component Tests](./Utilities.md#Cypress-Component-Tests)
 
@@ -40,7 +40,6 @@ to record a few values from within the wgsl, and then log them with `printBuffer
 
 The `ShaderComponent` is a start towards making shaders more modular: [ShaderComponent].
 Simply implement the `commands()` function and then multiple shaders can be dispatched together in a `ShaderGroup`.
-
 
 ## WGSL templates
 
@@ -126,75 +125,115 @@ pass `weakMemoCache()` to the function returned from `memoizeWithDevice()`.
 [begincomputepass]: https://www.w3.org/TR/webgpu/#command-encoder-pass-encoding
 [beginrenderpass]: https://www.w3.org/TR/webgpu/#command-encoder-pass-encoding
 
-Thimbleberry includes an api for capturing performance timing on the GPU.
-
-`initGpuTiming()` - enable the timing api globally.
-After initialization, accessing the api through the global `gpuTiming` variable is convenient.
-
-Thimbleberry offers two methods of capturing GPU timing,
-fronting the two APIs available in WebGPU.
-
-- `gpuTiming?.timestampWrites()` - returns part of the descriptor to [beginRenderPass] or
-  [beginComputePass] to time a render or compute pass.
-
-  Here's an example:
+Thimbleberry includes a high level api for benchmarking shaders and reporting results.
+The default results look like this:
 
 ```
-      // if gpu timing is enabled, time this render pass
-      const timestampWrites = gpuTiming?.timestampWrites("mosaic");
+          benchmark,           name,  start,  duration,  runId,            utc
+      reduce_simple,   reduce 32768,   0.00,      0.20,     65,  1698608646248
+      reduce_simple,     reduce 128,   0.20,      0.00,     65,  1698608646248
+      reduce_simple,       reduce 1,   0.26,      0.00,     65,  1698608646248
+      reduce_simple,  --> gpu total,   3.87,      0.26,     65,  1698608646248
 
-      const passEncoder = commandEncoder.beginRenderPass({
-        label: "Mosaic shader render pass",
-        timestampWrites,
-      });
+          benchmark,  avg time / run (ms),  src GB/sec,  src bytes,            utc
+      reduce_simple,                 0.32,       98.89,   33554432,  1698608646248
 ```
 
-- `gpuTiming?.span()` - starts timing a set of gpu submissions
+The tabular csv format is designed to be readable in the debug console
+and also easy to import into external tools. 
+Here's an example displaying the benchmarks of some [stoneberry](https://stoneberry.dev) shaders:
 
-  - `span.end()` - end the set
+[<img width="800" alt="image" src="https://github.com/mighdoll/thimbleberry/assets/63816/42802413-4950-4a5e-8d44-c251118e29c5">](https://public.tableau.com/app/profile/mighdoll/viz/shaderbenchmarking/Dashboard)
 
-- I recommend using the timestampWrites() API for now.
-  Span timing is unreliable on MacOS (though that may be fixed prior to general release of WebGPU).
+### To benchmark your shader with `benchRunner`
+  1. Add a timing trigger to your shader:
+
+      * Add `gpuTiming?.timestampWrites("myShader")` to your shader's [beginComputePass][] or [beginRenderPass][]. 
+      You can leave this code in your production shader if you'd like, 
+      it's a noop if timing is not enabled.
+
+      ```ts
+            // if gpu timing is enabled, time this render pass
+            const timestampWrites = gpuTiming?.timestampWrites("myShader");
+
+            const passEncoder = commandEncoder.beginRenderPass({
+              label: "myShader",
+              timestampWrites,
+            });
+      ```
+
+  1. Write a function that will create an instance of your shader with benchmark data.
+     The benchmark function takes a `GPUDevice` as a parameter, 
+     and returns the size of the benchmark data 
+     and a function `commands(gpuCommandEncoder)` that the benchmark runner 
+     will call to run your shader.
+
+        ```ts
+                function myShaderBench(device: GPUDevice): ShaderAndSize {
+                  const shader = {commands: (encoder: GPUCommandEncoder) => {}}
+                  return { shader, srcSize: 2 ** 20};
+                }
+        ```
+
+  1. Pass your shader benchmark function to `benchRunner` from a tiny browser test app.
+
+        ```ts
+                async function main(): Promise<void> {
+                  await benchRunner([{ makeShader: myShaderBench }]);
+                }
+        ```
+
+[stoneberry-bench]: https://github.com/stoneberry-webgpu/stoneberry/blob/main/packages/bench/src/bench.ts
+
+See [stoneberry-bench][] or [alpenbench](https://github.com/mighdoll/alpenbench)
+for open source benchmarking examples using `benchRunner`. 
+
+_Note that you need to launch the browser with a flag to capture GPU performance metrics.
+In Chromium based browsers, use the command line flag:
+`--enable-dawn-features=allow_unsafe_apis`_.
+
+#### BenchRunner Options
+Configuration options to control the number of runs and warmups, 
+numerical precision of output reporting, etc. are optional arguments to the `benchRunner`.
+See `ControlParams` for current options.
+You can also set options dynamically via url parameters:
+
+```
+    http://localhost:5173/?precision=4&reportType=fastest&runs=200
+```
+#### Preserving results to a file
+The `benchRunner` will echo its csv output to a webSocket port
+if the url parameter `reportPort` is set. 
+A websocket listener can then record the results to a file for further
+processing, or to track performance differences over time.
+See [stoneberry-bench][] for an example of `pnpm bench` and `pnpm bench:dev` commands
+that setup a websocket lister.
+
+
+### Lower Level Timing API
+You can use a lower level api for integrating gpu timing and reporting 
+into applications without using the `benchRunner`.
+
+- Request the feature `'timestamp-query'` when you call `requestDevice` for your `GPUDevice`.
+
+- `initGpuTiming(gpuDevice)` - enables the timing api. 
+After initialization, access to the api is available through the global `gpuTiming`. 
+
+- `gpuTiming?.timestampWrites()` - returns a partial descriptor for [beginRenderPass] or
+  [beginComputePass] that will record timing for the render or compute pass.
+
+- `gpuTiming.results()` to fetch and convert the timing samples from the gpu.
+
+- see `benchRunner`'s `logCsvReport()` to log gpu timing results to the debug 
+console in tabular csv format.
 
 For grouping timestamp records (e.g. to capture timing of multiple shaders in a frame), use:
 
 - `withTimestampGroup()` - create a multi-span covering the time from the first
   underlying span to the last underlying span. Note that the group time is not
-  the sum of the underlying span times (in the likely case that there are gaps
-  or overlaps between the underlying spans).
+  the sum of the underlying span times (in the likely case that the GPU
+  execution has gaps or overlaps when executing th underlying shaders).
 
-Use `gpuTiming.results()` to fetch and convert the timing samples from the gpu.
-
-Use `logCsvReport()` to log the gpu timing results to the debug console in tabular form.
-The result looks like this:
-
-```
-                name,   start, duration
-              mosaic,    0.00,     0.13
-      convertTexture,    0.13,     0.07
-       reduceTexture,    0.21,     0.09
-   bufferReduce 2400,    0.30,     0.03
-           histogram,    0.34,     1.34
-          sourceScan,    1.70,     0.02
-     scaleUnitColors,    1.73,     0.05
-           gpu-total,    0.00,     1.78
-         clock-total,    0.00,     6.50
-```
-
-[demo]: https://thimbleberry.dev
-
-The output is in comma-separated-values format,
-making the results easy to import into external tools.
-
-Times are in ms. This is from the image transform [demo] running on a Mac M1,
-with both 'mosaic' and 'equalize unit histogram' enabled, using the 640x480 webcam as a source.
-
-`gpu-total` is created with `withTimestampGroup()`, and coalesces the underlying gpu timings.
-`clock-total` is measured on the cpu and added to the report.
-
-_Note that you need to launch the browser with a flag to capture GPU performance metrics.
-In Chromium based browsers, use the command line flag:
-`--enable-dawn-features=allow_unsafe_apis`_
 
 ## Reactively
 
