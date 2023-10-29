@@ -142,6 +142,23 @@ Finally, lazy execution means giving up some control of exactly when your code r
 
 Note that while the example code in this post uses decorators and Typescript classes, [Reactively] works equally well with a more functional style.
 
+#### Reactively tips
+The lazy recalculation feature is useful even for methods that don't return a value.
+For example, I typically mark `@reactively` on a `writeUniforms(): void` 
+method that copies over uniforms data from the CPU to the GPU. 
+If the source data hasn't changed, [Reactively] will automatically skip the copy.
+
+To make dependency tracking work, note that it's important to 
+also mark the related properties with `@reactively`
+so that changes to those properties can be tracked by the reactive system. 
+If allocation depends on `size`, both the allocator and the `size` property should be marked.
+
+Passing `@reactively` tracked values between classes and modules works fine, but
+to preserve reactive change tracking,
+share an access function instead of the raw value.
+e.g. to share `myObj.srcTexture`,
+share as `{srcParam: () => myObj.srcTexture}`.
+
 ### Summary
 With fine grained reactively, GPU resources are rebuilt when necessary and no more. Caching, dependency tracking, and smart recalculation come more or less for free, we don't need to write and maintain separate logic for dirty checking, and eager resource destruction is easier to manage.
 

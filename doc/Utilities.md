@@ -4,17 +4,18 @@ Thimbleberry utilities offer support for writing WebGPU applications and WGSL sh
 for the browser.
 
 Note that the Thimbleberry utility modules are generally independent of each other.
-Feel free to pick and choose the ones that are useful for you.
+Feel free to pick and choose the utilities that are useful for you.
+Unusued utilities will be automatically removed during application bundling.
 
 Contents:
 
 - [Debug Logging / Testing](#Debug-logging--testing)
 - [Shader Components](./Utilities.md#Shader-Components)
-- [Reactively](./Utilities.md#Reactively)
 - [Resource Management](./Utilities.md#Resource-Management)
 - [Caching Compiled Shaders](./Utilities.md#Caching-Compiled-Shaders)
 - [WGSL templates](./Utilities.md#WGSL-templates)
 - [GPU Performance Reports](./Utilities.md#CPU-Performance-Reports)
+- [Reactively](./Utilities.md#Reactively)
 - [Cypress Component Tests](./Utilities.md#Cypress-Component-Tests)
 
 ## Debug Logging / Testing
@@ -30,7 +31,7 @@ I've found it useful to iteratively develop shaders by running small examples
 and logging or analyzing the results on the CPU. Those small examples then
 turn into component integration tests to maintain the shader.
 
-During development, I habitually attach a small 'debug' buffer to each shader 
+During development, I habitually attach a small 'debug' buffer to each shader
 to record a few values from within the wgsl, and then log them with `printBuffer()`.
 
 ## Shader Components
@@ -40,58 +41,6 @@ to record a few values from within the wgsl, and then log them with `printBuffer
 The `ShaderComponent` is a start towards making shaders more modular: [ShaderComponent].
 Simply implement the `commands()` function and then multiple shaders can be dispatched together in a `ShaderGroup`.
 
-I'm interested in evolving `ShaderComponent` to support richer api options.
-Suggestions welcome.
-
-The demo image transform app, for example, has
-a richer extension called `ImageShaderComponent` that requires a few fields for
-input and and output textures.
-This enables an `ImageChain` to sequence an arbitrary set of image transforming shaders, interspersing temporary buffers as needed.
-
-`ImageChain` and `ImageShaderComponent` are currently specialized for image processing,
-and so they're in the demo app and not in the utility library for now.
-I expect we'll find more generic ways to stitch together modular shaders over time.
-
-## Reactively
-[Reactively]: https://github.com/modderme123/reactively
-[decorate]: https://github.com/modderme123/reactively/tree/main/packages/decorate
-
-The current generation of fine grained reactive (signal) libraries in web
-frameworks offers several features that are useful for using the WebGPU API: 
-dependency tracking, caching, and lazy recalculation.
-I've been using [Reactively], a small, fast and standalone reactive library.
-Using Reactively's [decorate] library,
-you can mark a property, getter, or method `@reactively`.
-Simply marking a property `@reactively` makes that property lazy and cached. 
-It also turns on dependency tracking.
-
-GPU resources like textures and buffers are expensive to allocate,
-and the conditions that require rebuilding those resources can be complicated to track.
-The convenience of a reactive library is a good way to handle GPU resource allocation.
-By marking the GPU resource allocation method or getter with `@reactively`,
-the resource allocation immediately becomes lazy, 
-saving startup time and memory for resources that might not be used for a long time. 
-
-More importantly, those GPUBuffers and GPUTextures 
-are rebuilt automatically when necessary. So if the user resizes a canvas, 
-the shader wrapper will automatically allocate a larger GPUTexture.
-
-The lazy recalculation feature is useful even for methods that don't return a value.
-For example, I typically mark `@reactively` on a `writeUniforms(): void` 
-method that copies over uniforms data from the CPU to the GPU. 
-If the source data hasn't changed, [Reactively] will automatically skip the copy.
-
-#### Reactively tips
-To make dependency tracking work, note that it's important to 
-also mark the related properties with `@reactively`
-so that changes to those properties can be tracked by the reactive system. 
-If allocation depends on `size`, both the allocator and the `size` property should be marked.
-
-Passing `@reactively` tracked values between classes and modules works fine, but
-to preserve reactive change tracking,
-share an access function instead of the raw value.
-e.g. to share `myObj.srcTexture`,
-share as `{srcParam: () => myObj.srcTexture}`.
 
 ## WGSL templates
 
@@ -205,7 +154,7 @@ fronting the two APIs available in WebGPU.
   - `span.end()` - end the set
 
 - I recommend using the timestampWrites() API for now.
-  Span timing is unreliable on MacOS (though that may be fixed prior to general release of WebGPU). 
+  Span timing is unreliable on MacOS (though that may be fixed prior to general release of WebGPU).
 
 For grouping timestamp records (e.g. to capture timing of multiple shaders in a frame), use:
 
@@ -243,11 +192,30 @@ with both 'mosaic' and 'equalize unit histogram' enabled, using the 640x480 webc
 `gpu-total` is created with `withTimestampGroup()`, and coalesces the underlying gpu timings.
 `clock-total` is measured on the cpu and added to the report.
 
-..hmm, looks like the histogram shader is slow in this revision.
-It'll be nice to improve it and measure the difference..
+_Note that you need to launch the browser with a flag to capture GPU performance metrics.
+In Chromium based browsers, use the command line flag:
+`--enable-dawn-features=allow_unsafe_apis`_
 
-_Note that you need to launch the browser with the flag `--disable-dawn-features=disallow_unsafe_apis`
-to capture GPU performance metrics._
+## Reactively
+
+[Reactively]: https://github.com/modderme123/reactively
+[decorate]: https://github.com/modderme123/reactively/tree/main/packages/decorate
+[decorated]: https://github.com/modderme123/reactively/tree/main/packages/decorate
+[Reactivity]: ./Reactivity.md
+
+Reactivity for WebGPU is useful, see [Reactivity][] for motivation.
+If you'd like to try to building your shaders in a
+in a reactive style using [Reactively][] and [decorate][]:
+
+- `reactiveTrackUse()` will help with resource cleanup by tracking destroyable
+  objects like GPUBuffers. If the resource becomes unused because it was
+  replaced dynamically, the old resource will be destroyed.
+
+- `assignParams()` will copy props style argument objects to [Reactively][] [decorated][]
+  properties conveniently in one step, and will validate that all properties
+  are assigned.
+
+Thimbleberry's other utilities don't depend on reactivity.
 
 ## Cypress Component Tests
 
