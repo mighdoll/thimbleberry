@@ -18,8 +18,11 @@ export abstract class HasShaderSequence extends HasReactive implements Composabl
 export class SequenceShader extends HasShaderSequence {
   shaders: ComposableShader[];
 
-  constructor(shaders: ComposableShader[]) {
+  name: string;
+
+  constructor(shaders: ComposableShader[], name?: string) {
     super();
     this.shaders = shaders;
+    this.name = name || "SequenceShader";
   }
 }
