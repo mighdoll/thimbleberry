@@ -8,7 +8,7 @@ import {
   minMaxTemplate,
   placeholderTexture,
   reactiveTrackUse,
-  SequenceShader,
+  HasShaderSequence,
   ComposableShader,
   trackContext,
   Vec2
@@ -54,7 +54,7 @@ const defaults = {
  * Differing from Garcia-Lamont, we calculate histogram buckets in the min-max range
  * of the image's luminance and expand to the full luminance range.
  */
-export class ColorEqualizeUnit extends SequenceShader {
+export class ColorEqualizeUnit extends HasShaderSequence {
   device!: GPUDevice;
   @reactively srcTexture!: GPUTexture | GPUExternalTexture;
   @reactively({ equals: deepEqual }) srcSize!: Vec2;

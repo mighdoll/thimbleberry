@@ -1,8 +1,8 @@
 import { HasReactive } from "@reactively/decorate";
 import { ComposableShader } from "./ComposableShader.js";
 
-/** A sequence of shaders exposed as a single ShaderComponent */
-export abstract class SequenceShader extends HasReactive implements ComposableShader {
+/** Support for a sequence of shaders exposed as a single ShaderComponent */
+export abstract class HasShaderSequence extends HasReactive implements ComposableShader {
   commands(encoder: GPUCommandEncoder): void {
     this.shaders.forEach(s => s.commands(encoder));
   }
@@ -12,4 +12,14 @@ export abstract class SequenceShader extends HasReactive implements ComposableSh
   }
 
   abstract get shaders(): ComposableShader[];
+}
+
+/** A sequence of shaders exposed as a single ShaderComponent */
+export class SequenceShader extends HasShaderSequence {
+  shaders: ComposableShader[];
+
+  constructor(shaders: ComposableShader[]) {
+    super();
+    this.shaders = shaders;
+  }
 }
