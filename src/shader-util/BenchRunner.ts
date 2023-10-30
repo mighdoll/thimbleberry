@@ -1,6 +1,6 @@
 import { ComposableShader, initGpuTiming } from "thimbleberry";
 import { benchDevice } from "./BenchDevice.js";
-import { BenchReportType, logCsvReport } from "./BenchReport.js";
+import { BenchReportType, logCsvReport, logMsg } from "./BenchReport.js";
 import { BenchResult, benchShader } from "./BenchShader.js";
 
 /** Create function to make a runnable shader for benchmarking. */
@@ -88,6 +88,8 @@ export async function benchRunner(
   if (reportType === "details") {
     namedResults.forEach(result => {
       const { name, benchResult, srcSize } = result;
+      
+      logMsg("## Summary");
       logCsv(name, benchResult, srcSize, testUtc, "summary-only", precision, attributes);
     });
   }

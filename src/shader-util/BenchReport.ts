@@ -39,6 +39,10 @@ export function logCsvReport(params: LogCsvConfig): void {
   const sections = [...gpuReports, summaryReports];
   const msg = sections.join("\n\n") + "\n\n";
 
+  logMsg(msg);
+}
+
+export function logMsg(msg: string): void {
   console.log(msg);
   logWebSocket(msg);
 }
