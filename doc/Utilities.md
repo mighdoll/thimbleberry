@@ -59,15 +59,16 @@ The tabular csv format is designed to be readable in the debug console
 and also easy to import into external tools.
 Here's an example displaying the benchmarks of some [stoneberry][] shaders:
 
-[<img width="800" alt="image" src="https://github.com/mighdoll/thimbleberry/assets/63816/42802413-4950-4a5e-8d44-c251118e29c5">](https://public.tableau.com/app/profile/mighdoll/viz/shaderbenchmarking/Dashboard)
+<img width="900" alt="image" src="https://github.com/mighdoll/thimbleberry/assets/63816/1843379a-f81b-4edd-b2bb-de0fe4c2fe84">
+
+[(interactive dashboard)](https://public.tableau.com/app/profile/mighdoll/viz/shaderbenchmarking/Dashboard)
 
 ### To benchmark your shader with `benchRunner`
 
-1. Add a timing trigger to your shader:
-
-   - Add `gpuTiming?.timestampWrites("myShader")` to your shader's [beginComputePass][] or [beginRenderPass][].
-     You can leave this code in your production shader if you'd like,
-     it's a noop if timing is not enabled.
+1. Add a timing trigger to your shader by adding
+   `gpuTiming?.timestampWrites("myShader")` to your shader's [beginComputePass][] or [beginRenderPass][].
+   You can leave this code in your production shader if you'd like,
+   it's a noop if timing is not enabled.
 
    ```ts
    // if gpu timing is enabled, time this render pass
@@ -82,7 +83,7 @@ Here's an example displaying the benchmarks of some [stoneberry][] shaders:
 1. Write a function that will create an instance of your shader with benchmark data.
    The benchmark function takes a `GPUDevice` as a parameter,
    and returns the size of the benchmark data
-   and a function `commands(gpuCommandEncoder)` that the benchmark runner
+   and a function with the signature `commands(gpuCommandEncoder)` that the benchmark runner
    will call to run your shader.
 
    ```ts
