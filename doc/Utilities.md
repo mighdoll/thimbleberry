@@ -1,20 +1,22 @@
+[stoneberry]: https://stoneberry.dev
+
 # Thimbleberry WebGPU Utilities
 
 Thimbleberry utilities offer support for writing WebGPU applications and WGSL shaders
 for the browser.
 
-Note that the Thimbleberry utility modules are generally independent of each other.
-Feel free to pick and choose the utilities that are useful for you.
+Note that the Thimbleberry utility modules are generally independent of each other,
+so feel free to pick and choose.
 Unusued utilities will be automatically removed during application bundling.
 
 Contents:
 
 - [Debug Logging / Testing](#Debug-logging--testing)
+- [GPU Performance Reports](./Utilities.md#GPU-Performance-Reports)
 - [Shader Components](./Utilities.md#Shader-Components)
 - [Resource Management](./Utilities.md#Resource-Management)
 - [Caching Compiled Shaders](./Utilities.md#Caching-Compiled-Shaders)
 - [WGSL templates](./Utilities.md#WGSL-templates)
-- [GPU Performance Reports](./Utilities.md#GPU-Performance-Reports)
 - [Reactively](./Utilities.md#Reactively)
 - [Cypress Component Tests](./Utilities.md#Cypress-Component-Tests)
 
@@ -34,6 +36,123 @@ turn into component integration tests to maintain the shader.
 During development, I habitually attach a small 'debug' buffer to each shader
 to record a few values from within the wgsl, and then log them with `printBuffer()`.
 
+## GPU Performance Reports
+
+[begincomputepass]: https://www.w3.org/TR/webgpu/#command-encoder-pass-encoding
+[beginrenderpass]: https://www.w3.org/TR/webgpu/#command-encoder-pass-encoding
+
+Thimbleberry includes a high level api for benchmarking shaders and reporting results.
+The default results look like this:
+
+```
+          benchmark,           name,  start,  duration,  runId,            utc
+      reduce_simple,   reduce 32768,   0.00,      0.20,     65,  1698608646248
+      reduce_simple,     reduce 128,   0.20,      0.00,     65,  1698608646248
+      reduce_simple,       reduce 1,   0.26,      0.00,     65,  1698608646248
+      reduce_simple,  --> gpu total,   3.87,      0.26,     65,  1698608646248
+
+          benchmark,  avg time / run (ms),  src GB/sec,  src bytes,            utc
+      reduce_simple,                 0.32,       98.89,   33554432,  1698608646248
+```
+
+The tabular csv format is designed to be readable in the debug console
+and also easy to import into external tools.
+Here's an example displaying the benchmarks of some [stoneberry][] shaders:
+
+[<img width="800" alt="image" src="https://github.com/mighdoll/thimbleberry/assets/63816/42802413-4950-4a5e-8d44-c251118e29c5">](https://public.tableau.com/app/profile/mighdoll/viz/shaderbenchmarking/Dashboard)
+
+### To benchmark your shader with `benchRunner`
+
+1. Add a timing trigger to your shader:
+
+   - Add `gpuTiming?.timestampWrites("myShader")` to your shader's [beginComputePass][] or [beginRenderPass][].
+     You can leave this code in your production shader if you'd like,
+     it's a noop if timing is not enabled.
+
+   ```ts
+   // if gpu timing is enabled, time this render pass
+   const timestampWrites = gpuTiming?.timestampWrites("myShader");
+
+   const passEncoder = commandEncoder.beginRenderPass({
+     label: "myShader",
+     timestampWrites,
+   });
+   ```
+
+1. Write a function that will create an instance of your shader with benchmark data.
+   The benchmark function takes a `GPUDevice` as a parameter,
+   and returns the size of the benchmark data
+   and a function `commands(gpuCommandEncoder)` that the benchmark runner
+   will call to run your shader.
+
+   ```ts
+   function myShaderBench(device: GPUDevice): ShaderAndSize {
+     const shader = { commands: (encoder: GPUCommandEncoder) => {} };
+     return { shader, srcSize: 2 ** 20 };
+   }
+   ```
+
+1. Pass your shader benchmark function to `benchRunner` from a tiny browser test app.
+
+   ```ts
+   async function main(): Promise<void> {
+     await benchRunner([{ makeShader: myShaderBench }]);
+   }
+   ```
+
+[stoneberry-bench]: https://github.com/stoneberry-webgpu/stoneberry/blob/main/packages/bench/src/bench.ts
+
+See [stoneberry-bench][] or [alpenbench](https://github.com/mighdoll/alpenbench)
+for open source benchmarking examples using `benchRunner`.
+
+_Note that you need to launch the browser with a flag to capture GPU performance metrics.
+In Chromium based browsers, use the command line flag:
+`--enable-dawn-features=allow_unsafe_apis`_.
+
+#### BenchRunner Options
+
+Configuration options to control the number of runs and warmups,
+numerical precision of output reporting, etc. are optional arguments to the `benchRunner`.
+See `ControlParams` for current options.
+You can also set options dynamically via url parameters:
+
+```
+    http://localhost:5173/?precision=4&reportType=fastest&runs=200
+```
+
+#### Preserving results to a file
+
+The `benchRunner` will echo its csv output to a webSocket port
+if the url parameter `reportPort` is set.
+A websocket listener can then record the results to a file for further
+processing, or to track performance differences over time.
+See [stoneberry-bench][] for an example of `pnpm bench` and `pnpm bench:dev` commands
+that setup a websocket lister.
+
+### Lower Level Timing API
+
+You can use a lower level api for integrating gpu timing and reporting
+into applications without using the `benchRunner`.
+
+- Request the feature `'timestamp-query'` when you call `requestDevice` for your `GPUDevice`.
+
+- `initGpuTiming(gpuDevice)` - enables the timing api.
+  After initialization, access to the api is available through the global `gpuTiming`.
+
+- `gpuTiming?.timestampWrites()` - returns a partial descriptor for [beginRenderPass] or
+  [beginComputePass] that will record timing for the render or compute pass.
+
+- `gpuTiming.results()` to fetch and convert the timing samples from the gpu.
+
+- see `benchRunner`'s `logCsvReport()` to log gpu timing results to the debug
+  console in tabular csv format.
+
+For grouping timestamp records (e.g. to capture timing of multiple shaders in a frame), use:
+
+- `withTimestampGroup()` - create a multi-span covering the time from the first
+  underlying span to the last underlying span. Note that the group time is not
+  the sum of the underlying span times (in the likely case that the GPU
+  execution has gaps or overlaps when executing th underlying shaders).
 ## Shader Components
 
 [shadercomponent]: ../src/shader-util/ShaderComponent.ts
@@ -73,7 +192,8 @@ with the contents of the srcTextureType template variable.
 
 See `applyTemplate()` for details of the template syntax.
 
-For a more involved use of templates, see `ReduceBuffer.wgsl` and `BinOpTemplate.ts`,
+For a more involved use of templates, see for example `ReduceBuffer.wgsl`
+and `BinOpTemplate.ts` in [stoneberry][],
 which use templates to make a generic reduction shader that can support
 arbitrary binary operations (min, max, sum).
 
@@ -120,121 +240,6 @@ The cache is globally persistent by default.
 A cache version with weak references is also available:
 pass `weakMemoCache()` to the function returned from `memoizeWithDevice()`.
 
-## GPU Performance Reports
-
-[begincomputepass]: https://www.w3.org/TR/webgpu/#command-encoder-pass-encoding
-[beginrenderpass]: https://www.w3.org/TR/webgpu/#command-encoder-pass-encoding
-
-Thimbleberry includes a high level api for benchmarking shaders and reporting results.
-The default results look like this:
-
-```
-          benchmark,           name,  start,  duration,  runId,            utc
-      reduce_simple,   reduce 32768,   0.00,      0.20,     65,  1698608646248
-      reduce_simple,     reduce 128,   0.20,      0.00,     65,  1698608646248
-      reduce_simple,       reduce 1,   0.26,      0.00,     65,  1698608646248
-      reduce_simple,  --> gpu total,   3.87,      0.26,     65,  1698608646248
-
-          benchmark,  avg time / run (ms),  src GB/sec,  src bytes,            utc
-      reduce_simple,                 0.32,       98.89,   33554432,  1698608646248
-```
-
-The tabular csv format is designed to be readable in the debug console
-and also easy to import into external tools. 
-Here's an example displaying the benchmarks of some [stoneberry](https://stoneberry.dev) shaders:
-
-[<img width="800" alt="image" src="https://github.com/mighdoll/thimbleberry/assets/63816/42802413-4950-4a5e-8d44-c251118e29c5">](https://public.tableau.com/app/profile/mighdoll/viz/shaderbenchmarking/Dashboard)
-
-### To benchmark your shader with `benchRunner`
-  1. Add a timing trigger to your shader:
-
-      * Add `gpuTiming?.timestampWrites("myShader")` to your shader's [beginComputePass][] or [beginRenderPass][]. 
-      You can leave this code in your production shader if you'd like, 
-      it's a noop if timing is not enabled.
-
-      ```ts
-            // if gpu timing is enabled, time this render pass
-            const timestampWrites = gpuTiming?.timestampWrites("myShader");
-
-            const passEncoder = commandEncoder.beginRenderPass({
-              label: "myShader",
-              timestampWrites,
-            });
-      ```
-
-  1. Write a function that will create an instance of your shader with benchmark data.
-     The benchmark function takes a `GPUDevice` as a parameter, 
-     and returns the size of the benchmark data 
-     and a function `commands(gpuCommandEncoder)` that the benchmark runner 
-     will call to run your shader.
-
-        ```ts
-                function myShaderBench(device: GPUDevice): ShaderAndSize {
-                  const shader = {commands: (encoder: GPUCommandEncoder) => {}}
-                  return { shader, srcSize: 2 ** 20};
-                }
-        ```
-
-  1. Pass your shader benchmark function to `benchRunner` from a tiny browser test app.
-
-        ```ts
-                async function main(): Promise<void> {
-                  await benchRunner([{ makeShader: myShaderBench }]);
-                }
-        ```
-
-[stoneberry-bench]: https://github.com/stoneberry-webgpu/stoneberry/blob/main/packages/bench/src/bench.ts
-
-See [stoneberry-bench][] or [alpenbench](https://github.com/mighdoll/alpenbench)
-for open source benchmarking examples using `benchRunner`. 
-
-_Note that you need to launch the browser with a flag to capture GPU performance metrics.
-In Chromium based browsers, use the command line flag:
-`--enable-dawn-features=allow_unsafe_apis`_.
-
-#### BenchRunner Options
-Configuration options to control the number of runs and warmups, 
-numerical precision of output reporting, etc. are optional arguments to the `benchRunner`.
-See `ControlParams` for current options.
-You can also set options dynamically via url parameters:
-
-```
-    http://localhost:5173/?precision=4&reportType=fastest&runs=200
-```
-#### Preserving results to a file
-The `benchRunner` will echo its csv output to a webSocket port
-if the url parameter `reportPort` is set. 
-A websocket listener can then record the results to a file for further
-processing, or to track performance differences over time.
-See [stoneberry-bench][] for an example of `pnpm bench` and `pnpm bench:dev` commands
-that setup a websocket lister.
-
-
-### Lower Level Timing API
-You can use a lower level api for integrating gpu timing and reporting 
-into applications without using the `benchRunner`.
-
-- Request the feature `'timestamp-query'` when you call `requestDevice` for your `GPUDevice`.
-
-- `initGpuTiming(gpuDevice)` - enables the timing api. 
-After initialization, access to the api is available through the global `gpuTiming`. 
-
-- `gpuTiming?.timestampWrites()` - returns a partial descriptor for [beginRenderPass] or
-  [beginComputePass] that will record timing for the render or compute pass.
-
-- `gpuTiming.results()` to fetch and convert the timing samples from the gpu.
-
-- see `benchRunner`'s `logCsvReport()` to log gpu timing results to the debug 
-console in tabular csv format.
-
-For grouping timestamp records (e.g. to capture timing of multiple shaders in a frame), use:
-
-- `withTimestampGroup()` - create a multi-span covering the time from the first
-  underlying span to the last underlying span. Note that the group time is not
-  the sum of the underlying span times (in the likely case that the GPU
-  execution has gaps or overlaps when executing th underlying shaders).
-
-
 ## Reactively
 
 [Reactively]: https://github.com/modderme123/reactively
@@ -242,9 +247,11 @@ For grouping timestamp records (e.g. to capture timing of multiple shaders in a 
 [decorated]: https://github.com/modderme123/reactively/tree/main/packages/decorate
 [Reactivity]: ./Reactivity.md
 
-Reactivity for WebGPU is useful, see [Reactivity][] for motivation.
+Reactivity is a handy technique for making flexible WebGPU shaders.
+(See [Reactivity][] for a detailed discussion.)
 If you'd like to try to building your shaders in a
-in a reactive style using [Reactively][] and [decorate][]:
+in a reactive style using [Reactively][] and [decorate][],
+there are a couple of useful utilities in Thimbleberry.
 
 - `reactiveTrackUse()` will help with resource cleanup by tracking destroyable
   objects like GPUBuffers. If the resource becomes unused because it was
@@ -258,7 +265,6 @@ Thimbleberry's other utilities don't depend on reactivity.
 
 ## Cypress Component Tests
 
-[component-test-util]: https://github.com/mighdoll/thimbleberry/tree/main/cypress/component-test/util
 [component-test]: https://github.com/mighdoll/thimbleberry/tree/main/cypress/component-test
 [mosaic-cy]: https://github.com/mighdoll/thimbleberry/tree/main/cypress/component-test/Mosaic.cy.ts
 [cypress.config.ts]: https://github.com/mighdoll/thimbleberry/tree/main/cypress.config.ts
@@ -269,7 +275,7 @@ An example cypress configuration is in the Thimbleberry tree.
 Thimbleberry includes some useful examples and utilities for Cypress tests.
 
 - The [debug](#debug-logging--testing) functions like `withTextureCopy()` are purpose built for debugging and testing.
-- Convenience routines in [component-test/util][component-test-util]
+- Convenience routines in Thimbleberry
   such as `makeTexture()`, `sequenceTexture()`, `makeBuffer()` are useful for setting up test scenarios.
 - Take note of the configuration in [cypress.config.ts], e.g. for setting browser command line arguments.
 
