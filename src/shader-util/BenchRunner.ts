@@ -86,10 +86,10 @@ export async function benchRunner(
   // log summary separately for detail reports, for easier spreadsheet import
   const { reportType, precision } = controlParams();
   if (reportType === "details") {
+    logMsg("## Summary\n");
     namedResults.forEach(result => {
       const { name, benchResult, srcSize } = result;
-      
-      logMsg("## Summary");
+
       logCsv(name, benchResult, srcSize, testUtc, "summary-only", precision, attributes);
     });
   }
