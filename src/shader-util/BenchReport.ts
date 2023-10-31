@@ -81,7 +81,7 @@ function selectGpuCsv(params: Required<LogCsvConfig>): string[] {
     const durations = reports.map(r => ({ report: r, duration: reportDuration(r) }));
     durations.sort((a, b) => a.duration - b.duration);
     const median = durations[Math.floor(durations.length / 2)];
-    toReport = [median.report];
+    toReport = median ? [median.report] : [];
   } else if (reportType === "fastest") {
     const fastest = reports.reduce((a, b) =>
       reportDuration(a) < reportDuration(b) ? a : b
