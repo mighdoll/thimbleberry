@@ -6,11 +6,11 @@ import {
   Sliceable,
   Vec2,
   Vec4,
-  withTextureCopy,
+  withTextureCopy
 } from "thimbleberry/shader-util";
 import { MosaicShader } from "./../../image-demo/src/shaders/MosaicShader";
 import { insertCanvas } from "./util/InsertCanvas";
-import { sequenceTexture } from "./util/SequenceTexture";
+import { sequenceTexture } from "./util/SequenceTexture.js";
 
 it("render simple mosaic", async () => {
   const size: Vec2 = [6, 6];

@@ -1,10 +1,8 @@
 import {
-  arrayToBuffer,
-  componentByteSize,
-  numComponents,
-  Vec2,
+  make2dSequence,
+  makeTexture,
+  Vec2
 } from "thimbleberry/shader-util";
-import { mapN } from "../../../src/shader-util/MapN";
 
 interface SequenceTexture {
   texture: GPUTexture;
@@ -24,21 +22,13 @@ export function sequenceTexture(
   format: GPUTextureFormat = "r32float",
   step = 1
 ): SequenceTexture {
-  const texture = device.createTexture({
-    size,
-    format,
-    usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST| GPUTextureUsage.COPY_SRC, // prettier-ignore
-  });
-  const components = numComponents(format);
-  const bytesPerComponent = componentByteSize(format);
-  const rawData = mapN(size[0] * size[1] * components, (i) => step * i);
-  const data = arrayToBuffer(format, rawData);
-  device.queue.writeTexture(
-    { texture },
-    data,
-    { bytesPerRow: size[0] * bytesPerComponent * components },
-    size
-  );
-  const sum = [...data].reduce((a, b) => a + b, 0);
-  return { texture, sum, data: rawData };
+  // LATER now unsupported, but I think this util is going away.
+  // 
+  // const components = numComponents(format);
+  // const bytesPerComponent = componentByteSize(format);
+  const rawData = make2dSequence(size, step);
+  const texture = makeTexture(device, rawData, format);
+
+  const sum = [...rawData.flat()].reduce((a, b) => a + b, 0);
+  return { texture, sum, data: rawData.flat() };
 }

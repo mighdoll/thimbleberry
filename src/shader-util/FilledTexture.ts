@@ -75,13 +75,14 @@ export function makeEmptyTexture(
 }
 
 /** (for test fixtures) fill a 2D array with sequential values */
-export function make2dSequence(size: Vec2): number[][] {
+export function make2dSequence(size: Vec2, step = 1): number[][] {
   const data = [];
   let i = 0;
   for (let y = 0; y < size[1]; y++) {
     const row = [];
     for (let x = 0; x < size[0]; x++) {
-      row.push(i++);
+      row.push(i * step);
+      i++;
     }
     data.push(row);
   }

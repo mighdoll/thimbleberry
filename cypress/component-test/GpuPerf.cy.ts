@@ -4,6 +4,8 @@ import {
   gpuTiming,
   initGpuTiming,
   labeledGpuDevice,
+  make2dSequence,
+  makeTexture,
   minMaxTemplate,
   reportDuration,
   ShaderGroup,
@@ -11,7 +13,6 @@ import {
   withAsyncUsage,
 } from "thimbleberry/shader-util";
 import { ReduceFrameSequence } from "thimbleberry/shaders";
-import { sequenceTexture } from "./util/SequenceTexture";
 
 it("gpu perf measures time: frame sequence example", async () => {
   await withAsyncUsage(async () => {
@@ -21,7 +22,8 @@ it("gpu perf measures time: frame sequence example", async () => {
     trackUse(device);
     initGpuTiming(device);
 
-    const { texture: srcTexture } = sequenceTexture(device, [1024, 1024]);
+    const data = make2dSequence([1024, 1024]);
+    const srcTexture = makeTexture(device, data, "r32float");
     const frameReduce = new ReduceFrameSequence({
       device,
       srcTexture,
