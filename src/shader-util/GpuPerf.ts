@@ -44,7 +44,9 @@ interface MarkInfo {
  *
  * Note that this requires the "timestamp-query" feature to be enabled
  * when calling requestDevice(), which in turn currenlty requires a command line
- * flag when launching chrome: --disable-dawn-features=disallow_unsafe_apis
+ * flag when launching chrome: --enable-dawn-features=allow_unsafe_apis
+ * Thes flags are also useful to increase reporting accuracy:
+ * --enable-webgpu-developer-features  --disable-dawn-features=timestamp_quantization
  *
  * This class wraps two separate WebGPU apis:
  *   GPUCommandEncoder.writeTimestamp(),
@@ -55,6 +57,14 @@ interface MarkInfo {
  * writeTimestamp api is unreliable on Metal (Apple), due to reordering of commands
  * at the driver level. Until that issue is fixed, prefer GpuTiming.timestampWrites()
  * instead of GpuTiming.span() or GpuTiming.mark().
+ * 
+ * GPUTiming works by asking the GPU to record timestamps during shader execution. 
+ * GPU timestamps are saved into an array called a QuerySet which can later be copied 
+ * back to the CPU for analysis.  This class maintains a mapping from span and mark 
+ * labels to indices in the QuerySet. The results() method fetches the QuerySet
+ * and parses the timestamps into a GPUPerfReport. 
+ * 
+ * See the companion module GpuPerfReport.ts for filtering and other GPUPerfReport utilities.
  */
 export class GpuTiming {
   private device: GPUDevice;
