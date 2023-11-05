@@ -23,4 +23,8 @@ export class ShaderGroup {
     });
     return stampRange.span;
   }
+
+  destroyAll(): void {
+    this.shaders.forEach(s => s.destroy?.());
+  }
 }

@@ -42,6 +42,8 @@ export async function benchShader(
     i += runsThisBatch;
   }
 
+  shaderGroup.destroyAll();
+
   // find average clock time across all batches
   const batchAverages = batchResults.map(r => r.averageClockTime * r.batchSize);
   const averageClockTime = batchAverages.reduce((a, b) => a + b, 0) / runs;
