@@ -59,7 +59,7 @@ The tabular csv format is designed to be readable in the debug console
 and also easy to import into external tools.
 Here's an example displaying the benchmarks of some [stoneberry][] shaders:
 
-<img width="900" alt="image" src="https://github.com/mighdoll/thimbleberry/assets/63816/1843379a-f81b-4edd-b2bb-de0fe4c2fe84">
+<img width="900" alt="image" src="https://github.com/mighdoll/thimbleberry/assets/63816/b28987f6-034a-4224-91a4-4f9754f7d626">
 
 [(interactive dashboard)](https://public.tableau.com/app/profile/mighdoll/viz/shaderbenchmarking/Dashboard)
 
