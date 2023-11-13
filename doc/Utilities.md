@@ -45,14 +45,14 @@ Thimbleberry includes a high level api for benchmarking shaders and reporting re
 The default results look like this:
 
 ```
-          benchmark,           name,  start,  duration,  runId,            utc
-      reduce_simple,   reduce 32768,   0.00,      0.20,     65,  1698608646248
-      reduce_simple,     reduce 128,   0.20,      0.00,     65,  1698608646248
-      reduce_simple,       reduce 1,   0.26,      0.00,     65,  1698608646248
-      reduce_simple,  --> gpu total,   3.87,      0.26,     65,  1698608646248
+      benchmark,           name,  start,  duration,  runId,            utc
+  reduce_simple,   reduce 32768,   0.00,      0.21,     91,  1699900977585
+  reduce_simple,     reduce 128,   0.23,      0.01,     91,  1699900977585
+  reduce_simple,       reduce 1,   0.25,      0.01,     91,  1699900977585
+  reduce_simple,  --> gpu total,  11.23,      0.26,     91,  1699900977585
 
-          benchmark,  avg time / run (ms),  src GB/sec,  src bytes,            utc
-      reduce_simple,                 0.32,       98.89,   33554432,  1698608646248
+      benchmark,  avg time / run (ms),  median gpu time (ms),  src GB/sec,  src bytes,            utc
+  reduce_simple,                 0.32,                  0.26,       98.58,   33554432,  1699900977585
 ```
 
 The tabular csv format is designed to be readable in the debug console
