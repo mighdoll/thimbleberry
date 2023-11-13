@@ -61,7 +61,8 @@ Here's an example displaying the benchmarks of some [stoneberry][] shaders:
 
 <img width="900" alt="image" src="https://github.com/mighdoll/thimbleberry/assets/63816/b28987f6-034a-4224-91a4-4f9754f7d626">
 
-[(interactive dashboard)](https://public.tableau.com/app/profile/mighdoll/viz/shaderbenchmarking/Dashboard)
+Here's an [interactive dashboard](https://public.tableau.com/views/shader-benchmarking/Dashboard)
+where you can select the benchmark and shader to visualize.
 
 ### To benchmark your shader with `benchRunner`
 
