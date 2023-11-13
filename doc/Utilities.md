@@ -109,7 +109,8 @@ for open source benchmarking examples using `benchRunner`.
 
 _Note that you need to launch the browser with a flag to capture GPU performance metrics.
 In Chromium based browsers, use the command line flag:
-`--enable-dawn-features=allow_unsafe_apis`_.
+`--enable-dawn-features=allow_unsafe_apis` to enable gpu timing.
+And to increase reporting accuracy, also pass the flag: `--disable-dawn-features=timestamp_quantization`._
 
 #### BenchRunner Options
 
