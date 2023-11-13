@@ -78,10 +78,7 @@ function selectGpuCsv(params: Required<LogCsvConfig>): string[] {
   } else if (reportType === "details") {
     toReport = reports;
   } else if (reportType === "median") {
-    const durations = reports.map(r => ({ report: r, duration: reportDuration(r) }));
-    durations.sort((a, b) => a.duration - b.duration);
-    const median = durations[Math.floor(durations.length / 2)];
-    toReport = median ? [median.report] : [];
+    toReport = medianReport(reports) ;
   } else if (reportType === "fastest") {
     const fastest = reports.reduce((a, b) =>
       reportDuration(a) < reportDuration(b) ? a : b
@@ -91,6 +88,13 @@ function selectGpuCsv(params: Required<LogCsvConfig>): string[] {
 
   const reportCsv = gpuPerfCsv(toReport, params);
   return [reportCsv];
+}
+
+function medianReport(reports: GpuPerfWithId[]): GpuPerfWithId[] {
+    const durations = reports.map(r => ({ report: r, duration: reportDuration(r) }));
+    durations.sort((a, b) => a.duration - b.duration);
+    const median = durations[Math.floor(durations.length / 2)];
+    return median ? [median.report] : [];
 }
 
 /** return a csv table from gpu performance records */
@@ -114,7 +118,7 @@ function gpuPerfCsv(reports: GpuPerfWithId[], params: Required<LogCsvConfig>): s
 /** create a summary csv table showing gb/sec, and average clock timetime */
 function summaryCsv(params: Required<LogCsvConfig>): string[] {
   const { reportType, benchResult, srcSize, preTags, tags, precision } = params;
-  const { averageClockTime } = benchResult;
+  const { averageClockTime, reports } = benchResult;
   if (reportType === "details") {
     // defer summary, to keep table types together for spreadsheet import
     return [];
@@ -124,10 +128,14 @@ function summaryCsv(params: Required<LogCsvConfig>): string[] {
   const gigabytes = srcSize / 2 ** 30;
   const gbSec = (gigabytes / seconds).toFixed(2);
 
+  const report = medianReport(reports)
+  const median = report ? reportDuration(report[0]) : 0;
+  
   const averageTimeMs = averageClockTime.toFixed(precision);
   const jsonRows = [
     {
       "avg time / run (ms)": averageTimeMs,
+      "median gpu time (ms)": median.toFixed(precision),
       "src GB/sec": gbSec,
       "src bytes": srcSize.toString(),
     },
