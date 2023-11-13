@@ -31,7 +31,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "keywords": [
     "webgpu",
