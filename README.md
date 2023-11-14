@@ -1,6 +1,6 @@
 **Thimbleberry**
 
-Thimbleberry is a collection of reusable WebGPU shaders and library support functions.
+Thimbleberry is a library of WebGPU support functions.
 
 - Thimbleberry approaches some of the practical engineering problems that come up in writing WebGPU programs: modularization, debugging, testing, performance tracking, templating, resource cleanup, etc.
 
