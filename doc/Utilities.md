@@ -7,7 +7,7 @@ for the browser.
 
 Note that the Thimbleberry utility modules are generally independent of each other,
 so feel free to pick and choose.
-Unusued utilities will be automatically removed during application bundling.
+Unused utilities will be automatically removed during application bundling.
 
 Contents:
 
@@ -69,7 +69,7 @@ where you can select the benchmark and shader to visualize.
 1. Add a timing trigger to your shader by adding
    `gpuTiming?.timestampWrites("myShader")` to your shader's [beginComputePass][] or [beginRenderPass][].
    You can leave this code in your production shader if you'd like,
-   it's a noop if timing is not enabled.
+   it's a no-op if timing is not enabled.
 
    ```ts
    // if gpu timing is enabled, time this render pass
@@ -130,7 +130,7 @@ if the url parameter `reportPort` is set.
 A websocket listener can then record the results to a file for further
 processing, or to track performance differences over time.
 See [stoneberry-bench][] for an example of `pnpm bench` and `pnpm bench:dev` commands
-that setup a websocket lister.
+that set up a websocket listener.
 
 ### Lower Level Timing API
 
@@ -155,7 +155,7 @@ For grouping timestamp records (e.g. to capture timing of multiple shaders in a 
 - `withTimestampGroup()` - create a multi-span covering the time from the first
   underlying span to the last underlying span. Note that the group time is not
   the sum of the underlying span times (in the likely case that the GPU
-  execution has gaps or overlaps when executing th underlying shaders).
+  execution has gaps or overlaps when executing the underlying shaders).
 ## Shader Components
 
 [shadercomponent]: ../src/shader-util/ShaderComponent.ts
@@ -252,8 +252,8 @@ pass `weakMemoCache()` to the function returned from `memoizeWithDevice()`.
 
 Reactivity is a handy technique for making flexible WebGPU shaders.
 (See [Reactivity][] for a detailed discussion.)
-If you'd like to try to building your shaders in a
-in a reactive style using [Reactively][] and [decorate][],
+If you'd like to try building your shaders in a
+reactive style using [Reactively][] and [decorate][],
 there are a couple of useful utilities in Thimbleberry.
 
 - `reactiveTrackUse()` will help with resource cleanup by tracking destroyable
@@ -272,7 +272,7 @@ Thimbleberry's other utilities don't depend on reactivity.
 [mosaic-cy]: https://github.com/mighdoll/thimbleberry/tree/main/cypress/component-test/Mosaic.cy.ts
 [cypress.config.ts]: https://github.com/mighdoll/thimbleberry/tree/main/cypress.config.ts
 
-Cypress component testing is handy way to develop and maintain shaders in a test supported style.
+Cypress component testing is a handy way to develop and maintain shaders in a test supported style.
 An example cypress configuration is in the Thimbleberry tree.
 
 Thimbleberry includes some useful examples and utilities for Cypress tests.
@@ -286,7 +286,7 @@ For examples, take a look at [Mosaic.cy.ts][mosaic-cy] or the other tests in [co
 
 Shader development and debugging is more difficult than typical web programming.
 I've found it useful to develop shaders incrementally from small test examples.
-Once setup, component testing wtih Vite and Cypress is very handy.
+Once set up, component testing wtih Vite and Cypress is very handy.
 New tests are easy to add.
 Tests re-run automatically as you change a file.
 And best of all, the development test cycle time is essentially instantaneous.
