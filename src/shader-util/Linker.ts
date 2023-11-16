@@ -9,9 +9,11 @@ interface Export {
 }
 
 const comment = /.*\/\//;
-const exportDirective = /\s*#export\s+(?<export>\w+)/;
+const exportDirective = /\s*#export\s+(?<export>[\w-]+)/;
+const importReplaceDirective = /\s*#importReplace\s+(?<export>[\w-]+)/;
 const optParams = /\s*(\((?<params>[\w, ]*)\))?/;
 export const exportRegex = regexConcat(comment, exportDirective, optParams);
+export const importReplaceRegex = regexConcat(comment, importReplaceDirective, optParams);
 
 export function parseExports(src: string): Export[] {
   let currentExport: Partial<Export> | undefined;
@@ -39,6 +41,7 @@ export function parseExports(src: string): Export[] {
   }
   return results;
 }
+
 
 function regexConcat(...exp: RegExp[]): RegExp {
   const concat = exp.map(e => e.source).join("");
