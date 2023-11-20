@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { exportRegex, importReplaceRegex } from "../Parsing.js";
+import { exportRegex, importReplaceRegex, replaceTokens } from "../Parsing.js";
 
 test("export regex w/o params", () => {
   const result = "// #export foo".match(exportRegex);
@@ -22,4 +22,16 @@ test("parse importReplace w/params", () => {
   const result = src.match(importReplaceRegex);
   expect(result?.groups?.params).toBe(" param1, param2 ");
   expect(result?.groups?.import).toBe("reduceWorkgroup");
+});
+
+test("replaceTokens", () => {
+  const src = `
+  fn foo() {};
+  fn bar() {
+    let x = foo() + 1;
+  }
+`;
+  const replaced = replaceTokens(src, { foo: "fez" });
+  expect(replaced).includes("fez");
+  expect(replaced).not.includes("foo");
 });

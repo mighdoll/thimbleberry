@@ -1,7 +1,6 @@
 import { expect, test } from "vitest";
 import { linkWgsl } from "../Linker.js";
 import { ModuleRegistry, parseModule } from "../ModuleRegistry.js";
-import { replaceTokens } from "../Parsing.js";
 
 test("read simple export", () => {
   const exportPrefix = `// #export binaryOp(Elem)\n`;
@@ -37,17 +36,6 @@ test("apply simple importReplace", () => {
   const linked = linkWgsl(src, registry);
   expect(linked).includes("do reduce");
   expect(linked).includes("call the imported function");
-});
-
-test("replaceTokens", () => {
-  const src = `
-  fn foo() {};
-  fn bar() {
-    let x = foo() + 1;
-  }
-`;
-  const replaced = replaceTokens(src, { foo: "fez" });
-  console.log(replaced);
 });
 
 test("importReplace with parameters", () => {
