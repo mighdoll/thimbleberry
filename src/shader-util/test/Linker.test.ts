@@ -1,9 +1,11 @@
 import { expect, test } from "vitest";
-import {
-  linkWgsl,
-} from "../linker/Linker.js";
-import { exportRegex, importReplaceRegex } from "../linker/ParseDirectives.js";
+import { linkWgsl } from "../linker/Linker.js";
 import { ModuleRegistry, parseModule } from "../linker/ModuleRegistry.js";
+import {
+  exportRegex,
+  importReplaceRegex,
+  replaceTokens,
+} from "../linker/ParseDirectives.js";
 
 test("export regex w/o params", () => {
   const result = "// #export foo".match(exportRegex);
@@ -64,7 +66,18 @@ test("apply simple importReplace", () => {
   expect(linked).includes("call the imported function");
 });
 
-test.only("importReplace with parameters", () => {
+test.only("replaceTokens", () => {
+  const src = `
+  fn foo() {};
+  fn bar() {
+    let x = foo() + 1;
+  }
+`;
+  const replaced = replaceTokens(src, { foo: "fez" });
+  console.log(replaced);
+});
+
+test("importReplace with parameters", () => {
   const module = `
   // these are just for typechecking the module, they're not included when the export is imported
   struct Elem {
@@ -102,8 +115,6 @@ test.only("importReplace with parameters", () => {
   console.log(linked);
   expect(linked).includes("myWork[workDex]");
 });
-
-
 
 /*
 TODO
