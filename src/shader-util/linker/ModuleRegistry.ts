@@ -1,5 +1,5 @@
 import { Export, WgslModule } from "./Linker.js";
-import { exportRegex } from "./ParseDirectives.js";
+import { exportRegex } from "./Parsing.js";
 
 export class ModuleRegistry {
   private exports = new Map<string, Export>();

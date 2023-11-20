@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
-import { linkWgsl } from "../linker/Linker.js";
-import { ModuleRegistry, parseModule } from "../linker/ModuleRegistry.js";
-import { replaceTokens } from "../linker/Parsing.js";
+import { linkWgsl } from "../Linker.js";
+import { ModuleRegistry, parseModule } from "../ModuleRegistry.js";
+import { replaceTokens } from "../Parsing.js";
 
 test("read simple export", () => {
   const exportPrefix = `// #export binaryOp(Elem)\n`;

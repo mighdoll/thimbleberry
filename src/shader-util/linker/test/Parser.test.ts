@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { exportRegex, importReplaceRegex } from "../linker/Parsing.js";
+import { exportRegex, importReplaceRegex } from "../Parsing.js";
 
 test("export regex w/o params", () => {
   const result = "// #export foo".match(exportRegex);
