@@ -38,7 +38,7 @@ test("read simple export", () => {
   expect(result.src).toBe(src);
 });
 
-test.only("parse importReplace w/params", () => {
+test("parse importReplace w/params", () => {
   const src = "// #importReplace reduceWorkgroup( param1, param2 )";
   const result = src.match(importReplaceRegex);
   expect(result?.groups?.params).toBe(" param1, param2 ");
@@ -50,8 +50,7 @@ test("apply simple importReplace", () => {
   // #export reduceWorkgroup
   fn reduceWorkgroup(localId: u32) {
     // do reduce
-  }
-  `;
+  }`;
 
   const src = `
     // #importReplace reduceWorkgroup
@@ -67,13 +66,54 @@ test("apply simple importReplace", () => {
   expect(linked).includes("call the imported function");
 });
 
+test.only("importReplace with parameters", () => {
+  const module = `
+  // these are just for typechecking the module, they're not included when the export is imported
+  struct Elem {
+    sum: f32,
+  }
+  var <workgroup> work: array<Elem, 64>; 
+
+  // #export reduceWorkgroup(work, Elem, threads)
+  fn reduceWorkgroup(localId: u32) {
+      let workDex = localId << 1u;
+      for (var step = 1u; step < 4u; step <<= 1u) { //#replace 4=threads
+          workgroupBarrier();
+          if localId % step == 0u {
+              work[workDex].sum = work[workDex].sum + work[workDex + step].sum);
+          }
+      }
+  }`;
+
+  const src = `
+    struct MyElem {
+      sum: u32;
+    }
+    var <workgroup> myWork: array<MyElem, 128>; 
+
+    // #importReplace reduceWorkgroup(myWork, MyElem)
+    fn reduceWorkgroup(localId: u32) {} 
+    // #endImport
+
+    reduceWorkgroup(localId); // call the imported function
+  `;
+  const registry = new ModuleRegistry();
+  registry.registerModule(module);
+
+  const linked = linkWgsl(src, registry);
+  console.log(linked);
+  expect(linked).includes("myWork[workDex]");
+});
+
+
+
 /*
 TODO
  . 
- . test importReplace with parameters
  . test transitive imports
  . test code gen import via template
 */
+
 /*
 // #importReplace reduce-workgroup(work, Output, workgroupThreads)
 fn reduceWorkgroup(localId: u32) {} 
