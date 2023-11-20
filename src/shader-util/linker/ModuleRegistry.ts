@@ -4,7 +4,7 @@ import { exportRegex } from "./ParseDirectives.js";
 export class ModuleRegistry {
   private exports = new Map<string, Export>();
 
-/** register a module's exports so that imports can find it */
+  /** register a module's exports so that imports can find it */
   registerModule(src: string): void {
     const module = parseModule(src);
     module.exports.forEach(e => this.exports.set(e.name, e));
