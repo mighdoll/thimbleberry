@@ -46,36 +46,39 @@ function processImportsRecursive(
 ): string {
   const out: string[] = [];
   let importReplacing = false; // true while we're reading lines inside an importReplace
+
   src.split("\n").forEach((line, lineNum) => {
     const impReplace = line.match(importReplaceRegex);
     if (impReplace) {
       console.assert(
-        importReplacing === false,
-        `found importReplace while parsing importReplace line: ${lineNum}`
+        !importReplacing,
+        `#importReplace while inside #importReplace line: ${lineNum}`
       );
       const name = impReplace.groups!.import;
       const params = impReplace.groups?.params?.split(",").map(p => p.trim()) ?? [];
       const importModule = registry.getModule(name);
-      if (!importModule) {
-        console.error(
-          `importReplace module not found: ${name} at ${lineNum}\n>>\t${line}`
-        );
-      } else {
+      if (importModule) {
         imported.push({ name, params });
         const importSrc = importModule.src;
         const importText = processImportsRecursive(importSrc, registry, params, imported);
-        out.push(importText);
+        const entries = importModule.params.map((p, i) => [p, params[i]] as [string, string]);
+        const replace = Object.fromEntries(entries)
+        const patched = replaceTokens(importText, replace);
+        out.push(patched);
+      } else {
+        console.error(
+          `#importReplace module ${name} not found: at ${lineNum}\n>>\t${line}`
+        );
       }
       importReplacing = true;
-    } else if (!importReplacing) {
-      out.push(line);
-    } else {
+    } else if (importReplacing) {
       const endImport = line.match(endImportRegex);
       if (endImport) {
         importReplacing = false;
       }
+    } else {
+      out.push(line);
     }
   });
   return out.join("\n");
 }
-
