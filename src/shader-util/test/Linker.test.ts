@@ -5,7 +5,7 @@ import {
   importReplaceRegex,
   linkWgsl,
   parseModule,
-} from "../Linker.js";
+} from "../linker/Linker.js";
 
 test("export regex w/o params", () => {
   const result = "// #export foo".match(exportRegex);
