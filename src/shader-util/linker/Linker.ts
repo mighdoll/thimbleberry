@@ -15,7 +15,7 @@ Parse a simple extension for wgsl that allows for linking shaders together.
 */
 
 import { ModuleRegistry } from "./ModuleRegistry.js";
-import { endImportRegex, importReplaceRegex } from "./ParseDirectives.js";
+import { endImportRegex, importReplaceRegex, replaceTokens } from "./ParseDirectives.js";
 
 export interface WgslModule {
   exports: Export[];
