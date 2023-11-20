@@ -1,11 +1,9 @@
 import { expect, test } from "vitest";
 import {
-  ModuleRegistry,
-  exportRegex,
-  importReplaceRegex,
   linkWgsl,
-  parseModule,
 } from "../linker/Linker.js";
+import { exportRegex, importReplaceRegex } from "../linker/ParseDirectives.js";
+import { ModuleRegistry, parseModule } from "../linker/ModuleRegistry.js";
 
 test("export regex w/o params", () => {
   const result = "// #export foo".match(exportRegex);
