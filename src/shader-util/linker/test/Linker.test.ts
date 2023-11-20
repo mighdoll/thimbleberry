@@ -38,7 +38,7 @@ test("apply simple importReplace", () => {
   expect(linked).includes("call the imported function");
 });
 
-test("importReplace with parameters", () => {
+test("importReplace with parameter", () => {
   const module = `
   // these are just for typechecking the module, they're not included when the export is imported
   struct Elem {
@@ -46,7 +46,7 @@ test("importReplace with parameters", () => {
   }
   var <workgroup> work: array<Elem, 64>; 
 
-  // #export reduceWorkgroup(work, Elem, threads)
+  // #export reduceWorkgroup(work)
   fn reduceWorkgroup(localId: u32) {
       let workDex = localId << 1u;
       for (var step = 1u; step < 4u; step <<= 1u) { //#replace 4=threads
@@ -63,7 +63,7 @@ test("importReplace with parameters", () => {
     }
     var <workgroup> myWork: array<MyElem, 128>; 
 
-    // #importReplace reduceWorkgroup(myWork, MyElem)
+    // #importReplace reduceWorkgroup(myWork)
     fn reduceWorkgroup(localId: u32) {} 
     // #endImport
 
@@ -73,8 +73,8 @@ test("importReplace with parameters", () => {
   registry.registerModule(module);
 
   const linked = linkWgsl(src, registry);
-  console.log(linked);
   expect(linked).includes("myWork[workDex]");
+  expect(linked).not.includes("work[");
 });
 
 /*
