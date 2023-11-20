@@ -1,3 +1,19 @@
+/*
+Parse a simple extension for wgsl that allows for linking shaders together.
+
+#export name
+#export name(param1, param2, ...)
+#end-export
+. export is the text of the rest of the file or until optional #end-export
+. params are optional, and are globally text replaced in the export text
+
+#import foo
+#importReplace foo
+#end-import
+. include the imported text
+
+*/
+
 export function linkShaders(): string {
   return "";
 }
@@ -8,12 +24,16 @@ interface Export {
   params: string[];
 }
 
-const comment = /.*\/\//;
+const optComment = /(\s*\/\/)?/;
 const exportDirective = /\s*#export\s+(?<export>[\w-]+)/;
 const importReplaceDirective = /\s*#importReplace\s+(?<export>[\w-]+)/;
 const optParams = /\s*(\((?<params>[\w, ]*)\))?/;
-export const exportRegex = regexConcat(comment, exportDirective, optParams);
-export const importReplaceRegex = regexConcat(comment, importReplaceDirective, optParams);
+export const exportRegex = regexConcat(optComment, exportDirective, optParams);
+export const importReplaceRegex = regexConcat(
+  optComment,
+  importReplaceDirective,
+  optParams
+);
 
 export function parseExports(src: string): Export[] {
   let currentExport: Partial<Export> | undefined;
@@ -41,7 +61,6 @@ export function parseExports(src: string): Export[] {
   }
   return results;
 }
-
 
 function regexConcat(...exp: RegExp[]): RegExp {
   const concat = exp.map(e => e.source).join("");

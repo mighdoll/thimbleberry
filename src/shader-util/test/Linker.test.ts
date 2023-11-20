@@ -1,10 +1,16 @@
 import { expect, test } from "vitest";
 import { exportRegex, importReplaceRegex, parseExports } from "../Linker.js";
 
-test("prase regex w/o params", () => {
+test("export regex w/o params", () => {
   const result = "// #export foo".match(exportRegex);
   expect(result?.groups?.export).toBe("foo");
 });
+
+test("export regex w/o comment prefix", () => {
+  const result = "#export foo".match(exportRegex);
+  expect(result?.groups?.export).toBe("foo");
+});
+
 
 test("parse regex with params", () => {
   const result = "// #export foo(a, b, c)".match(exportRegex);
