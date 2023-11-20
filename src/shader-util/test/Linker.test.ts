@@ -1,27 +1,7 @@
 import { expect, test } from "vitest";
 import { linkWgsl } from "../linker/Linker.js";
 import { ModuleRegistry, parseModule } from "../linker/ModuleRegistry.js";
-import {
-  exportRegex,
-  importReplaceRegex,
-  replaceTokens,
-} from "../linker/ParseDirectives.js";
-
-test("export regex w/o params", () => {
-  const result = "// #export foo".match(exportRegex);
-  expect(result?.groups?.export).toBe("foo");
-});
-
-test("export regex w/o comment prefix", () => {
-  const result = "#export foo".match(exportRegex);
-  expect(result?.groups?.export).toBe("foo");
-});
-
-test("parse regex with params", () => {
-  const result = "// #export foo(a, b, c)".match(exportRegex);
-  expect(result?.groups?.params).toBe("a, b, c");
-  expect(result?.groups?.export).toBe("foo");
-});
+import { replaceTokens } from "../linker/Parsing.js";
 
 test("read simple export", () => {
   const exportPrefix = `// #export binaryOp(Elem)\n`;
@@ -36,13 +16,6 @@ test("read simple export", () => {
   expect(result.name).toBe("binaryOp");
   expect(result.params).deep.equals(["Elem"]);
   expect(result.src).toBe(src);
-});
-
-test("parse importReplace w/params", () => {
-  const src = "// #importReplace reduceWorkgroup( param1, param2 )";
-  const result = src.match(importReplaceRegex);
-  expect(result?.groups?.params).toBe(" param1, param2 ");
-  expect(result?.groups?.import).toBe("reduceWorkgroup");
 });
 
 test("apply simple importReplace", () => {
@@ -66,7 +39,7 @@ test("apply simple importReplace", () => {
   expect(linked).includes("call the imported function");
 });
 
-test.only("replaceTokens", () => {
+test("replaceTokens", () => {
   const src = `
   fn foo() {};
   fn bar() {
