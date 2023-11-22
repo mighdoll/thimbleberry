@@ -1,5 +1,5 @@
 import { Export, WgslModule } from "./Linker.js";
-import { exportRegex } from "./Parsing.js";
+import { exportRegex, fnOrStructRegex } from "./Parsing.js";
 
 export class ModuleRegistry {
   private exports = new Map<string, Export>();
@@ -28,15 +28,23 @@ export function parseModule(src: string): WgslModule {
         currentExport === undefined,
         `found export while parsing export line: ${lineNum}`
       );
-      const name = found.groups!.export;
       const params = found.groups?.params?.split(",").map(p => p.trim()) ?? [];
-      currentExport = { name, params };
+      currentExport = { params };
       currentExportLines = [];
     } else if (currentExport) {
       currentExportLines.push(line);
+      if (currentExport.name === undefined) {
+        const found = line.match(fnOrStructRegex);
+        if (found) {
+          currentExport.name = found.groups?.name;
+        }
+      }
     }
   });
   if (currentExport) {
+    if (currentExport.name === undefined) {
+      console.warn("name not found for export", currentExport);
+    }
     currentExport.src = currentExportLines.join("\n");
     results.push(currentExport as Export);
   }
