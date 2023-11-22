@@ -17,7 +17,7 @@ test("read simple fn export", () => {
   expect(result.src).toBe(src);
 });
 
-test.only("read simple structexport", () => {
+test("read simple structexport", () => {
   const exportPrefix = `// #export`;
   const src = `
     struct Elem {
@@ -61,7 +61,7 @@ test("importReplace with parameter", () => {
   }
   var <workgroup> work: array<Elem, 64>; 
 
-  // #export reduceWorkgroup(work)
+  // #export (work)
   fn reduceWorkgroup(localId: u32) {
       let workDex = localId << 1u;
       for (var step = 1u; step < 4u; step <<= 1u) { //#replace 4=threads
