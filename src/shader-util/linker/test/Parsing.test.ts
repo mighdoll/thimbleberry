@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { exportRegex, importReplaceRegex, replaceTokens } from "../Parsing.js";
+import { exportRegex, fnOrStructRegex, importReplaceRegex, replaceTokens } from "../Parsing.js";
 
 test("export regex w/o params", () => {
   const result = "// #export".match(exportRegex);
@@ -34,3 +34,13 @@ test("replaceTokens", () => {
   expect(replaced).includes("fez");
   expect(replaced).not.includes("foo");
 });
+
+test("parse fn", () => {
+  const result = "fn foo(".match(fnOrStructRegex);
+  expect(result?.groups?.name).toBe("foo");
+})
+
+test("parse struct", () => {
+  const result = "struct Bar {".match(fnOrStructRegex);
+  expect(result?.groups?.name).toBe("Bar");
+})

@@ -7,6 +7,10 @@ export const exportRegex = regexConcat(optComment, exportDirective, optParams);
 export const importReplaceRegex = regexConcat(optComment, importReplace, optParams);
 export const endImportRegex = regexConcat(optComment, endImport);
 
+const fnOrStruct = /\s*((fn)|(struct))\s*/;
+const name = /(?<name>\w+)/;
+export const fnOrStructRegex = regexConcat(fnOrStruct, name);
+
 function regexConcat(...exp: RegExp[]): RegExp {
   const concat = exp.map(e => e.source).join("");
   return new RegExp(concat, "i");
