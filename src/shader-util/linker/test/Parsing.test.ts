@@ -2,19 +2,18 @@ import { expect, test } from "vitest";
 import { exportRegex, importReplaceRegex, replaceTokens } from "../Parsing.js";
 
 test("export regex w/o params", () => {
-  const result = "// #export foo".match(exportRegex);
-  expect(result?.groups?.export).toBe("foo");
+  const result = "// #export".match(exportRegex);
+  expect(result).not.toBeNull();
 });
 
 test("export regex w/o comment prefix", () => {
-  const result = "#export foo".match(exportRegex);
-  expect(result?.groups?.export).toBe("foo");
+  const result = "#export".match(exportRegex);
+  expect(result).not.toBeNull();
 });
 
 test("parse regex with params", () => {
-  const result = "// #export foo(a, b, c)".match(exportRegex);
+  const result = "// #export(a, b, c)".match(exportRegex);
   expect(result?.groups?.params).toBe("a, b, c");
-  expect(result?.groups?.export).toBe("foo");
 });
 
 test("parse importReplace w/params", () => {

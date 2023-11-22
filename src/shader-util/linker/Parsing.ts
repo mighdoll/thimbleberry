@@ -1,5 +1,5 @@
 const optComment = /(\s*\/\/)?/;
-const exportDirective = /\s*#export\s+(?<export>[\w-]+)/;
+const exportDirective = /\s*#export\s*/;
 const importReplace = /\s*#importReplace\s+(?<import>[\w-]+)/;
 const endImport = /\s*#endImport/;
 const optParams = /\s*(\((?<params>[\w, ]*)\))?/;
