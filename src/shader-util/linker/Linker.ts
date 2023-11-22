@@ -15,7 +15,7 @@ Parse a simple extension for wgsl that allows for linking shaders together.
 */
 
 import { ModuleRegistry } from "./ModuleRegistry.js";
-import { endImportRegex, importReplaceRegex, replaceTokens } from "./Parsing.js";
+import { endImportRegex, importRegex, replaceTokens } from "./Parsing.js";
 
 export interface WgslModule {
   exports: Export[];
@@ -48,21 +48,23 @@ function processImportsRecursive(
   let importReplacing = false; // true while we're reading lines inside an importReplace
 
   src.split("\n").forEach((line, lineNum) => {
-    const impReplace = line.match(importReplaceRegex);
-    if (impReplace) {
+    const importMatch = line.match(importRegex);
+    if (importMatch) {
       console.assert(
         !importReplacing,
         `#importReplace while inside #importReplace line: ${lineNum}`
       );
-      const name = impReplace.groups!.import;
-      const params = impReplace.groups?.params?.split(",").map(p => p.trim()) ?? [];
+      const name = importMatch.groups!.import;
+      const params = importMatch.groups?.params?.split(",").map(p => p.trim()) ?? [];
       const importModule = registry.getModule(name);
       if (importModule) {
         imported.push({ name, params });
         const importSrc = importModule.src;
         const importText = processImportsRecursive(importSrc, registry, params, imported);
-        const entries = importModule.params.map((p, i) => [p, params[i]] as [string, string]);
-        const replace = Object.fromEntries(entries)
+        const entries = importModule.params.map(
+          (p, i) => [p, params[i]] as [string, string]
+        );
+        const replace = Object.fromEntries(entries);
         const patched = replaceTokens(importText, replace);
         out.push(patched);
       } else {

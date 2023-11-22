@@ -1,14 +1,14 @@
 const optComment = /(\s*\/\/)?/;
 const exportDirective = /\s*#export\s*/;
-const importReplace = /\s*#importReplace\s+(?<import>[\w-]+)/;
+const importCmd = /\s*#(?<importCmd>(importReplace)|import)\s+/;
 const endImport = /\s*#endImport/;
 const optParams = /\s*(\((?<params>[\w, ]*)\))?/;
+const name = /(?<name>[\w]+)/;
 export const exportRegex = regexConcat(optComment, exportDirective, optParams);
-export const importReplaceRegex = regexConcat(optComment, importReplace, optParams);
+export const importRegex = regexConcat(optComment, importCmd, name, optParams);
 export const endImportRegex = regexConcat(optComment, endImport);
 
 const fnOrStruct = /\s*((fn)|(struct))\s*/;
-const name = /(?<name>\w+)/;
 export const fnOrStructRegex = regexConcat(fnOrStruct, name);
 
 function regexConcat(...exp: RegExp[]): RegExp {
