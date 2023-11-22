@@ -172,7 +172,6 @@ test("#import w/o replace", () => {
 TODO
  . test code gen import via template
  . test deduplication of imports
- . test import w/o importReplace
  . test endExport
  . test exportGroup
  . test import 'as' renaming

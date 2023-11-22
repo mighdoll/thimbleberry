@@ -29,7 +29,7 @@ export interface Export {
 
 /** parse shader text for imports, return wgsl with all imports injected */
 export function linkWgsl(src: string, registry: ModuleRegistry): string {
-  return processImportsRecursive(src, registry, [], []);
+  return insertImportsRecursive(src, registry, [], []);
 }
 
 /** an imported module, for deduplication of imports */
@@ -38,7 +38,7 @@ interface ImportModule {
   params: string[];
 }
 
-function processImportsRecursive(
+function insertImportsRecursive(
   src: string,
   registry: ModuleRegistry,
   params: string[],
@@ -88,7 +88,7 @@ function importModule(
   if (foundModule) {
     imported.push({ name, params });
     const importSrc = foundModule.src;
-    const importText = processImportsRecursive(importSrc, registry, params, imported);
+    const importText = insertImportsRecursive(importSrc, registry, params, imported);
     const entries = foundModule.params.map((p, i) => [p, params[i]] as [string, string]);
     const replace = Object.fromEntries(entries);
     const patched = replaceTokens(importText, replace);
