@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 import { linkWgsl } from "../Linker.js";
 import { ModuleRegistry, parseModule } from "../ModuleRegistry.js";
 
-test.only("read simple fn export", () => {
+test("read simple fn export", () => {
   const exportPrefix = `// #export`;
   const src = `
     fn one() -> i32 {
@@ -13,6 +13,21 @@ test.only("read simple fn export", () => {
   expect(module.exports.length).toBe(1);
   const result = module.exports[0];
   expect(result.name).toBe("one");
+  expect(result.params).deep.equals([]);
+  expect(result.src).toBe(src);
+});
+
+test.only("read simple structexport", () => {
+  const exportPrefix = `// #export`;
+  const src = `
+    struct Elem {
+      sum: f32;
+    }
+  `;
+  const module = parseModule(exportPrefix + "\n" + src);
+  expect(module.exports.length).toBe(1);
+  const result = module.exports[0];
+  expect(result.name).toBe("Elem");
   expect(result.params).deep.equals([]);
   expect(result.src).toBe(src);
 });
