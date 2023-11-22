@@ -143,18 +143,12 @@ test("transitive importReplace", () => {
 /*
 TODO
  . test code gen import via template
+ . test deduplication of imports
+ . test import w/o importReplace
+ . test endExport
+ . test exportGroup
+ . test import 'as' renaming
+ . test importing a function twice with different names
+ . test renaming tokens to solve for multiple 
 */
 
-/*
-// #importReplace reduce-workgroup(work, Output, workgroupThreads)
-fn reduceWorkgroup(localId: u32) {} 
-// #end
-*/
-
-/*
-// #importReplace binaryOp(Elem)
-struct Elem { }
-fn binaryOp(a: Elem, b: Elem) -> Elem {}
-// #importEnd
-
-*/

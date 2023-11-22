@@ -1,10 +1,10 @@
 /*
 Parse a simple extension for wgsl that allows for linking shaders together.
 
-#export name
-#export name(param1, param2, ...)
+#export 
+#export (param1, param2, ...)
 #endExport
-. export is the text of the rest of the file or until optional #end-export
+. export includes the text of the rest of the file or until optional #end-export
 . params are optional, and are globally text replaced in the export text
 
 #import foo
@@ -32,7 +32,7 @@ export function linkWgsl(src: string, registry: ModuleRegistry): string {
   return processImportsRecursive(src, registry, [], []);
 }
 
-/** an imported module, for deduplicatio of imports */
+/** an imported module, for deduplication of imports */
 interface ImportModule {
   name: string;
   params: string[];
