@@ -50,29 +50,20 @@ function processImportsRecursive(
   src.split("\n").forEach((line, lineNum) => {
     const importMatch = line.match(importRegex);
     if (importMatch) {
-      console.assert(
-        !importReplacing,
-        `#importReplace while inside #importReplace line: ${lineNum}`
-      );
-      const name = importMatch.groups!.import;
-      const params = importMatch.groups?.params?.split(",").map(p => p.trim()) ?? [];
-      const importModule = registry.getModule(name);
-      if (importModule) {
-        imported.push({ name, params });
-        const importSrc = importModule.src;
-        const importText = processImportsRecursive(importSrc, registry, params, imported);
-        const entries = importModule.params.map(
-          (p, i) => [p, params[i]] as [string, string]
+      const groups = importMatch.groups;
+      const name = groups!.name;
+      const params = groups?.params?.split(",").map(p => p.trim()) ?? [];
+
+      if (groups?.importCmd === "importReplace") {
+        console.assert(
+          !importReplacing,
+          `#importReplace while inside #importReplace line: ${lineNum}`
         );
-        const replace = Object.fromEntries(entries);
-        const patched = replaceTokens(importText, replace);
-        out.push(patched);
-      } else {
-        console.error(
-          `#importReplace module ${name} not found: at ${lineNum}\n>>\t${line}`
-        );
+        importReplacing = true;
       }
-      importReplacing = true;
+
+      const text = importModule(name, registry, params, imported, lineNum, line);
+      text && out.push(text);
     } else if (importReplacing) {
       const endImport = line.match(endImportRegex);
       if (endImport) {
@@ -83,4 +74,28 @@ function processImportsRecursive(
     }
   });
   return out.join("\n");
+}
+
+function importModule(
+  name: string,
+  registry: ModuleRegistry,
+  params: string[],
+  imported: ImportModule[],
+  lineNum: number,
+  line: string
+): string | undefined {
+  const foundModule = registry.getModule(name);
+  if (foundModule) {
+    imported.push({ name, params });
+    const importSrc = foundModule.src;
+    const importText = processImportsRecursive(importSrc, registry, params, imported);
+    const entries = foundModule.params.map((p, i) => [p, params[i]] as [string, string]);
+    const replace = Object.fromEntries(entries);
+    const patched = replaceTokens(importText, replace);
+    return patched;
+  } else {
+    console.error(
+      `#importReplace module "${name}" not found: at ${lineNum}\n>>\t${line}`
+    );
+  }
 }

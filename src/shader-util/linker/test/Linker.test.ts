@@ -140,6 +140,34 @@ test("transitive importReplace", () => {
   expect(linked).includes("binOpImpl");
 });
 
+test("#import w/o replace", () => {
+  const module = `
+    // #export
+    fn foo() { /* fooImpl */ }
+  `;
+
+  const src = `
+    // #import foo
+    foo();
+  `;
+  const registry = new ModuleRegistry();
+  registry.registerModule(module);
+  const linked = linkWgsl(src, registry);
+  expect(linked).includes("fooImpl");
+});
+
+// test("import with template replace", () => {
+//   const module = `
+//   #export(threads)
+//   fn foo() {
+//     for (var step = 1; step < 4; step++) { //#replace 4=threads
+//     }
+//   }
+//   `
+//   const src = `
+//   `
+// });
+
 /*
 TODO
  . test code gen import via template
