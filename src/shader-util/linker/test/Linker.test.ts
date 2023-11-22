@@ -93,46 +93,55 @@ test("importReplace with parameter", () => {
 });
 
 test("transitive importReplace", () => {
-  //   const binOpModule = `
-  // // #export BinaryOp(Elem, InputElem, texelType)
-  //   #
-  // fn binaryOp(a: Elem, b: Elem) -> Elem {
-  //     return Elem(a.sum + b.sum);
-  // }
-  //   `;
-  // const reduceModule = `
-  // // these are just for typechecking the module, they're not included when the export is imported
-  // struct Elem {
-  //   sum: f32,
-  // }
-  // var <workgroup> work: array<Elem, 64>;
-  // // #export reduceWorkgroup(work)
-  // fn reduceWorkgroup(localId: u32) {
-  //     let workDex = localId << 1u;
-  //     for (var step = 1u; step < 4u; step <<= 1u) { //#replace 4=threads
-  //         workgroupBarrier();
-  //         if localId % step == 0u {
-  //             work[workDex].sum = work[workDex].sum + work[workDex + step].sum);
-  //         }
-  //     }
-  // }`;
-  // const src = `
-  //   struct MyElem {
-  //     sum: u32;
-  //   }
-  //   var <workgroup> myWork: array<MyElem, 128>;
-  //   // #importReplace reduceWorkgroup(myWork)
-  //   fn reduceWorkgroup(localId: u32) {}
-  //   // #endImport
-  //   reduceWorkgroup(localId); // call the imported function
-  // `;
-  // const registry = new ModuleRegistry();
-  // // registry.registerModule(module);
+  const binOpModule = `
+  // #export(Elem) 
+  fn binaryOp(a: Elem, b: Elem) -> Elem {
+      return Elem(a.sum + b.sum); // binOpImpl
+  }
+    `;
+  const reduceModule = `
+  struct MyElem {
+    sum: f32,
+  }
+  var <workgroup> work: array<MyElem, 64>;
+
+  #export(work)
+  fn reduceWorkgroup(localId: u32) {
+      let workDex = localId << 1u;
+      for (var step = 1u; step < 4u; step <<= 1u) { //#replace 4=threads
+          workgroupBarrier();
+          if localId % step == 0u {
+              work[workDex].sum = binaryOp(work[workDex], work[workDex + step]);
+          }
+      }
+  }
+
+  #importReplace binaryOp(MyElem)
+  fn binaryOp(a: MyElem, b: MyElem) -> MyElem {}
+  #endImport
+  `;
+  const src = `
+    struct MyElem {
+      sum: u32;
+    }
+    var <workgroup> myWork: array<MyElem, 128>;
+
+    // #importReplace reduceWorkgroup(myWork)
+    fn reduceWorkgroup(localId: u32) {}
+    // #endImport
+
+    reduceWorkgroup(localId); // call the imported function
+  `;
+  const registry = new ModuleRegistry();
+  registry.registerModule(binOpModule, reduceModule);
+  const linked = linkWgsl(src, registry);
+  expect(linked).includes("myWork[workDex]");
+  expect(linked).not.includes("work[");
+  expect(linked).includes("binOpImpl");
 });
 
 /*
 TODO
- . test transitive imports
  . test code gen import via template
 */
 

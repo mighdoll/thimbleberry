@@ -5,9 +5,10 @@ export class ModuleRegistry {
   private exports = new Map<string, Export>();
 
   /** register a module's exports so that imports can find it */
-  registerModule(src: string): void {
-    const module = parseModule(src);
-    module.exports.forEach(e => this.exports.set(e.name, e));
+  registerModule(...sources: string[]): void {
+    const modules = sources.map(parseModule);
+    const exports = modules.flatMap(m => m.exports);
+    exports.forEach(e => this.exports.set(e.name, e));
   }
 
   getModule(name: string): Export | undefined {
