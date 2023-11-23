@@ -12,6 +12,11 @@ interface Patched {
   suffix: string;
 }
 
+export const thimbTemplate = {
+  name: "thimb2",
+  applyTemplate
+};
+
 /**
  * A simple templating scheme for wgsl shaders
  *
