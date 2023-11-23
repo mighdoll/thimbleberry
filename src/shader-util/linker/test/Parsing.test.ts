@@ -11,12 +11,17 @@ test("export regex w/o comment prefix", () => {
   expect(result).not.toBeNull();
 });
 
-test("parse regex with params", () => {
+test("export regex with params", () => {
   const result = "// #export(a, b, c)".match(exportRegex);
   expect(result?.groups?.params).toBe("a, b, c");
 });
 
-test("parse importReplace w/params", () => {
+test("export regex with template", () => {
+  const matched = "// #export(a, b, c) template(thimb2)".match(exportRegex);
+  expect(matched?.groups?.template).toBe("thimb2");
+});
+
+test("import regex w/params", () => {
   const src = "// #importReplace reduceWorkgroup( param1, param2 )";
   const result = src.match(importRegex);
   expect(result?.groups?.params).toBe(" param1, param2 ");
@@ -24,7 +29,7 @@ test("parse importReplace w/params", () => {
   expect(result?.groups?.importCmd).toBe("importReplace");
 });
 
-test("parse #import", () => {
+test("import regex #import", () => {
   const matches = "// #import foo".match(importRegex);
   expect(matches?.groups?.name).toBe("foo");
   expect(matches?.groups?.importCmd).toBe("import");
