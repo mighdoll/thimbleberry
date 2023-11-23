@@ -36,7 +36,7 @@ test("simple #replace", () => {
   expect(result).equals(tbd);
 });
 
-test("couble #replace", () => {
+test("double #replace", () => {
   const src = `for (var x=4; x < 8; x++) { //#replace 4=start 8=end`;
   const tbd = `for (var x=128; x < 256; x++) { //`;
   const result = applyTemplate(src, { start: 128, end: 256});
