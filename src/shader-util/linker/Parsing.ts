@@ -11,12 +11,12 @@ export const endImportRegex = regexConcat(optComment, endImport);
 const fnOrStruct = /\s*((fn)|(struct))\s*/;
 export const fnOrStructRegex = regexConcat(fnOrStruct, name);
 
+const tokenRegex = /(\w+)/gi;
+
 function regexConcat(...exp: RegExp[]): RegExp {
   const concat = exp.map(e => e.source).join("");
   return new RegExp(concat, "i");
 }
-
-const tokenRegex = /(\w+)/gi;
 
 export function replaceTokens(text: string, replace: Record<string, string>): string {
   return text.replaceAll(tokenRegex, s => (s in replace ? replace[s] : s));
