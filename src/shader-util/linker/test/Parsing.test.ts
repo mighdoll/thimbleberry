@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { exportRegex, fnOrStructRegex, importRegex, replaceTokens } from "../Parsing.js";
+import { exportRegex, fnOrStructRegex, importRegex, replaceTokens, templateRegex } from "../Parsing.js";
 
 test("export regex w/o params", () => {
   const result = "// #export".match(exportRegex);
@@ -14,6 +14,11 @@ test("export regex w/o comment prefix", () => {
 test("export regex with params", () => {
   const result = "// #export(a, b, c)".match(exportRegex);
   expect(result?.groups?.params).toBe("a, b, c");
+});
+
+test("template regex", () => {
+  const matched = "// #template foo".match(templateRegex);
+  expect(matched?.groups?.name).toBe("foo");
 });
 
 test("import regex w/params", () => {
