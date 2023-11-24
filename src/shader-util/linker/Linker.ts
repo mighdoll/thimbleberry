@@ -22,7 +22,7 @@ Parse a simple extension for wgsl that allows for linking shaders together.
 
 */
 
-import { ModuleRegistry } from "./ModuleRegistry.js";
+import { ModuleExport, ModuleRegistry } from "./ModuleRegistry.js";
 import { endImportRegex, importRegex, replaceTokens } from "./Parsing.js";
 
 export interface WgslModule {
@@ -98,23 +98,54 @@ function importModule(
   lineNum: number,
   line: string
 ): string | undefined {
+  const moduleExport = getModuleExport(importName, moduleName, registry, lineNum, line);
+  if (!moduleExport) {
+    return undefined;
+  }
+
+  imported.push({ name: importName, params });
+  const importSrc = moduleExport.export.src;
+  const importText = insertImportsRecursive(importSrc, registry, params, imported);
+
+  const entries = moduleExport.export.params.map((p, i) => [p, params[i]]);
+  const templateParams = Object.fromEntries(entries);
+
+  const templated = applyTemplate(importText, templateParams, moduleExport, registry);
+  const patched = replaceTokens(templated, templateParams);
+
+  return patched;
+}
+
+function getModuleExport(
+  importName: string,
+  moduleName: string | undefined,
+  registry: ModuleRegistry,
+  lineNum: number,
+  line: string
+): ModuleExport | undefined {
   const moduleExport = registry.getModuleExport(importName, moduleName);
-  if (moduleExport) {
-    imported.push({ name: importName, params });
-    const template = moduleExport.module.template;
-    const importSrc = moduleExport.export.src;
-    const importText = insertImportsRecursive(importSrc, registry, params, imported);
-
-    const entries = moduleExport.export.params.map((p, i) => [p, params[i]]);
-    const replace = Object.fromEntries(entries);
-    const patched = replaceTokens(importText, replace);
-
-    // TODO apply template
-
-    return patched;
-  } else {
+  if (!moduleExport) {
     console.error(
       `#importReplace module "${importName}" not found: at ${lineNum}\n>>\t${line}`
     );
   }
+  return moduleExport;
+}
+
+function applyTemplate(
+  text: string,
+  templateParams: Record<string, string>,
+  moduleExport: ModuleExport,
+  registry: ModuleRegistry
+): string {
+  const template = moduleExport.module.template;
+  if (template) {
+    const applyTemplate = registry.getTemplate(template);
+    if (applyTemplate) {
+      return applyTemplate(text, templateParams);
+    } else {
+      console.warn(`template ${template} not registered`);
+    }
+  }
+  return text;
 }

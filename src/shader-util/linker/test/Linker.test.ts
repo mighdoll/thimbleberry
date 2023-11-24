@@ -1,7 +1,8 @@
 import { expect, test } from "vitest";
 import { linkWgsl } from "../Linker.js";
-import { ModuleRegistry, parseModule } from "../ModuleRegistry.js";
+import { ModuleRegistry } from "../ModuleRegistry.js";
 import { thimbTemplate } from "../../Template2.js";
+import { parseModule } from "../Exports.js";
 
 test("read simple fn export", () => {
   const exportPrefix = `// #export`;

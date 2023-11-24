@@ -1,4 +1,4 @@
-import { parseExports } from "./Exports.js";
+import { parseModule } from "./Exports.js";
 import { Export, WgslModule } from "./Linker.js";
 
 export type ApplyTemplate = (src: string, params: Record<string, string>) => string;
@@ -27,6 +27,10 @@ export class ModuleRegistry {
 
   registerTemplate(...templates: Template[]): void {
     templates.forEach(t => this.templates.set(t.name, t.applyTemplate));
+  }
+
+  getTemplate(name: string): ApplyTemplate | undefined {
+    return this.templates.get(name);
   }
 
   getModuleExport(exportName: string, moduleName?: string): ModuleExport | undefined {
@@ -60,10 +64,4 @@ export class ModuleRegistry {
     }
   }
 
-}
-
-/** parse module text to find the exports */
-export function parseModule(src: string, moduleName?:string): WgslModule {
-  // TODO need to parse #module entries from source
-  return { exports: parseExports(src), name: moduleName || "TODO"}; 
 }
