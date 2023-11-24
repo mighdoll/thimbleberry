@@ -16,11 +16,6 @@ test("export regex with params", () => {
   expect(result?.groups?.params).toBe("a, b, c");
 });
 
-test("export regex with template", () => {
-  const matched = "// #export(a, b, c) template(thimb2)".match(exportRegex);
-  expect(matched?.groups?.template).toBe("thimb2");
-});
-
 test("import regex w/params", () => {
   const src = "// #importReplace reduceWorkgroup( param1, param2 )";
   const result = src.match(importRegex);

@@ -4,13 +4,7 @@ const importCmd = /\s*#(?<importCmd>(importReplace)|(import))\s+/;
 const endImport = /\s*#endImport/;
 const optParams = /\s*(\((?<params>[\w, ]*)\))?/;
 const name = /(?<name>[\w]+)/;
-const optTemplate = /\s*(template\s*\((?<template>[\w]+\s*)\))?/;
-export const exportRegex = regexConcat(
-  optComment,
-  exportDirective,
-  optParams,
-  optTemplate
-);
+export const exportRegex = regexConcat(optComment, exportDirective, optParams);
 export const importRegex = regexConcat(optComment, importCmd, name, optParams);
 export const endImportRegex = regexConcat(optComment, endImport);
 
