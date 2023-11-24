@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 import { linkWgsl } from "../Linker.js";
 import { ModuleRegistry, parseModule } from "../ModuleRegistry.js";
+import { thimbTemplate } from "../../Template2.js";
 
 test("read simple fn export", () => {
   const exportPrefix = `// #export`;
@@ -156,21 +157,29 @@ test("#import w/o replace", () => {
   expect(linked).includes("fooImpl");
 });
 
-// test("import with template replace", () => {
-//   const module = `
-//   #export(threads)
-//   fn foo() {
-//     for (var step = 1; step < 4; step++) { //#replace 4=threads
-//     }
-//   }
-//   `
-//   const src = `
-//   `
-// });
+test("import with template replace", () => {
+  const module = `
+  #template thimb2
+  #export(threads) 
+  fn foo() {
+    for (var step = 0; step < 4; step++) { //#replace 4=threads
+    }
+  }
+  `
+  const src = `
+  #import foo(128)
+  foo();
+  `
+  const registry = new ModuleRegistry();
+  registry.registerModule(module);
+  registry.registerTemplate(thimbTemplate);
+  const linked = linkWgsl(src, registry);
+  expect(linked).includes("step < 128");
+});
 
 /*
 TODO
- . test code gen import via template
+ . test code gen via function
  . test deduplication of imports
  . test endExport
  . test exportGroup
