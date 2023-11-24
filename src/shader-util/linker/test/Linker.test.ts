@@ -178,7 +178,7 @@ test("import with template replace", () => {
   expect(linked).includes("step < 128");
 });
 
-test.only("#import twice doesn't get two copies", () => {
+test("#import twice doesn't get two copies", () => {
   const module1 = `
     #export
     fn foo() { /* fooImpl */ }
@@ -199,7 +199,6 @@ test.only("#import twice doesn't get two copies", () => {
   const registry = new ModuleRegistry();
   registry.registerModule(module1, module2);
   const linked = linkWgsl(src, registry);
-  console.log(linked);
   const matches = linked.matchAll(/fooImpl/g);
   expect([...matches].length).toBe(1);
 });

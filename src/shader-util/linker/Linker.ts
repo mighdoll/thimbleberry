@@ -41,20 +41,17 @@ export interface Export {
 
 /** parse shader text for imports, return wgsl with all imports injected */
 export function linkWgsl(src: string, registry: ModuleRegistry): string {
-  return insertImportsRecursive(src, registry, [], []);
+  return insertImportsRecursive(src, registry, new Set());
 }
 
-/** an imported module, for deduplication of imports */
-interface ImportModule {
-  name: string;
-  params: string[];
+function fullImportName(importName: string, moduleName: string, params: string[]): string {
+  return `${moduleName}.${importName}(${params.join(",")})`
 }
 
 function insertImportsRecursive(
   src: string,
   registry: ModuleRegistry,
-  params: string[],
-  imported: ImportModule[]
+  imported: Set<string>
 ): string {
   const out: string[] = [];
   let importReplacing = false; // true while we're reading lines inside an importReplace
@@ -94,7 +91,7 @@ function importModule(
   moduleName: string | undefined,
   registry: ModuleRegistry,
   params: string[],
-  imported: ImportModule[],
+  imported: Set<string>,
   lineNum: number,
   line: string
 ): string | undefined {
@@ -103,9 +100,14 @@ function importModule(
     return undefined;
   }
 
-  imported.push({ name: importName, params });
+  const fullImport = fullImportName(importName, moduleExport.module.name, params);
+  if (imported.has(fullImport)) {
+    return undefined;
+  }
+
+  imported.add(fullImport);
   const importSrc = moduleExport.export.src;
-  const importText = insertImportsRecursive(importSrc, registry, params, imported);
+  const importText = insertImportsRecursive(importSrc, registry, imported);
 
   const entries = moduleExport.export.params.map((p, i) => [p, params[i]]);
   const templateParams = Object.fromEntries(entries);
@@ -132,6 +134,7 @@ function getModuleExport(
   return moduleExport;
 }
 
+/** run a template processor if one is defined for this module */
 function applyTemplate(
   text: string,
   templateParams: Record<string, string>,
