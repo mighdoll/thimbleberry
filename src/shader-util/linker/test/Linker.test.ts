@@ -160,22 +160,48 @@ test("#import w/o replace", () => {
 
 test("import with template replace", () => {
   const module = `
-  #template thimb2
-  #export(threads) 
-  fn foo() {
-    for (var step = 0; step < 4; step++) { //#replace 4=threads
+    #template thimb2
+    #export(threads) 
+    fn foo() {
+      for (var step = 0; step < 4; step++) { //#replace 4=threads
+      }
     }
-  }
-  `
+  `;
   const src = `
-  #import foo(128)
-  foo();
-  `
+    #import foo(128)
+    foo();
+  `;
   const registry = new ModuleRegistry();
   registry.registerModule(module);
   registry.registerTemplate(thimbTemplate);
   const linked = linkWgsl(src, registry);
   expect(linked).includes("step < 128");
+});
+
+test.only("#import twice doesn't get two copies", () => {
+  const module1 = `
+    #export
+    fn foo() { /* fooImpl */ }
+  `;
+  const module2 = `
+    #export
+    fn bar() { foo(); }
+
+    #import foo
+  `;
+  const src =`
+    #import bar
+    #import foo
+
+    foo();
+    bar();
+  `;
+  const registry = new ModuleRegistry();
+  registry.registerModule(module1, module2);
+  const linked = linkWgsl(src, registry);
+  console.log(linked);
+  const matches = linked.matchAll(/fooImpl/g);
+  expect([...matches].length).toBe(1);
 });
 
 /*
