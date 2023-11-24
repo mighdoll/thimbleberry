@@ -1,4 +1,4 @@
-import { parseModule } from "./Exports.js";
+import { parseModule } from "./ParseModule.js";
 import { Export, WgslModule } from "./Linker.js";
 
 export type ApplyTemplate = (src: string, params: Record<string, string>) => string;
