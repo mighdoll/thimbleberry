@@ -3,7 +3,7 @@ import { exportRegex, fnOrStructRegex, templateRegex } from "./Parsing.js";
 
 let unnamedModuleDex = 0;
 
-/** parse module text to find the exports */
+/** parse module text to find the #export, #template, and #module declaraions */
 export function parseModule(src: string, defaultModuleName?: string): WgslModule {
   let template: string | undefined;
   const exports: Export[] = [];
@@ -26,7 +26,7 @@ export function parseModule(src: string, defaultModuleName?: string): WgslModule
         template = templateMatch.groups?.name;
       } else if (currentExport) {
         currentExportLines.push(line);
-        // TODO allow for explicitly name exports (and don't look for following fn or struct)
+        // TODO allow for explicitly named exports (and don't look for following fn or struct)
         if (currentExport.name === undefined) {
           const found = line.match(fnOrStructRegex);
           if (found) {

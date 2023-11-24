@@ -183,9 +183,8 @@ TODO
  . test code gen via function
  . test deduplication of imports
  . test endExport
- . test exportGroup
+ . test import * 
  . test import 'as' renaming
  . test importing a function twice with different names
  . test renaming tokens to solve for multiple 
 */
-
