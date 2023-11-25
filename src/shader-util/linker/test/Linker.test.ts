@@ -225,12 +225,11 @@ test("#import from code generator", () => {
   const registry = new ModuleRegistry();
   registry.registerGeneratorModule(myModule);
   const linked = linkWgsl(src, registry);
-  console.log(linked);
+  expect(linked).contains("barImpl");
 });
 
 /*
 TODO
- . test code gen via function
  . test deduplication of imports
  . test endExport
  . test import * 

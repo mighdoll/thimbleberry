@@ -134,9 +134,16 @@ function importModule(
 
   imported.add(fullImport);
 
+  const entries = moduleExport.export.params.map((p, i) => [p, params[i]]);
+  const paramsRecord = Object.fromEntries(entries);
+
   if (moduleExport.kind === "text") {
     const template = moduleExport.module.template;
-    return importText(moduleExport.export, template, registry, params, imported);
+    return importText(moduleExport.export, template, registry, paramsRecord, imported);
+  } else if (moduleExport.kind === "function") {
+    return importGenerator(moduleExport.export, registry, paramsRecord, imported);
+  } else {
+    console.error(`unexpected module export: ${JSON.stringify(moduleExport, null, 2)}`);
   }
 }
 
@@ -144,19 +151,27 @@ function importText(
   textExport: TextExport,
   template: string | undefined,
   registry: ModuleRegistry,
-  params: string[],
+  paramsRecord: Record<string, string>,
   imported: Set<string>
 ): string {
   const importSrc = textExport.src;
   const importText = insertImportsRecursive(importSrc, registry, imported);
 
-  const entries = textExport.params.map((p, i) => [p, params[i]]);
-  const templateParams = Object.fromEntries(entries);
-
-  const templated = applyTemplate(importText, templateParams, template, registry);
-  const patched = replaceTokens(templated, templateParams);
+  const templated = applyTemplate(importText, paramsRecord, template, registry);
+  const patched = replaceTokens(templated, paramsRecord);
 
   return patched;
+}
+
+function importGenerator(
+  generatorExport: GeneratorExport,
+  registry: ModuleRegistry,
+  paramsRecord: Record<string, string>,
+  imported: Set<string>
+): string {
+  const generated = generatorExport.generate(paramsRecord);
+  const importText = insertImportsRecursive(generated, registry, imported);
+  return importText;
 }
 
 /** run a template processor if one is defined for this module */
