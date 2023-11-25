@@ -228,6 +228,22 @@ test("#import from code generator", () => {
   expect(linked).contains("barImpl");
 });
 
+test("#import foo as bar", () => {
+  const myModule = `
+    #export
+    fn foo() { /* fooImpl */ }
+   `;
+
+  const src = `
+    #import foo as bar
+
+    bar();
+   `;
+  const registry = new ModuleRegistry(myModule);
+  const linked = linkWgsl(src, registry);
+  expect(linked).contains("fn bar()");
+});
+
 /*
 TODO
  . test endExport

@@ -20,7 +20,7 @@ export const templateRegex = regexConcat(optComment, templateDirective, name);
 const fnOrStruct = /\s*((fn)|(struct))\s*/;
 export const fnOrStructRegex = regexConcat(fnOrStruct, name);
 
-const tokenRegex = /(\w+)/gi;
+const tokenRegex = /\b(\w+)\b/gi;
 
 function regexConcat(...exp: RegExp[]): RegExp {
   const concat = exp.map(e => e.source).join("");

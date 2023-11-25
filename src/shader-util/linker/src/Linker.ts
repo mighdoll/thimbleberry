@@ -103,8 +103,8 @@ interface ImportModuleArgs {
 }
 
 function importModule(args: ImportModuleArgs): string | undefined {
-  const { importName, asRename, moduleName, registry, params, imported, lineNum, line } =
-    args;
+  const { importName, asRename, moduleName, registry, params } = args;
+  const { imported, lineNum, line } = args;
 
   const moduleExport = registry.getModuleExport(importName, moduleName);
   if (!moduleExport) {
@@ -114,7 +114,8 @@ function importModule(args: ImportModuleArgs): string | undefined {
     return undefined;
   }
 
-  const fullImport = fullImportName(importName, moduleExport.module.name, params);
+  const importAs = asRename ?? moduleExport.export.name;
+  const fullImport = fullImportName(importAs, moduleExport.module.name, params);
   if (imported.has(fullImport)) {
     return undefined;
   }
@@ -126,7 +127,9 @@ function importModule(args: ImportModuleArgs): string | undefined {
 
   if (moduleExport.kind === "text") {
     const template = moduleExport.module.template;
-    return importText(moduleExport.export, template, registry, paramsRecord, imported);
+    const exp = moduleExport.export;
+    const text = importText(exp, template, registry, paramsRecord, imported);
+    return renameExport(text, exp.name, asRename);
   } else if (moduleExport.kind === "function") {
     return importGenerator(moduleExport.export, registry, paramsRecord, imported);
   } else {
@@ -177,4 +180,12 @@ function applyTemplate(
     }
   }
   return text;
+}
+
+function renameExport(text: string, find: string, replace?: string): string {
+  if (!replace) {
+    return text;
+  } else {
+    return text.replace(find, replace);
+  }
 }
