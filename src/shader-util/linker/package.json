@@ -1,0 +1,7 @@
+{
+  "name": "wgsl-linker",
+  "version": "0.1.0",
+  "devDependencies": {
+    "vite": "^5.0.2"
+  }
+}
