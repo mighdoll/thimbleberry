@@ -78,7 +78,7 @@ function insertImportsRecursive(
       const _args = { importName, moduleName, registry, params, asRename };
       const args = { ..._args, imported, lineNum, line };
       const text = importModule(args);
-      text && out.push(text);
+      out.push(text);
     } else if (importReplacing) {
       const endImport = line.match(endImportRegex);
       if (endImport) {
@@ -102,7 +102,7 @@ interface ImportModuleArgs {
   line: string;
 }
 
-function importModule(args: ImportModuleArgs): string | undefined {
+function importModule(args: ImportModuleArgs): string {
   const { importName, asRename, moduleName, registry, params } = args;
   const { imported, lineNum, line } = args;
 
@@ -111,13 +111,13 @@ function importModule(args: ImportModuleArgs): string | undefined {
     console.error(
       `#importReplace module "${importName}" not found: at ${lineNum}\n>>\t${line}`
     );
-    return undefined;
+    return "";
   }
 
   const importAs = asRename ?? moduleExport.export.name;
   const fullImport = fullImportName(importAs, moduleExport.module.name, params);
   if (imported.has(fullImport)) {
-    return undefined;
+    return "";
   }
 
   imported.add(fullImport);
@@ -125,16 +125,19 @@ function importModule(args: ImportModuleArgs): string | undefined {
   const entries = moduleExport.export.params.map((p, i) => [p, params[i]]);
   const paramsRecord = Object.fromEntries(entries);
 
+  let text: string | undefined = undefined;
+  const exportName = moduleExport.export.name;
+
   if (moduleExport.kind === "text") {
     const template = moduleExport.module.template;
     const exp = moduleExport.export;
-    const text = importText(exp, template, registry, paramsRecord, imported);
-    return renameExport(text, exp.name, asRename);
+    text = importText(exp, template, registry, paramsRecord, imported);
   } else if (moduleExport.kind === "function") {
-    return importGenerator(moduleExport.export, registry, paramsRecord, imported);
+    text = importGenerator(moduleExport.export, registry, paramsRecord, imported);
   } else {
     console.error(`unexpected module export: ${JSON.stringify(moduleExport, null, 2)}`);
   }
+  return renameExport(text, exportName, asRename);
 }
 
 function importText(
@@ -182,8 +185,10 @@ function applyTemplate(
   return text;
 }
 
-function renameExport(text: string, find: string, replace?: string): string {
-  if (!replace) {
+function renameExport(text: string | undefined, find: string, replace?: string): string {
+  if (!text) {
+    return "";
+  } else if (!replace) {
     return text;
   } else {
     return text.replace(find, replace);
