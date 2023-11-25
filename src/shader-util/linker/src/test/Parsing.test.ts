@@ -35,6 +35,21 @@ test("import regex #import", () => {
   expect(matches?.groups?.importCmd).toBe("import");
 });
 
+test("#import foo as bar", () => {
+  const matches = "// #import foo as bar".match(importRegex);
+  expect(matches?.groups?.name).toBe("foo");
+  expect(matches?.groups?.importCmd).toBe("import");
+  expect(matches?.groups?.importAs).toBe("bar");
+});
+
+test("#import foo(a,b,c) as bar", () => {
+  const matches = "// #import foo(a,b,c) as bar".match(importRegex);
+  expect(matches?.groups?.name).toBe("foo");
+  expect(matches?.groups?.importCmd).toBe("import");
+  expect(matches?.groups?.params).toBe("a,b,c");
+  expect(matches?.groups?.importAs).toBe("bar");
+});
+
 test("replaceTokens", () => {
   const src = `
   fn foo() {};
