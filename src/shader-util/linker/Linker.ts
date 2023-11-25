@@ -1,27 +1,3 @@
-/*
-Parse a simple extension for wgsl that allows for linking shaders together.
-
-
-#export 
-#export (param1, param2, ...)
-#endExport
-. export includes the text of the rest of the file or until optional #end-export
-. params are optional, and are globally text replaced in the export text
-
-#import foo 
-#import foo from myModule
-#importReplace foo
-#endImport
-. include the imported text
-
-#template thimb2
-. apply template 'thimb2' to the exported text
-
-#module myModule
-. declare name of module 
-
-*/
-
 import { ModuleRegistry } from "./ModuleRegistry.js";
 import { endImportRegex, importRegex, replaceTokens } from "./Parsing.js";
 
