@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
-import { CodeGenFn, GeneratorModule, linkWgsl } from "../Linker.js";
-import { ModuleRegistry } from "../ModuleRegistry.js";
 import { thimbTemplate } from "../../../Template2.js";
+import { CodeGenFn, linkWgsl } from "../Linker.js";
+import { ModuleRegistry } from "../ModuleRegistry.js";
 import { parseModule } from "../ParseModule.js";
 
 test("read simple fn export", () => {
@@ -197,22 +197,6 @@ test("#import twice doesn't get two copies", () => {
   expect([...matches].length).toBe(1);
 });
 
-test("#import from code generator", () => {
-  function generate(params: { name: string }): string {
-    return `fn foo() { /* ${params.name}Impl */ }`;
-  }
-
-  const src = `
-    #import foo(bar)
-
-    foo();
-  `;
-  const registry = new ModuleRegistry();
-  registry.registerGenerator("foo", generate as CodeGenFn, ["name"]);
-  const linked = linkWgsl(src, registry);
-  expect(linked).contains("barImpl");
-});
-
 test("#import foo as bar", () => {
   const myModule = `
     #export
@@ -229,8 +213,36 @@ test("#import foo as bar", () => {
   expect(linked).contains("fn bar()");
 });
 
+test("#import from code generator", () => {
+  function generate(params: { name: string }): string {
+    return `fn foo() { /* ${params.name}Impl */ }`;
+  }
+
+  const src = `
+    #import foo(bar)
+
+    foo();
+  `;
+  const registry = new ModuleRegistry();
+  registry.registerGenerator("foo", generate as CodeGenFn, ["name"]);
+  const linked = linkWgsl(src, registry);
+  expect(linked).contains("barImpl");
+});
+
 test("#import as with code generator", () => {
-  const register = new ModuleRegistry();
+  function generate(params: { name: string }): string {
+    return `fn foo() { /* ${params.name}Impl */ }`;
+  }
+
+  const src = `
+    #import foo(bar) as baz
+
+    baz();
+  `;
+  const registry = new ModuleRegistry();
+  registry.registerGenerator("foo", generate as CodeGenFn, ["name"]);
+  const linked = linkWgsl(src, registry);
+  expect(linked).contains("fn baz()");
 });
 
 /*
