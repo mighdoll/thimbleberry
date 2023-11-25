@@ -35,7 +35,7 @@ test("read simple structexport", () => {
 });
 
 test("apply simple importReplace", () => {
-  const module = `
+  const myModule = `
   // #export
   fn reduceWorkgroup(localId: u32) {
     // do reduce
@@ -47,8 +47,7 @@ test("apply simple importReplace", () => {
     // #endImport
     reduceWorkgroup(localId); // call the imported function
   `;
-  const registry = new ModuleRegistry();
-  registry.registerModule(module);
+  const registry = new ModuleRegistry(myModule);
 
   const linked = linkWgsl(src, registry);
   expect(linked).includes("do reduce");
@@ -56,7 +55,7 @@ test("apply simple importReplace", () => {
 });
 
 test("importReplace with parameter", () => {
-  const module = `
+  const myModule = `
   // these are just for typechecking the module, they're not included when the export is imported
   struct Elem {
     sum: f32,
@@ -86,8 +85,7 @@ test("importReplace with parameter", () => {
 
     reduceWorkgroup(localId); // call the imported function
   `;
-  const registry = new ModuleRegistry();
-  registry.registerModule(module);
+  const registry = new ModuleRegistry(myModule);
 
   const linked = linkWgsl(src, registry);
   expect(linked).includes("myWork[workDex]");
@@ -134,8 +132,7 @@ test("transitive importReplace", () => {
 
     reduceWorkgroup(localId); // call the imported function
   `;
-  const registry = new ModuleRegistry();
-  registry.registerModule(binOpModule, reduceModule);
+  const registry = new ModuleRegistry(binOpModule, reduceModule);
   const linked = linkWgsl(src, registry);
   expect(linked).includes("myWork[workDex]");
   expect(linked).not.includes("work[");
@@ -143,7 +140,7 @@ test("transitive importReplace", () => {
 });
 
 test("#import w/o replace", () => {
-  const module = `
+  const myModule = `
     // #export
     fn foo() { /* fooImpl */ }
   `;
@@ -152,14 +149,13 @@ test("#import w/o replace", () => {
     // #import foo
     foo();
   `;
-  const registry = new ModuleRegistry();
-  registry.registerModule(module);
+  const registry = new ModuleRegistry(myModule);
   const linked = linkWgsl(src, registry);
   expect(linked).includes("fooImpl");
 });
 
 test("import with template replace", () => {
-  const module = `
+  const myModule = `
     #template thimb2
     #export(threads) 
     fn foo() {
@@ -171,8 +167,7 @@ test("import with template replace", () => {
     #import foo(128)
     foo();
   `;
-  const registry = new ModuleRegistry();
-  registry.registerModule(module);
+  const registry = new ModuleRegistry(myModule);
   registry.registerTemplate(thimbTemplate);
   const linked = linkWgsl(src, registry);
   expect(linked).includes("step < 128");
@@ -196,8 +191,7 @@ test("#import twice doesn't get two copies", () => {
     foo();
     bar();
   `;
-  const registry = new ModuleRegistry();
-  registry.registerModule(module1, module2);
+  const registry = new ModuleRegistry(module1, module2);
   const linked = linkWgsl(src, registry);
   const matches = linked.matchAll(/fooImpl/g);
   expect([...matches].length).toBe(1);
