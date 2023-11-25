@@ -22,7 +22,7 @@ Parse a simple extension for wgsl that allows for linking shaders together.
 
 */
 
-import { ModuleExport, ModuleRegistry } from "./ModuleRegistry.js";
+import { ModuleRegistry } from "./ModuleRegistry.js";
 import { endImportRegex, importRegex, replaceTokens } from "./Parsing.js";
 
 export interface ModuleBase {
@@ -31,33 +31,31 @@ export interface ModuleBase {
   exports: Export[];
 }
 
-export interface WgslModule extends ModuleBase {
+export type WgslModule = TextModule | GeneratorModule;
+
+export interface TextModule extends ModuleBase {
   template?: string;
+  exports: TextExport[];
 }
 
-export type Export  = TextExport | GeneratorExport;
+export interface GeneratorModule extends ModuleBase {
+  exports: GeneratorExport[];
+}
 
-interface ExportBase 
-{
+export type Export = TextExport | GeneratorExport;
+
+interface ExportBase {
   /** name of function or struct being exported */
   name: string;
   params: string[];
-  kind: "text" | "function";
 }
 
 export interface TextExport extends ExportBase {
   src: string;
-  kind: "text";
-}
-
-export interface GeneratorModule {
-  name: string;
-  exports: GeneratorExport[];
 }
 
 export interface GeneratorExport extends ExportBase {
   generate: (params: Record<string, string>) => string;
-  kind: "function";
 }
 
 /** parse shader text for imports, return wgsl with all imports injected */
@@ -73,6 +71,7 @@ function fullImportName(
   return `${moduleName}.${importName}(${params.join(",")})`;
 }
 
+/** process source text by finding #import directives and inserting the imported module text */
 function insertImportsRecursive(
   src: string,
   registry: ModuleRegistry,
@@ -135,28 +134,38 @@ function importModule(
 
   imported.add(fullImport);
 
-  if (moduleExport.export.kind === "text") {
-    const importSrc = moduleExport.export.src;
-    const importText = insertImportsRecursive(importSrc, registry, imported);
-
-    const entries = moduleExport.export.params.map((p, i) => [p, params[i]]);
-    const templateParams = Object.fromEntries(entries);
-
-    const templated = applyTemplate(importText, templateParams, moduleExport, registry);
-    const patched = replaceTokens(templated, templateParams);
-
-    return patched;
+  if (moduleExport.kind === "text") {
+    const template = moduleExport.module.template;
+    return importText(moduleExport.export, template, registry, params, imported);
   }
+}
+
+function importText(
+  textExport: TextExport,
+  template: string | undefined,
+  registry: ModuleRegistry,
+  params: string[],
+  imported: Set<string>
+): string {
+  const importSrc = textExport.src;
+  const importText = insertImportsRecursive(importSrc, registry, imported);
+
+  const entries = textExport.params.map((p, i) => [p, params[i]]);
+  const templateParams = Object.fromEntries(entries);
+
+  const templated = applyTemplate(importText, templateParams, template, registry);
+  const patched = replaceTokens(templated, templateParams);
+
+  return patched;
 }
 
 /** run a template processor if one is defined for this module */
 function applyTemplate(
   text: string,
   templateParams: Record<string, string>,
-  moduleExport: ModuleExport,
+  template: string | undefined,
   registry: ModuleRegistry
 ): string {
-  const template = moduleExport.module.template;
   if (template) {
     const applyTemplate = registry.getTemplate(template);
     if (applyTemplate) {

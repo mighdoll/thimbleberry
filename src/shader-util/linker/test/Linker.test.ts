@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { linkWgsl } from "../Linker.js";
+import { GeneratorModule, linkWgsl } from "../Linker.js";
 import { ModuleRegistry } from "../ModuleRegistry.js";
 import { thimbTemplate } from "../../Template2.js";
 import { parseModule } from "../ParseModule.js";
@@ -16,10 +16,7 @@ test("read simple fn export", () => {
   const firstExport = module.exports[0];
   expect(firstExport.name).toBe("one");
   expect(firstExport.params).deep.equals([]);
-  expect(firstExport.kind).toBe("text");
-  if (firstExport.kind === "text") {
-    expect(firstExport.src).toBe(src);
-  }
+  expect(firstExport.src).toBe(src);
 });
 
 test("read simple structexport", () => {
@@ -34,10 +31,7 @@ test("read simple structexport", () => {
   const firstExport = module.exports[0];
   expect(firstExport.name).toBe("Elem");
   expect(firstExport.params).deep.equals([]);
-  expect(firstExport.kind).toBe("text");
-  if (firstExport.kind === "text") {
-    expect(firstExport.src).toBe(src);
-  }
+  expect(firstExport.src).toBe(src);
 });
 
 test("apply simple importReplace", () => {
@@ -209,36 +203,30 @@ test("#import twice doesn't get two copies", () => {
   expect([...matches].length).toBe(1);
 });
 
-// test("#import from code generator", () => {
-//   const myModule = {
-//     name: "myModule",
-//     generate: (params:Record<string, string>):string =>  {
-//       return `fn ${params.name}() { /* ${params.name}Impl */ }`;
-//     }
-//   };
+test("#import from code generator", () => {
+  const myModule: GeneratorModule = {
+    name: "myModule",
+    exports: [
+      {
+        name: "foo",
+        params: ["name"],
+        generate: (params: Record<string, string>): string => {
+          return `fn ${params.name}() { /* ${params.name}Impl */ }`;
+        },
+      },
+    ],
+  };
 
-//   //   #export
-//   //   fn foo() { /* fooImpl */ }
-//   // `;
-//   const module2 = `
-//     #export
-//     fn bar() { foo(); }
+  const src = `
+    #import foo(bar)
 
-//     #import foo
-//   `;
-//   const src =`
-//     #import bar
-//     #import foo
-
-//     foo();
-//     bar();
-//   `;
-//   const registry = new ModuleRegistry();
-//   registry.registerModule(module1, module2);
-//   const linked = linkWgsl(src, registry);
-//   const matches = linked.matchAll(/fooImpl/g);
-//   expect([...matches].length).toBe(1);
-// });
+    bar();
+  `;
+  const registry = new ModuleRegistry();
+  registry.registerGeneratorModule(myModule);
+  const linked = linkWgsl(src, registry);
+  console.log(linked);
+});
 
 /*
 TODO

@@ -1,4 +1,11 @@
-import { Export, WgslModule } from "./Linker.js";
+import {
+  Export,
+  GeneratorExport,
+  GeneratorModule,
+  TextExport,
+  TextModule,
+  WgslModule,
+} from "./Linker.js";
 import { parseModule } from "./ParseModule.js";
 
 export type ApplyTemplate = (src: string, params: Record<string, string>) => string;
@@ -8,10 +15,24 @@ export interface Template {
   applyTemplate: ApplyTemplate;
 }
 
-/** a single export from a module */
-export interface ModuleExport {
+export interface ModuleExportBase {
   module: WgslModule;
   export: Export;
+  kind: "text" | "function";
+}
+
+/** a single export from a module */
+type ModuleExport = TextModuleExport | GeneratorModuleExport;
+
+export interface TextModuleExport {
+  module: TextModule;
+  export: TextExport;
+  kind: "text";
+}
+export interface GeneratorModuleExport {
+  module: GeneratorModule;
+  export: GeneratorExport;
+  kind: "function";
 }
 
 export class ModuleRegistry {
@@ -22,7 +43,11 @@ export class ModuleRegistry {
   /** register a module's exports so that imports can find it */
   registerModule(...sources: string[]): void {
     const modules = sources.map(src => parseModule(src));
-    modules.forEach(m => this.addModule(m));
+    modules.forEach(m => this.addTextModule(m));
+  }
+
+  registerGeneratorModule(generatorModule: GeneratorModule): void {
+    this.addGeneratorModule(generatorModule);
   }
 
   registerTemplate(...templates: Template[]): void {
@@ -50,17 +75,27 @@ export class ModuleRegistry {
     }
   }
 
-  private addModule(module: WgslModule): void {
-    module.exports.forEach(e => this.addModuleExport(e, module));
+  private addTextModule(module: TextModule): void {
+    module.exports.forEach(e => {
+      const moduleExport: TextModuleExport = { module, export: e, kind: "text" };
+      this.addModuleExport(moduleExport);
+    });
   }
 
-  private addModuleExport(exp: Export, module: WgslModule): void {
-    const moduleExport: ModuleExport = { module, export: exp };
-    const existing = this.exports.get(exp.name);
+  private addGeneratorModule(module: GeneratorModule): void {
+    module.exports.forEach(e => {
+      const moduleExport: GeneratorModuleExport = { module, export: e, kind: "function" };
+      this.addModuleExport(moduleExport);
+    });
+  }
+
+  private addModuleExport(moduleExport: ModuleExport): void {
+    const exportName = moduleExport.export.name;
+    const existing = this.exports.get(exportName);
     if (existing) {
       existing.push(moduleExport);
     } else {
-      this.exports.set(exp.name, [moduleExport]);
+      this.exports.set(exportName, [moduleExport]);
     }
   }
 }

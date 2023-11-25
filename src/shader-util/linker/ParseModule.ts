@@ -1,10 +1,10 @@
-import { TextExport, WgslModule } from "./Linker.js";
+import { TextExport, TextModule } from "./Linker.js";
 import { exportRegex, fnOrStructRegex, templateRegex } from "./Parsing.js";
 
 let unnamedModuleDex = 0;
 
 /** parse module text to find the #export, #template, and #module declaraions */
-export function parseModule(src: string, defaultModuleName?: string): WgslModule {
+export function parseModule(src: string, defaultModuleName?: string): TextModule {
   let template: string | undefined;
   const exports: TextExport[] = [];
   let currentExport: Partial<TextExport> | undefined;
@@ -18,7 +18,7 @@ export function parseModule(src: string, defaultModuleName?: string): WgslModule
         `found export while parsing export line: ${lineNum}`
       );
       const params = exportMatch.groups?.params?.split(",").map(p => p.trim()) ?? [];
-      currentExport = { params, kind: "text" };
+      currentExport = { params };
       currentExportLines = [];
     } else {
       const templateMatch = line.match(templateRegex);
