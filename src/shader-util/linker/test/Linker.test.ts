@@ -230,7 +230,6 @@ test("#import from code generator", () => {
 
 /*
 TODO
- . test deduplication of imports
  . test endExport
  . test import * 
  . test import 'as' renaming
