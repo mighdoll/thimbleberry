@@ -1,5 +1,5 @@
-import { parseModule } from "./ParseModule.js";
 import { Export, WgslModule } from "./Linker.js";
+import { parseModule } from "./ParseModule.js";
 
 export type ApplyTemplate = (src: string, params: Record<string, string>) => string;
 
@@ -22,7 +22,7 @@ export class ModuleRegistry {
   /** register a module's exports so that imports can find it */
   registerModule(...sources: string[]): void {
     const modules = sources.map(src => parseModule(src));
-    modules.forEach(m => this.addModule(m))
+    modules.forEach(m => this.addModule(m));
   }
 
   registerTemplate(...templates: Template[]): void {
@@ -45,17 +45,17 @@ export class ModuleRegistry {
       const moduleNames = exports.map(e => e.module.name).join(", ");
       console.warn(
         `multiple modules export ${exportName}. (${moduleNames})` +
-        `use "#import ${exportName} from <moduleName>" to select which one import`
+          `use "#import ${exportName} from <moduleName>" to select which one import`
       );
     }
   }
 
-  private addModule(module:WgslModule): void {
+  private addModule(module: WgslModule): void {
     module.exports.forEach(e => this.addModuleExport(e, module));
   }
 
-  private addModuleExport(exp:Export, module:WgslModule): void {
-    const moduleExport: ModuleExport = { module, export:exp };
+  private addModuleExport(exp: Export, module: WgslModule): void {
+    const moduleExport: ModuleExport = { module, export: exp };
     const existing = this.exports.get(exp.name);
     if (existing) {
       existing.push(moduleExport);
@@ -63,5 +63,4 @@ export class ModuleRegistry {
       this.exports.set(exp.name, [moduleExport]);
     }
   }
-
 }

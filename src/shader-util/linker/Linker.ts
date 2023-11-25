@@ -25,18 +25,39 @@ Parse a simple extension for wgsl that allows for linking shaders together.
 import { ModuleExport, ModuleRegistry } from "./ModuleRegistry.js";
 import { endImportRegex, importRegex, replaceTokens } from "./Parsing.js";
 
-export interface WgslModule {
+export interface ModuleBase {
   /** name of module e.g. myPackage.myModule */
   name: string;
   exports: Export[];
+}
+
+export interface WgslModule extends ModuleBase {
   template?: string;
 }
 
-export interface Export {
+export type Export  = TextExport | GeneratorExport;
+
+interface ExportBase 
+{
   /** name of function or struct being exported */
   name: string;
-  src: string;
   params: string[];
+  kind: "text" | "function";
+}
+
+export interface TextExport extends ExportBase {
+  src: string;
+  kind: "text";
+}
+
+export interface GeneratorModule {
+  name: string;
+  exports: GeneratorExport[];
+}
+
+export interface GeneratorExport extends ExportBase {
+  generate: (params: Record<string, string>) => string;
+  kind: "function";
 }
 
 /** parse shader text for imports, return wgsl with all imports injected */
@@ -44,8 +65,12 @@ export function linkWgsl(src: string, registry: ModuleRegistry): string {
   return insertImportsRecursive(src, registry, new Set());
 }
 
-function fullImportName(importName: string, moduleName: string, params: string[]): string {
-  return `${moduleName}.${importName}(${params.join(",")})`
+function fullImportName(
+  importName: string,
+  moduleName: string,
+  params: string[]
+): string {
+  return `${moduleName}.${importName}(${params.join(",")})`;
 }
 
 function insertImportsRecursive(
@@ -109,18 +134,20 @@ function importModule(
   }
 
   imported.add(fullImport);
-  const importSrc = moduleExport.export.src;
-  const importText = insertImportsRecursive(importSrc, registry, imported);
 
-  const entries = moduleExport.export.params.map((p, i) => [p, params[i]]);
-  const templateParams = Object.fromEntries(entries);
+  if (moduleExport.export.kind === "text") {
+    const importSrc = moduleExport.export.src;
+    const importText = insertImportsRecursive(importSrc, registry, imported);
 
-  const templated = applyTemplate(importText, templateParams, moduleExport, registry);
-  const patched = replaceTokens(templated, templateParams);
+    const entries = moduleExport.export.params.map((p, i) => [p, params[i]]);
+    const templateParams = Object.fromEntries(entries);
 
-  return patched;
+    const templated = applyTemplate(importText, templateParams, moduleExport, registry);
+    const patched = replaceTokens(templated, templateParams);
+
+    return patched;
+  }
 }
-
 
 /** run a template processor if one is defined for this module */
 function applyTemplate(
