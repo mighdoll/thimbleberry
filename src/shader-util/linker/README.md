@@ -29,7 +29,7 @@ Importing a function looks like this:
 ### Build Support
 
 Linking and parsing happens entirely at runtime in the current version. 
-The library is small.
+The library is about 2kb.
 
 You can put your wgsl into strings in your typescript source if you'd like.
 Or you can store your shader and shader module templates as `.wgsl` files and load

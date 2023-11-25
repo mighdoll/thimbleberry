@@ -1,6 +1,16 @@
 {
   "name": "wgsl-linker",
   "version": "0.1.0",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/wgsl-linker.mjs",
+      "require": "./dist/wgsl-linker.umd.js"
+    }
+  },
   "devDependencies": {
     "vite": "^5.0.2"
   }
