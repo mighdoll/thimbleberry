@@ -40,6 +40,10 @@ export class ModuleRegistry {
   private exports = new Map<string, ModuleExport[]>();
   private templates = new Map<string, ApplyTemplate>();
 
+  constructor(...src: string[]) {
+    this.registerModule(...src);
+  }
+
   /** register a module's exports so that imports can find it */
   registerModule(...sources: string[]): void {
     const modules = sources.map(src => parseModule(src));
