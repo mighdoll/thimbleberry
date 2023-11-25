@@ -56,11 +56,12 @@ function insertImportsRecursive(
   const out: string[] = [];
   let importReplacing = false; // true while we're reading lines inside an importReplace
 
+  // scan through the lines looking for #import directives
   src.split("\n").forEach((line, lineNum) => {
     const importMatch = line.match(importRegex);
     if (importMatch) {
       const groups = importMatch.groups;
-      const name = groups!.name;
+      const importName = groups!.name;
       const params = groups?.params?.split(",").map(p => p.trim()) ?? [];
 
       if (groups?.importCmd === "importReplace") {
@@ -70,9 +71,13 @@ function insertImportsRecursive(
         );
         importReplacing = true;
       }
-      const mod = groups?.module;
 
-      const text = importModule(name, mod, registry, params, imported, lineNum, line);
+      const asRename = groups?.importAs;
+
+      const moduleName = groups?.module;
+      const _args = { importName, moduleName, registry, params, asRename };
+      const args = { ..._args, imported, lineNum, line };
+      const text = importModule(args);
       text && out.push(text);
     } else if (importReplacing) {
       const endImport = line.match(endImportRegex);
@@ -86,15 +91,21 @@ function insertImportsRecursive(
   return out.join("\n");
 }
 
-function importModule(
-  importName: string,
-  moduleName: string | undefined,
-  registry: ModuleRegistry,
-  params: string[],
-  imported: Set<string>,
-  lineNum: number,
-  line: string
-): string | undefined {
+interface ImportModuleArgs {
+  importName: string;
+  asRename?: string;
+  moduleName?: string;
+  registry: ModuleRegistry;
+  params: string[];
+  imported: Set<string>;
+  lineNum: number;
+  line: string;
+}
+
+function importModule(args: ImportModuleArgs): string | undefined {
+  const { importName, asRename, moduleName, registry, params, imported, lineNum, line } =
+    args;
+
   const moduleExport = registry.getModuleExport(importName, moduleName);
   if (!moduleExport) {
     console.error(
