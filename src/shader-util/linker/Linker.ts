@@ -95,8 +95,11 @@ function importModule(
   lineNum: number,
   line: string
 ): string | undefined {
-  const moduleExport = getModuleExport(importName, moduleName, registry, lineNum, line);
+  const moduleExport = registry.getModuleExport(importName, moduleName);
   if (!moduleExport) {
+    console.error(
+      `#importReplace module "${importName}" not found: at ${lineNum}\n>>\t${line}`
+    );
     return undefined;
   }
 
@@ -118,21 +121,6 @@ function importModule(
   return patched;
 }
 
-function getModuleExport(
-  importName: string,
-  moduleName: string | undefined,
-  registry: ModuleRegistry,
-  lineNum: number,
-  line: string
-): ModuleExport | undefined {
-  const moduleExport = registry.getModuleExport(importName, moduleName);
-  if (!moduleExport) {
-    console.error(
-      `#importReplace module "${importName}" not found: at ${lineNum}\n>>\t${line}`
-    );
-  }
-  return moduleExport;
-}
 
 /** run a template processor if one is defined for this module */
 function applyTemplate(
