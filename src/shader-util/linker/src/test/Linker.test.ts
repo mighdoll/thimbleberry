@@ -211,7 +211,7 @@ test("#import from code generator", () => {
         name: "foo",
         params: ["name"],
         generate: (params: Record<string, string>): string => {
-          return `fn ${params.name}() { /* ${params.name}Impl */ }`;
+          return `fn foo() { /* ${params.name}Impl */ }`;
         },
       },
     ],
@@ -220,7 +220,7 @@ test("#import from code generator", () => {
   const src = `
     #import foo(bar)
 
-    bar();
+    foo();
   `;
   const registry = new ModuleRegistry();
   registry.registerGeneratorModule(myModule);
@@ -231,6 +231,7 @@ test("#import from code generator", () => {
 /*
 TODO
  . test endExport
+ . test multiple exports in a module
  . test import * 
  . test import 'as' renaming
  . test importing a function twice with different names
