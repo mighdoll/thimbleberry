@@ -30,8 +30,10 @@ export interface TextExport extends ExportBase {
   src: string;
 }
 
+export type CodeGenFn = (params: Record<string, string>) => string;
+
 export interface GeneratorExport extends ExportBase {
-  generate: (params: Record<string, string>) => string;
+  generate: CodeGenFn;
 }
 
 /** parse shader text for imports, return wgsl with all imports injected */
@@ -109,7 +111,7 @@ function importModule(args: ImportModuleArgs): string {
   const moduleExport = registry.getModuleExport(importName, moduleName);
   if (!moduleExport) {
     console.error(
-      `#importReplace module "${importName}" not found: at ${lineNum}\n>>\t${line}`
+      `#importReplace module export "${importName}" not found: at ${lineNum}\n>>\t${line}`
     );
     return "";
   }

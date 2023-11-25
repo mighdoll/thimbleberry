@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { GeneratorModule, linkWgsl } from "../Linker.js";
+import { CodeGenFn, GeneratorModule, linkWgsl } from "../Linker.js";
 import { ModuleRegistry } from "../ModuleRegistry.js";
 import { thimbTemplate } from "../../../Template2.js";
 import { parseModule } from "../ParseModule.js";
@@ -198,18 +198,9 @@ test("#import twice doesn't get two copies", () => {
 });
 
 test("#import from code generator", () => {
-  const myModule: GeneratorModule = {
-    name: "myModule",
-    exports: [
-      {
-        name: "foo",
-        params: ["name"],
-        generate: (params: Record<string, string>): string => {
-          return `fn foo() { /* ${params.name}Impl */ }`;
-        },
-      },
-    ],
-  };
+  function generate(params: { name: string }): string {
+    return `fn foo() { /* ${params.name}Impl */ }`;
+  }
 
   const src = `
     #import foo(bar)
@@ -217,7 +208,7 @@ test("#import from code generator", () => {
     foo();
   `;
   const registry = new ModuleRegistry();
-  registry.registerGeneratorModule(myModule);
+  registry.registerGenerator("foo", generate as CodeGenFn, ["name"]);
   const linked = linkWgsl(src, registry);
   expect(linked).contains("barImpl");
 });
@@ -236,6 +227,10 @@ test("#import foo as bar", () => {
   const registry = new ModuleRegistry(myModule);
   const linked = linkWgsl(src, registry);
   expect(linked).contains("fn bar()");
+});
+
+test("#import as with code generator", () => {
+  const register = new ModuleRegistry();
 });
 
 /*

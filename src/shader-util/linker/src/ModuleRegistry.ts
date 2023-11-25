@@ -1,4 +1,5 @@
 import {
+  CodeGenFn,
   Export,
   GeneratorExport,
   GeneratorModule,
@@ -35,6 +36,8 @@ export interface GeneratorModuleExport {
   kind: "function";
 }
 
+let unnamedCodeDex = 0;
+
 export class ModuleRegistry {
   // map from export names to a map of module names to exports
   private exports = new Map<string, ModuleExport[]>();
@@ -50,8 +53,17 @@ export class ModuleRegistry {
     modules.forEach(m => this.addTextModule(m));
   }
 
-  registerGeneratorModule(generatorModule: GeneratorModule): void {
-    this.addGeneratorModule(generatorModule);
+  /** register a code generator so that imports can find it */
+  registerGenerator(
+    exportName: string,
+    fn: CodeGenFn,
+    params?: string[],
+    moduleName?: string
+  ): void {
+    const exp = { name: exportName, params: params ?? [], generate: fn };
+    const module = { name: moduleName ?? `funModule${unnamedCodeDex++}`, exports: [exp] };
+    const moduleExport: GeneratorModuleExport = { module, export: exp, kind: "function" };
+    this.addModuleExport(moduleExport);
   }
 
   registerTemplate(...templates: Template[]): void {
@@ -82,13 +94,6 @@ export class ModuleRegistry {
   private addTextModule(module: TextModule): void {
     module.exports.forEach(e => {
       const moduleExport: TextModuleExport = { module, export: e, kind: "text" };
-      this.addModuleExport(moduleExport);
-    });
-  }
-
-  private addGeneratorModule(module: GeneratorModule): void {
-    module.exports.forEach(e => {
-      const moduleExport: GeneratorModuleExport = { module, export: e, kind: "function" };
       this.addModuleExport(moduleExport);
     });
   }
