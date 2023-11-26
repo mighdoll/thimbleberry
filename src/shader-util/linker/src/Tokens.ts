@@ -10,14 +10,17 @@ export function replaceTokens(text: string, replace: Record<string, string>): st
   return text.replaceAll(tokenRegex, s => (s in replace ? replace[s] : s));
 }
 
-interface TokenList {
+export interface DeclaredNames {
   fns: string[];
   structs: string[];
 }
 
-// export function globalDeclTokens(wgsl:string):TokenList {
-
-// }
+export function globalDeclarations(wgsl: string): DeclaredNames {
+  return {
+    fns: fnDecls(wgsl),
+    structs: structDecls(wgsl),
+  };
+}
 
 export function fnDecls(wgsl: string): string[] {
   const matches = wgsl.matchAll(fnRegexGlobal);
