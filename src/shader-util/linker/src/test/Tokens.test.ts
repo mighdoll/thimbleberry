@@ -1,7 +1,7 @@
 import { test, expect} from "vitest";
-import { fnDecls } from "../Tokens.js";
+import { fnDecls, structDecls } from "../Tokens.js";
 
-test.only("find all fns", () => {
+test("find all fns", () => {
   const src = `
     // comment
     fn foo () { }
@@ -12,3 +12,15 @@ test.only("find all fns", () => {
   expect(fns).includes("bar");
 });
 
+test("find all structs", () => {
+  const src = `
+    struct Foo { }
+    /* */struct Bar
+    { 
+
+    }
+  `
+  const fns = structDecls(src);
+  expect(fns).includes("Foo");
+  expect(fns).includes("Bar");
+});

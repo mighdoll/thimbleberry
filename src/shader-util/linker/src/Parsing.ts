@@ -30,6 +30,11 @@ const parenStart = /\s*\(\s*/;
 export const fnRegex = regexConcat(fnPrefix, name, parenStart);
 export const fnRegexGlobal = regexConcatGlobal(fnPrefix, name, parenStart);
 
+const structPrefix = /\bstruct\s+/;
+const braceStart = /\s*{\s*/;
+export const structRegex = regexConcat(structPrefix, name, braceStart);
+export const structRegexGlobal = regexConcatGlobal(structPrefix, name, braceStart);
+
 function regexConcat(...exp: RegExp[]): RegExp {
   const concat = exp.map(e => e.source).join("");
   return new RegExp(concat, "i");
