@@ -76,7 +76,7 @@ function insertImportsRecursive(
 
       const asRename = groups?.importAs;
 
-      const moduleName = groups?.module;
+      const moduleName = groups?.importFrom;
       const _args = { importName, moduleName, registry, params, asRename };
       const args = { ..._args, imported, lineNum, line };
       const text = importModule(args);

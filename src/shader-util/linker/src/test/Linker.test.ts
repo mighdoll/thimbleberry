@@ -223,6 +223,29 @@ test("#import foo as bar", () => {
   expect(linked).contains("fn bar()");
 });
 
+test("#import foo from zap (multiple modules)", () => {
+  const module1 = `
+    // #export 
+    fn foo() { /* module1 */ }
+  `;
+  const module2 = `
+    // #export 
+    fn foo() { /* module2 */ }
+  `;
+
+  const src = `
+    #import foo as baz from module2
+
+    baz();
+  `;
+
+  const registry = new ModuleRegistry();
+  registry.registerOneModule(module1, "module1");
+  registry.registerOneModule(module2, "module2");
+  const linked = linkWgsl(src, registry);
+  expect(linked).contains("/* module2 */");
+});
+
 test("#import from code generator", () => {
   function generate(params: { name: string }): string {
     return `fn foo() { /* ${params.name}Impl */ }`;
