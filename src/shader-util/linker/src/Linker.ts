@@ -1,5 +1,6 @@
 import { ModuleRegistry } from "./ModuleRegistry.js";
-import { endImportRegex, importRegex, replaceTokens } from "./Parsing.js";
+import { endImportRegex, importRegex } from "./Parsing.js";
+import { replaceTokens } from "./Tokens.js";
 
 export interface ModuleBase {
   /** name of module e.g. myPackage.myModule */
