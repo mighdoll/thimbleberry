@@ -264,6 +264,29 @@ test("#import twice with different names", () => {
   expect([...matches].length).toBe(2);
 });
 
+test.only("#import with different names, resolve conflicting support function", () => {
+  const module1 = `
+    #export 
+    fn foo() { 
+      support();
+    }
+
+    fn support() { }
+  `;
+  const src = `
+    #import foo as bar
+    #import foo as zap
+    
+    foo();
+    zap();
+  `;
+  const registry = new ModuleRegistry(module1);
+  const linked = linkWgsl(src, registry);
+  console.log(linked)
+  const matches = linked.matchAll(/\bsupport\b/g);
+  expect([...matches].length).toBe(2);
+});
+
 test("#import from code generator", () => {
   function generate(params: { name: string }): string {
     return `fn foo() { /* ${params.name}Impl */ }`;
