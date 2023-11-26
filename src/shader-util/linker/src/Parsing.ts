@@ -1,5 +1,6 @@
 const optComment = /(\s*\/\/)?/;
 const exportDirective = /\s*#export\s*/;
+const moduleDirective = /\s*#module\s*/;
 const templateDirective = /\s*#template\s*/;
 const importCmd = /\s*#(?<importCmd>(importReplace)|(import))\s+/;
 const optImportAs = /(\s*as\s+(?<importAs>[\w]+))?/;
@@ -18,6 +19,7 @@ export const importRegex = regexConcat(
 );
 export const endImportRegex = regexConcat(optComment, endImport);
 export const templateRegex = regexConcat(optComment, templateDirective, name);
+export const moduleRegex = regexConcat(optComment, moduleDirective, name);
 
 const fnOrStruct = /\s*((fn)|(struct))\s*/;
 export const fnOrStructRegex = regexConcat(fnOrStruct, name);

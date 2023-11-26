@@ -34,6 +34,16 @@ test("read simple structexport", () => {
   expect(firstExport.src).toBe(src);
 });
 
+test("read #module", () => {
+  const myModule = `
+    // #module myModule
+    // #export 
+    fn foo() {}
+  `;
+  const textModule = parseModule(myModule);
+  expect(textModule.name).toBe("myModule");
+});
+
 test("apply simple importReplace", () => {
   const myModule = `
   // #export

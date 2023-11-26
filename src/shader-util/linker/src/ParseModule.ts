@@ -1,5 +1,5 @@
 import { TextExport, TextModule } from "./Linker.js";
-import { exportRegex, fnOrStructRegex, templateRegex } from "./Parsing.js";
+import { exportRegex, fnOrStructRegex, moduleRegex, templateRegex } from "./Parsing.js";
 
 let unnamedModuleDex = 0;
 
@@ -9,9 +9,10 @@ export function parseModule(src: string, defaultModuleName?: string): TextModule
   const exports: TextExport[] = [];
   let currentExport: Partial<TextExport> | undefined;
   let currentExportLines: string[] = [];
+  let moduleName:string | undefined;
 
   src.split("\n").forEach((line, lineNum) => {
-    const exportMatch = line.match(exportRegex);
+    const { exportMatch, templateMatch, moduleMatch } = matchModuleDirectives(line);
     if (exportMatch) {
       console.assert(
         currentExport === undefined,
@@ -20,18 +21,17 @@ export function parseModule(src: string, defaultModuleName?: string): TextModule
       const params = exportMatch.groups?.params?.split(",").map(p => p.trim()) ?? [];
       currentExport = { params };
       currentExportLines = [];
-    } else {
-      const templateMatch = line.match(templateRegex);
-      if (templateMatch) {
-        template = templateMatch.groups?.name;
-      } else if (currentExport) {
-        currentExportLines.push(line);
-        // TODO allow for explicitly named exports (and don't look for following fn or struct)
-        if (currentExport.name === undefined) {
-          const found = line.match(fnOrStructRegex);
-          if (found) {
-            currentExport.name = found.groups?.name;
-          }
+    } else if (templateMatch) {
+      template = templateMatch.groups?.name;
+    } else if (moduleMatch) {
+      moduleName = moduleMatch.groups?.name;
+    } else if (currentExport) {
+      currentExportLines.push(line);
+      // TODO allow for explicitly named exports (and don't look for following fn or struct)
+      if (currentExport.name === undefined) {
+        const found = line.match(fnOrStructRegex);
+        if (found) {
+          currentExport.name = found.groups?.name;
         }
       }
     }
@@ -45,6 +45,29 @@ export function parseModule(src: string, defaultModuleName?: string): TextModule
     exports.push(currentExport as TextExport);
   }
 
-  const name = defaultModuleName ?? `module${unnamedModuleDex++}`;
+  const name = moduleName ?? defaultModuleName ?? `module${unnamedModuleDex++}`;
   return { exports, name, template };
+}
+
+interface ModuleDirectiveMatch {
+  exportMatch?: RegExpMatchArray;
+  templateMatch?: RegExpMatchArray;
+  moduleMatch?: RegExpMatchArray;
+}
+
+function matchModuleDirectives(line: string): ModuleDirectiveMatch {
+  const exportMatch = line.match(exportRegex);
+  if (exportMatch) {
+    return { exportMatch };
+  }
+  const templateMatch = line.match(templateRegex);
+  if (templateMatch) {
+    return { templateMatch };
+  }
+  const moduleMatch = line.match(moduleRegex);
+  if (moduleMatch) {
+    return { moduleMatch };
+  }
+
+  return {};
 }
