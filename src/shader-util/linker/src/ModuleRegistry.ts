@@ -44,13 +44,19 @@ export class ModuleRegistry {
   private templates = new Map<string, ApplyTemplate>();
 
   constructor(...src: string[]) {
-    this.registerModule(...src);
+    this.registerModules(...src);
   }
 
-  /** register a module's exports so that imports can find it */
-  registerModule(...sources: string[]): void {
+  /** register modules' exports so that imports can find them */
+  registerModules(...sources: string[]): void {
     const modules = sources.map(src => parseModule(src));
     modules.forEach(m => this.addTextModule(m));
+  }
+
+  /** register one module's exports so that imports can find them */
+  registerOneModule(src: string, moduleName?: string): void {
+    const m = parseModule(src, moduleName);
+    this.addTextModule(m);
   }
 
   /** register a code generator so that imports can find it */
@@ -85,8 +91,8 @@ export class ModuleRegistry {
     } else {
       const moduleNames = exports.map(e => e.module.name).join(", ");
       console.warn(
-        `multiple modules export ${exportName}. (${moduleNames})` +
-          `use "#import ${exportName} from <moduleName>" to select which one import`
+        `Multiple modules export ${exportName}. (${moduleNames}) ` +
+          `Use "#import ${exportName} from <moduleName>" to select which one import`
       );
     }
   }
