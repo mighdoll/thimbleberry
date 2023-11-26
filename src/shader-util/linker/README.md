@@ -1,11 +1,14 @@
 ### wgsl-linker
-wgsl-linker is a small (2kb) extension to wgsl to support wgsl modules. 
-* import/export support, including import deduplication and token renaming
-* pluggable template engine for parameterized modules
-* optional code generated modules
-* compatible with static wgsl tools like wgsl-analyzer.
+
+wgsl-linker is a small (2kb) extension to wgsl to support wgsl modules.
+
+- import/export support, including import deduplication and token renaming
+- pluggable template engine for parameterized modules
+- optional code generated modules
+- compatible with static wgsl tools like wgsl-analyzer.
 
 #### Simple Example
+
 Exporting a wgsl function in `randModule.wgsl`:
 
 ```
@@ -127,7 +130,6 @@ the module.
 Source lines below the exported fn or struct will also be copied into the importer,
 but privately for use only by the module.
 
-
 ```
 // The lines above the #export can be used for statically typechecking the module, they won't be exported
 struct Elem { }
@@ -149,16 +151,16 @@ fn setElem(i: i32, elem: Elem) {
 
 ### Current Limitations and Future Work
 
-- Export parameter replacement uses global text substitution in the module, so don't reuse
-  tokens that are used as export parameters.
-  A lightweight wgsl parser would help make parameter passing more precise,
-  among other potential benefits.
+- Export parameter replacement and fn/struct renaming use global text substitution
+  in the module, so don't alias tokens that are used as export parameters or function names.
+  In the future, replacing text searching with a lightweight wgsl parser should help.
 
 - To enable static typechecking,
   the linker currently requires the user to manually add placeholder declarations.
-  Extending wgsl-analyzer to typecheck imports would be benefit.
+  Extending wgsl-analyzer to typecheck imports would be nice.
 
-- A build plugin to register all relevant modules would be handy, and probably not
+- A build plugin to register all relevant modules files would be handy, and likely not
   difficult to build.
 
-- Bindings and uniforms and not linked. Perhaps that will prove useful for the future.
+- Bindings, uniforms, variables, and consts are not linked.
+  Perhaps that will prove useful in for a future version.
