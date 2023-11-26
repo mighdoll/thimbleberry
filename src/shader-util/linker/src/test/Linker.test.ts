@@ -246,6 +246,24 @@ test("#import foo from zap (multiple modules)", () => {
   expect(linked).contains("/* module2 */");
 });
 
+test("#import twice with different names", () => {
+  const module1 = `
+    #export 
+    fn foo() { /* module1 */ }
+  `;
+  const src = `
+    #import foo as bar
+    #import foo as zap
+    
+    foo();
+    zap();
+  `;
+  const registry = new ModuleRegistry(module1);
+  const linked = linkWgsl(src, registry);
+  const matches = linked.matchAll(/module1/g);
+  expect([...matches].length).toBe(2);
+});
+
 test("#import from code generator", () => {
   function generate(params: { name: string }): string {
     return `fn foo() { /* ${params.name}Impl */ }`;
@@ -280,10 +298,7 @@ test("#import as with code generator", () => {
 
 /*
 TODO
- . test endExport
- . test multiple exports in a module
- . test import * 
- . test import 'as' renaming
- . test importing a function twice with different names
  . test renaming tokens to solve for multiple 
+ . test import * 
+ . test multiple exports in a module
 */
