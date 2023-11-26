@@ -1,5 +1,11 @@
 import { expect, test } from "vitest";
-import { exportRegex, fnOrStructRegex, importRegex, replaceTokens, templateRegex } from "../Parsing.js";
+import {
+  exportRegex,
+  fnOrStructRegex,
+  importRegex,
+  replaceTokens,
+  templateRegex,
+} from "../Parsing.js";
 
 test("export regex w/o params", () => {
   const result = "// #export".match(exportRegex);
@@ -48,6 +54,22 @@ test("#import foo(a,b,c) as bar", () => {
   expect(matches?.groups?.importCmd).toBe("import");
   expect(matches?.groups?.params).toBe("a,b,c");
   expect(matches?.groups?.importAs).toBe("bar");
+});
+
+test("#importReplace foo(1,2,3) from zap", () => {
+  const matches = "#importReplace foo(1,2,3) from zap".match(importRegex);
+  expect(matches?.groups?.name).toBe("foo");
+  expect(matches?.groups?.importCmd).toBe("importReplace");
+  expect(matches?.groups?.importFrom).toBe("zap");
+  expect(matches?.groups?.params).toBe("1,2,3");
+});
+
+test("#import foo as bar from zap", () => {
+  const matches = "// #import foo as bar from zap".match(importRegex);
+  expect(matches?.groups?.name).toBe("foo");
+  expect(matches?.groups?.importCmd).toBe("import");
+  expect(matches?.groups?.importAs).toBe("bar");
+  expect(matches?.groups?.importFrom).toBe("zap");
 });
 
 test("replaceTokens", () => {
