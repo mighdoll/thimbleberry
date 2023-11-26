@@ -20,13 +20,22 @@ export const importRegex = regexConcat(
 export const endImportRegex = regexConcat(optComment, endImport);
 export const templateRegex = regexConcat(optComment, templateDirective, name);
 export const moduleRegex = regexConcat(optComment, moduleDirective, name);
+export const tokenRegex = /\b(\w+)\b/gi;
 
 const fnOrStruct = /\s*((fn)|(struct))\s*/;
 export const fnOrStructRegex = regexConcat(fnOrStruct, name);
 
+const fnPrefix = /\bfn\s+/;
+const parenStart = /\s*\(\s*/;
+export const fnRegex = regexConcat(fnPrefix, name, parenStart);
+export const fnRegexGlobal = regexConcatGlobal(fnPrefix, name, parenStart);
 
 function regexConcat(...exp: RegExp[]): RegExp {
   const concat = exp.map(e => e.source).join("");
   return new RegExp(concat, "i");
 }
 
+function regexConcatGlobal(...exp: RegExp[]): RegExp {
+  const concat = exp.map(e => e.source).join("");
+  return new RegExp(concat, "ig");
+}

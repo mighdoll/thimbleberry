@@ -2,10 +2,11 @@ import { expect, test } from "vitest";
 import {
   exportRegex,
   fnOrStructRegex,
+  fnRegex,
   importRegex,
-  replaceTokens,
   templateRegex,
 } from "../Parsing.js";
+import { replaceTokens } from "../Tokens.js";
 
 test("export regex w/o params", () => {
   const result = "// #export".match(exportRegex);
@@ -92,4 +93,23 @@ test("parse fn", () => {
 test("parse struct", () => {
   const result = "struct Bar {".match(fnOrStructRegex);
   expect(result?.groups?.name).toBe("Bar");
+});
+
+test("find fn decl", () => {
+  const src = `
+    // comment
+    fn foo() { }
+  `
+  const matches = src.match(fnRegex);
+  expect(matches?.groups?.name).toBe("foo");
+});
+
+test("find fn decl across two lines", () => {
+  const src = `
+    // comment
+    fn foo
+    () { }
+  `
+  const matches = src.match(fnRegex);
+  expect(matches?.groups?.name).toBe("foo");
 });
