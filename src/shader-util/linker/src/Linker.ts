@@ -1,6 +1,6 @@
 import { ModuleRegistry } from "./ModuleRegistry.js";
 import { endImportRegex, importRegex } from "./Parsing.js";
-import { DeclaredNames, globalDeclarations, replaceTokens } from "./Tokens.js";
+import { DeclaredNames, globalDeclarations, replaceFnCalls, replaceFnDecl, replaceTokens } from "./Tokens.js";
 
 export interface ModuleBase {
   /** name of module e.g. myPackage.myModule */
@@ -85,12 +85,12 @@ function insertImportsRecursive(
       const text = importModule(args);
       const moduleDeclarations = globalDeclarations(text);
       const conflicts = declConflict(declarations, moduleDeclarations);
-      console.log("declarations:", declarations);
-      console.log("moduleDeclarations:", moduleDeclarations);
-      console.log("conflicts:", conflicts);
+      const deconflicted = rewriteConflicting(text, conflicts);
+      out.push(deconflicted);
+
+      // TODO add the deconflicted names instead
       moduleDeclarations.fns.forEach(fn => declarations.fns.add(fn));
       moduleDeclarations.structs.forEach(s => declarations.structs.add(s));
-      out.push(text);
     } else if (importReplacing) {
       const endImport = line.match(endImportRegex);
       if (endImport) {
@@ -101,6 +101,18 @@ function insertImportsRecursive(
     }
   });
   return out.join("\n");
+}
+
+let conflictCount = 0;
+function rewriteConflicting(text:string, conflicts: DeclaredNames): string {
+  let newText = text;
+  conflicts.fns.forEach(fnName => {
+    const deconflicted = `${fnName}_${conflictCount}`;
+    newText = replaceFnDecl(newText, fnName, deconflicted);
+    newText = replaceFnCalls(newText, fnName, deconflicted);
+  });
+  conflictCount++;
+  return newText;
 }
 
 function declConflict(main: DeclaredNames, other: DeclaredNames): DeclaredNames {

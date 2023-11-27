@@ -283,9 +283,12 @@ test.only("#import with different names, resolve conflicting support function", 
   `;
   const registry = new ModuleRegistry(module1);
   const linked = linkWgsl(src, registry);
-  console.log(linked)
-  const matches = linked.matchAll(/\bsupport\b/g);
-  // expect([...matches].length).toBe(2);
+  const origMatch = linked.matchAll(/\bsupport\b/g);
+  expect([...origMatch].length).toBe(1);
+  const module1Match = linked.matchAll(/\bsupport_0\b/g);
+  expect([...module1Match].length).toBe(2);
+  const module2Match = linked.matchAll(/\bsupport_1\b/g);
+  expect([...module2Match].length).toBe(2);
 });
 
 test("#import from code generator", () => {

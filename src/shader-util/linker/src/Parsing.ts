@@ -25,7 +25,7 @@ export const tokenRegex = /\b(\w+)\b/gi;
 const fnOrStruct = /\s*((fn)|(struct))\s*/;
 export const fnOrStructRegex = regexConcat(fnOrStruct, name);
 
-const fnPrefix = /\bfn\s+/;
+export const fnPrefix = /\bfn\s+/;
 const parenStart = /\s*\(\s*/;
 export const fnRegex = regexConcat(fnPrefix, name, parenStart);
 export const fnRegexGlobal = regexConcatGlobal(fnPrefix, name, parenStart);
@@ -35,12 +35,14 @@ const braceStart = /\s*{\s*/;
 export const structRegex = regexConcat(structPrefix, name, braceStart);
 export const structRegexGlobal = regexConcatGlobal(structPrefix, name, braceStart);
 
-function regexConcat(...exp: RegExp[]): RegExp {
+export const notFnDecl = /(?<!fn\s+)(?<!@\s*)/;
+
+export function regexConcat(...exp: RegExp[]): RegExp {
   const concat = exp.map(e => e.source).join("");
   return new RegExp(concat, "i");
 }
 
-function regexConcatGlobal(...exp: RegExp[]): RegExp {
+export function regexConcatGlobal(...exp: RegExp[]): RegExp {
   const concat = exp.map(e => e.source).join("");
   return new RegExp(concat, "ig");
 }

@@ -1,9 +1,12 @@
 import {
+  fnPrefix,
   fnRegex,
   fnRegexGlobal,
+  notFnDecl,
+  regexConcatGlobal,
   structRegex,
   structRegexGlobal,
-  tokenRegex,
+  tokenRegex
 } from "./Parsing.js";
 
 export function replaceTokens(text: string, replace: Record<string, string>): string {
@@ -49,3 +52,17 @@ export function structDecls(wgsl: string): string[] {
   });
   return fnNames;
 }
+
+export function replaceFnDecl(text: string, fnName: string, newName: string): string {
+  const regex = new RegExp(`${fnPrefix.source}${fnName}`);
+  return text.replace(regex, `fn ${newName}`);
+}
+
+
+
+export function replaceFnCalls(text: string, fnName: string, newName: string): string {
+  const nameRegex = new RegExp(`(?<name>${fnName})`);
+  const fnRegex = regexConcatGlobal(notFnDecl, nameRegex);
+  return text.replaceAll(fnRegex, `${newName}`);
+}
+
