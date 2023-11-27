@@ -1,6 +1,6 @@
 import { ModuleRegistry } from "./ModuleRegistry.js";
 import { endImportRegex, importRegex } from "./Parsing.js";
-import { replaceTokens } from "./Tokens.js";
+import { DeclaredNames, globalDeclarations, replaceTokens } from "./Tokens.js";
 
 export interface ModuleBase {
   /** name of module e.g. myPackage.myModule */
@@ -39,7 +39,8 @@ export interface GeneratorExport extends ExportBase {
 
 /** parse shader text for imports, return wgsl with all imports injected */
 export function linkWgsl(src: string, registry: ModuleRegistry): string {
-  return insertImportsRecursive(src, registry, new Set());
+  const declarations = globalDeclarations(src);
+  return insertImportsRecursive(src, registry, new Set(), declarations);
 }
 
 function fullImportName(
@@ -54,7 +55,8 @@ function fullImportName(
 function insertImportsRecursive(
   src: string,
   registry: ModuleRegistry,
-  imported: Set<string>
+  imported: Set<string>,
+  declarations: DeclaredNames
 ): string {
   const out: string[] = [];
   let importReplacing = false; // true while we're reading lines inside an importReplace
@@ -79,8 +81,15 @@ function insertImportsRecursive(
 
       const moduleName = groups?.importFrom;
       const _args = { importName, moduleName, registry, params, asRename };
-      const args = { ..._args, imported, lineNum, line };
+      const args = { ..._args, imported, declarations, lineNum, line };
       const text = importModule(args);
+      const moduleDeclarations = globalDeclarations(text);
+      const conflicts = declConflict(declarations, moduleDeclarations);
+      console.log("declarations:", declarations);
+      console.log("moduleDeclarations:", moduleDeclarations);
+      console.log("conflicts:", conflicts);
+      moduleDeclarations.fns.forEach(fn => declarations.fns.add(fn));
+      moduleDeclarations.structs.forEach(s => declarations.structs.add(s));
       out.push(text);
     } else if (importReplacing) {
       const endImport = line.match(endImportRegex);
@@ -94,6 +103,17 @@ function insertImportsRecursive(
   return out.join("\n");
 }
 
+function declConflict(main: DeclaredNames, other: DeclaredNames): DeclaredNames {
+  const fns = intersection(main.fns, other.fns);
+  const structs = intersection(main.structs, other.structs);
+  return { fns, structs };
+}
+
+function intersection<T>(a: Set<T>, b: Set<T>): Set<T> {
+  const both = [...a.keys()].filter(k => b.has(k));
+  return new Set(both);
+}
+
 interface ImportModuleArgs {
   importName: string;
   asRename?: string;
@@ -101,13 +121,14 @@ interface ImportModuleArgs {
   registry: ModuleRegistry;
   params: string[];
   imported: Set<string>;
+  declarations: DeclaredNames;
   lineNum: number;
   line: string;
 }
 
 function importModule(args: ImportModuleArgs): string {
   const { importName, asRename, moduleName, registry, params } = args;
-  const { imported, lineNum, line } = args;
+  const { imported, declarations, lineNum, line } = args;
 
   const moduleExport = registry.getModuleExport(importName, moduleName);
   if (!moduleExport) {
@@ -134,9 +155,10 @@ function importModule(args: ImportModuleArgs): string {
   if (moduleExport.kind === "text") {
     const template = moduleExport.module.template;
     const exp = moduleExport.export;
-    text = importText(exp, template, registry, paramsRecord, imported);
+    text = importText(exp, template, registry, paramsRecord, imported, declarations);
   } else if (moduleExport.kind === "function") {
-    text = importGenerator(moduleExport.export, registry, paramsRecord, imported);
+    const exp = moduleExport.export;
+    text = importGenerator(exp, registry, paramsRecord, imported, declarations);
   } else {
     console.error(`unexpected module export: ${JSON.stringify(moduleExport, null, 2)}`);
   }
@@ -148,10 +170,11 @@ function importText(
   template: string | undefined,
   registry: ModuleRegistry,
   paramsRecord: Record<string, string>,
-  imported: Set<string>
+  imported: Set<string>,
+  declarations: DeclaredNames
 ): string {
   const importSrc = textExport.src;
-  const importText = insertImportsRecursive(importSrc, registry, imported);
+  const importText = insertImportsRecursive(importSrc, registry, imported, declarations);
 
   const templated = applyTemplate(importText, paramsRecord, template, registry);
   const patched = replaceTokens(templated, paramsRecord);
@@ -163,10 +186,11 @@ function importGenerator(
   generatorExport: GeneratorExport,
   registry: ModuleRegistry,
   paramsRecord: Record<string, string>,
-  imported: Set<string>
+  imported: Set<string>,
+  declarations: DeclaredNames
 ): string {
   const generated = generatorExport.generate(paramsRecord);
-  const importText = insertImportsRecursive(generated, registry, imported);
+  const importText = insertImportsRecursive(generated, registry, imported, declarations);
   return importText;
 }
 

@@ -11,14 +11,14 @@ export function replaceTokens(text: string, replace: Record<string, string>): st
 }
 
 export interface DeclaredNames {
-  fns: string[];
-  structs: string[];
+  fns: Set<string>;
+  structs: Set<string>;
 }
 
 export function globalDeclarations(wgsl: string): DeclaredNames {
   return {
-    fns: fnDecls(wgsl),
-    structs: structDecls(wgsl),
+    fns: new Set(fnDecls(wgsl)),
+    structs: new Set(structDecls(wgsl)),
   };
 }
 
