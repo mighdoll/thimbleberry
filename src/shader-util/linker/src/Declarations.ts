@@ -57,7 +57,7 @@ export function replaceFnDecl(text: string, fnName: string, newName: string): st
 
 export function replaceFnCalls(text: string, fnName: string, newName: string): string {
   const nameRegex = new RegExp(`(?<name>${fnName})`);
-  const fnRegex = regexConcatGlobal(notFnDecl, nameRegex);
+  const fnRegex = regexConcatGlobal(notFnDecl, nameRegex, parenStartAhead);
   return text.replaceAll(fnRegex, `${newName}`);
 }
 

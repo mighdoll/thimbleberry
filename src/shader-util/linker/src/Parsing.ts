@@ -27,6 +27,7 @@ export const fnOrStructRegex = regexConcat(fnOrStruct, name);
 
 export const fnPrefix = /\bfn\s+/;
 const parenStart = /\s*\(\s*/;
+export const parenStartAhead = /(?=\s*\()/;
 export const fnRegex = regexConcat(fnPrefix, name, parenStart);
 export const fnRegexGlobal = regexConcatGlobal(fnPrefix, name, parenStart);
 
