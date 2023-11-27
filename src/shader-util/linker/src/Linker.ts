@@ -5,7 +5,7 @@ import {
   globalDeclarations,
   replaceTokens,
   resolveNameConflicts
-} from "./Tokens.js";
+} from "./Declarations.js";
 
 export interface ModuleBase {
   /** name of module e.g. myPackage.myModule */
