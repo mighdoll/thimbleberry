@@ -92,7 +92,6 @@ function insertImportsRecursive(
       const { src, declared } = resolveNameConflicts(text, moduleDeclarations);
       out.push(src);
       declAdd(moduleDeclarations, declared);
-
     } else if (importReplacing) {
       const endImport = line.match(endImportRegex);
       if (endImport) {
@@ -164,13 +163,11 @@ function importText(
   imported: Set<string>,
   declarations: DeclaredNames
 ): string {
-  const importSrc = textExport.src;
-  const importText = insertImportsRecursive(importSrc, registry, imported, declarations);
-
+  const patched = replaceTokens(textExport.src, paramsRecord);
+  const importText = insertImportsRecursive(patched, registry, imported, declarations);
   const templated = applyTemplate(importText, paramsRecord, template, registry);
-  const patched = replaceTokens(templated, paramsRecord); // TODO replace tokens pre-import
 
-  return patched;
+  return templated;
 }
 
 function importGenerator(
