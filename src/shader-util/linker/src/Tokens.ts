@@ -18,6 +18,8 @@ export interface DeclaredNames {
   structs: Set<string>;
 }
 
+let conflictCount = 0;
+
 export function globalDeclarations(wgsl: string): DeclaredNames {
   return {
     fns: new Set(fnDecls(wgsl)),
@@ -64,5 +66,28 @@ export function replaceFnCalls(text: string, fnName: string, newName: string): s
   const nameRegex = new RegExp(`(?<name>${fnName})`);
   const fnRegex = regexConcatGlobal(notFnDecl, nameRegex);
   return text.replaceAll(fnRegex, `${newName}`);
+}
+
+
+export function rewriteConflicting(text:string, conflicts: DeclaredNames): string {
+  let newText = text;
+  conflicts.fns.forEach(fnName => {
+    const deconflicted = `${fnName}_${conflictCount}`;
+    newText = replaceFnDecl(newText, fnName, deconflicted);
+    newText = replaceFnCalls(newText, fnName, deconflicted);
+  });
+  conflictCount++;
+  return newText;
+}
+
+export function declConflict(main: DeclaredNames, other: DeclaredNames): DeclaredNames {
+  const fns = intersection(main.fns, other.fns);
+  const structs = intersection(main.structs, other.structs);
+  return { fns, structs };
+}
+
+function intersection<T>(a: Set<T>, b: Set<T>): Set<T> {
+  const both = [...a.keys()].filter(k => b.has(k));
+  return new Set(both);
 }
 

@@ -1,6 +1,12 @@
 import { ModuleRegistry } from "./ModuleRegistry.js";
 import { endImportRegex, importRegex } from "./Parsing.js";
-import { DeclaredNames, globalDeclarations, replaceFnCalls, replaceFnDecl, replaceTokens } from "./Tokens.js";
+import {
+  DeclaredNames,
+  declConflict,
+  globalDeclarations,
+  replaceTokens,
+  rewriteConflicting
+} from "./Tokens.js";
 
 export interface ModuleBase {
   /** name of module e.g. myPackage.myModule */
@@ -101,29 +107,6 @@ function insertImportsRecursive(
     }
   });
   return out.join("\n");
-}
-
-let conflictCount = 0;
-function rewriteConflicting(text:string, conflicts: DeclaredNames): string {
-  let newText = text;
-  conflicts.fns.forEach(fnName => {
-    const deconflicted = `${fnName}_${conflictCount}`;
-    newText = replaceFnDecl(newText, fnName, deconflicted);
-    newText = replaceFnCalls(newText, fnName, deconflicted);
-  });
-  conflictCount++;
-  return newText;
-}
-
-function declConflict(main: DeclaredNames, other: DeclaredNames): DeclaredNames {
-  const fns = intersection(main.fns, other.fns);
-  const structs = intersection(main.structs, other.structs);
-  return { fns, structs };
-}
-
-function intersection<T>(a: Set<T>, b: Set<T>): Set<T> {
-  const both = [...a.keys()].filter(k => b.has(k));
-  return new Set(both);
 }
 
 interface ImportModuleArgs {
