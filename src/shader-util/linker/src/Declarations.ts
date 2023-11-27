@@ -5,7 +5,7 @@ import {
   notFnDecl,
   regexConcatGlobal,
   structRegex,
-  structRegexGlobal
+  structRegexGlobal,
 } from "./Parsing.js";
 
 export interface DeclaredNames {
@@ -62,8 +62,8 @@ export function replaceFnCalls(text: string, fnName: string, newName: string): s
 }
 
 interface Deconflicted {
-  deconflicted: string;
-  deconflictedNames: DeclaredNames;
+  src: string;
+  declared: DeclaredNames;
 }
 
 export function resolveNameConflicts(
@@ -76,8 +76,10 @@ export function resolveNameConflicts(
   const deconflicted = rewriteConflicting(text, renames);
 
   conflictCount++;
-  // const orig = declDifference(moduleDeclarations, conflicts)
-  return { deconflicted: deconflicted, deconflictedNames: declared /* TOOD */ };
+  const orig = declDifference(moduleDeclarations, conflicts);
+  const newNames = rewriteNames(renames);
+  const deconflictedNames = declUnion(orig, newNames);
+  return { src: deconflicted, declared: deconflictedNames };
 }
 
 interface DeclRewrites {
@@ -93,9 +95,9 @@ function deconflictNames(conflicts: DeclaredNames): DeclRewrites {
   return { fns, structs };
 }
 
-export function rewriteConflicting(text: string, renames:DeclRewrites): string {
+export function rewriteConflicting(text: string, renames: DeclRewrites): string {
   let newText = text;
-  [...renames.fns.entries()].forEach(([orig, deconflicted])=> {
+  [...renames.fns.entries()].forEach(([orig, deconflicted]) => {
     newText = replaceFnDecl(newText, orig, deconflicted);
     newText = replaceFnCalls(newText, orig, deconflicted);
   });
@@ -103,16 +105,45 @@ export function rewriteConflicting(text: string, renames:DeclRewrites): string {
   return newText;
 }
 
-export function declIntersection(
-  main: DeclaredNames,
-  other: DeclaredNames
-): DeclaredNames {
-  const fns = intersection(main.fns, other.fns);
-  const structs = intersection(main.structs, other.structs);
+function rewriteNames(rewrites: DeclRewrites): DeclaredNames {
+  const fns = new Set(rewrites.fns.values());
+  const structs = new Set(rewrites.structs.values());
   return { fns, structs };
+}
+
+export function declIntersection(a: DeclaredNames, b: DeclaredNames): DeclaredNames {
+  const fns = intersection(a.fns, b.fns);
+  const structs = intersection(a.structs, b.structs);
+  return { fns, structs };
+}
+
+export function declDifference(a: DeclaredNames, b: DeclaredNames): DeclaredNames {
+  const fns = difference(a.fns, b.fns);
+  const structs = difference(a.structs, b.structs);
+  return { fns, structs };
+}
+
+export function declUnion(a: DeclaredNames, b: DeclaredNames): DeclaredNames {
+  const fns = union(a.fns, b.fns);
+  const structs = union(a.structs, b.structs);
+  return { fns, structs };
+}
+
+export function declAdd(base: DeclaredNames, add: DeclaredNames): void {
+  base.fns = union(base.fns, add.fns);
+  base.structs = union(base.structs, add.structs);
 }
 
 function intersection<T>(a: Set<T>, b: Set<T>): Set<T> {
   const both = [...a.keys()].filter(k => b.has(k));
   return new Set(both);
+}
+
+function difference<T>(a: Set<T>, b: Set<T>): Set<T> {
+  const diff = [...a.keys()].filter(k => !b.has(k));
+  return new Set(diff);
+}
+
+function union<T>(a: Set<T>, b: Set<T>): Set<T> {
+  return new Set([...a, ...b]);
 }
