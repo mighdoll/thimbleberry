@@ -5,13 +5,8 @@ import {
   notFnDecl,
   regexConcatGlobal,
   structRegex,
-  structRegexGlobal,
-  tokenRegex,
+  structRegexGlobal
 } from "./Parsing.js";
-
-export function replaceTokens(text: string, replace: Record<string, string>): string {
-  return text.replaceAll(tokenRegex, s => (s in replace ? replace[s] : s));
-}
 
 export interface DeclaredNames {
   fns: Set<string>;

@@ -4,9 +4,9 @@ import {
   fnOrStructRegex,
   fnRegex,
   importRegex,
+  replaceTokens,
   templateRegex,
 } from "../Parsing.js";
-import { replaceTokens } from "../Declarations.js";
 
 test("export regex w/o params", () => {
   const result = "// #export".match(exportRegex);

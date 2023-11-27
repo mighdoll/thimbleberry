@@ -1,9 +1,8 @@
 import { ModuleRegistry } from "./ModuleRegistry.js";
-import { endImportRegex, importRegex } from "./Parsing.js";
+import { endImportRegex, importRegex, replaceTokens } from "./Parsing.js";
 import {
   DeclaredNames,
   globalDeclarations,
-  replaceTokens,
   resolveNameConflicts
 } from "./Declarations.js";
 
@@ -170,7 +169,7 @@ function importText(
   const importText = insertImportsRecursive(importSrc, registry, imported, declarations);
 
   const templated = applyTemplate(importText, paramsRecord, template, registry);
-  const patched = replaceTokens(templated, paramsRecord);
+  const patched = replaceTokens(templated, paramsRecord); // TODO replace tokens pre-import
 
   return patched;
 }
