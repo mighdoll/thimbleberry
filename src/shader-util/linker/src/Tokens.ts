@@ -6,7 +6,7 @@ import {
   regexConcatGlobal,
   structRegex,
   structRegexGlobal,
-  tokenRegex
+  tokenRegex,
 } from "./Parsing.js";
 
 export function replaceTokens(text: string, replace: Record<string, string>): string {
@@ -60,27 +60,58 @@ export function replaceFnDecl(text: string, fnName: string, newName: string): st
   return text.replace(regex, `fn ${newName}`);
 }
 
-
-
 export function replaceFnCalls(text: string, fnName: string, newName: string): string {
   const nameRegex = new RegExp(`(?<name>${fnName})`);
   const fnRegex = regexConcatGlobal(notFnDecl, nameRegex);
   return text.replaceAll(fnRegex, `${newName}`);
 }
 
+interface Deconflicted {
+  deconflicted: string;
+  deconflictedNames: DeclaredNames;
+}
 
-export function rewriteConflicting(text:string, conflicts: DeclaredNames): string {
-  let newText = text;
-  conflicts.fns.forEach(fnName => {
-    const deconflicted = `${fnName}_${conflictCount}`;
-    newText = replaceFnDecl(newText, fnName, deconflicted);
-    newText = replaceFnCalls(newText, fnName, deconflicted);
-  });
+export function resolveNameConflicts(
+  text: string,
+  declared: DeclaredNames
+): Deconflicted {
+  const moduleDeclarations = globalDeclarations(text);
+  const conflicts = declIntersection(declared, moduleDeclarations);
+  const renames = deconflictNames(conflicts);
+  const deconflicted = rewriteConflicting(text, renames);
+
   conflictCount++;
+  // const orig = declDifference(moduleDeclarations, conflicts)
+  return { deconflicted: deconflicted, deconflictedNames: declared /* TOOD */ };
+}
+
+interface DeclRewrites {
+  fns: Map<string, string>;
+  structs: Map<string, string>;
+}
+
+function deconflictNames(conflicts: DeclaredNames): DeclRewrites {
+  const fns: Map<string, string> = new Map();
+  const structs: Map<string, string> = new Map();
+  conflicts.fns.forEach(name => fns.set(name, `${name}_${conflictCount}`));
+  conflicts.structs.forEach(name => structs.set(name, `${name}_${conflictCount}`));
+  return { fns, structs };
+}
+
+export function rewriteConflicting(text: string, renames:DeclRewrites): string {
+  let newText = text;
+  [...renames.fns.entries()].forEach(([orig, deconflicted])=> {
+    newText = replaceFnDecl(newText, orig, deconflicted);
+    newText = replaceFnCalls(newText, orig, deconflicted);
+  });
+  // TODO structs
   return newText;
 }
 
-export function declConflict(main: DeclaredNames, other: DeclaredNames): DeclaredNames {
+export function declIntersection(
+  main: DeclaredNames,
+  other: DeclaredNames
+): DeclaredNames {
   const fns = intersection(main.fns, other.fns);
   const structs = intersection(main.structs, other.structs);
   return { fns, structs };
@@ -90,4 +121,3 @@ function intersection<T>(a: Set<T>, b: Set<T>): Set<T> {
   const both = [...a.keys()].filter(k => b.has(k));
   return new Set(both);
 }
-

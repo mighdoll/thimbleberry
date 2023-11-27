@@ -2,10 +2,9 @@ import { ModuleRegistry } from "./ModuleRegistry.js";
 import { endImportRegex, importRegex } from "./Parsing.js";
 import {
   DeclaredNames,
-  declConflict,
   globalDeclarations,
   replaceTokens,
-  rewriteConflicting
+  resolveNameConflicts
 } from "./Tokens.js";
 
 export interface ModuleBase {
@@ -90,8 +89,7 @@ function insertImportsRecursive(
       const args = { ..._args, imported, declarations, lineNum, line };
       const text = importModule(args);
       const moduleDeclarations = globalDeclarations(text);
-      const conflicts = declConflict(declarations, moduleDeclarations);
-      const deconflicted = rewriteConflicting(text, conflicts);
+      const {deconflicted, deconflictedNames} = resolveNameConflicts(text, moduleDeclarations);
       out.push(deconflicted);
 
       // TODO add the deconflicted names instead
