@@ -8,8 +8,8 @@ const optImportFrom = /(\s*from\s+(?<importFrom>[\w]+))?/;
 const endImport = /\s*#endImport/;
 const optParams = /\s*(\((?<params>[\w, ]*)\))?/;
 const name = /(?<name>[\w]+)/;
-export const exportRegex = regexConcat(optComment, exportDirective, optParams);
-export const importRegex = regexConcat(
+export const exportRegex = regexConcatI(optComment, exportDirective, optParams);
+export const importRegex = regexConcatI(
   optComment,
   importCmd,
   name,
@@ -17,35 +17,34 @@ export const importRegex = regexConcat(
   optImportAs,
   optImportFrom
 );
-export const endImportRegex = regexConcat(optComment, endImport);
-export const templateRegex = regexConcat(optComment, templateDirective, name);
-export const moduleRegex = regexConcat(optComment, moduleDirective, name);
+export const endImportRegex = regexConcatI(optComment, endImport);
+export const templateRegex = regexConcatI(optComment, templateDirective, name);
+export const moduleRegex = regexConcatI(optComment, moduleDirective, name);
 export const tokenRegex = /\b(\w+)\b/gi;
 
 const fnOrStruct = /\s*((fn)|(struct))\s*/;
-export const fnOrStructRegex = regexConcat(fnOrStruct, name);
+export const fnOrStructRegex = regexConcatI(fnOrStruct, name);
 
 export const fnPrefix = /\bfn\s+/;
 const parenStart = /\s*\(\s*/;
 export const parenStartAhead = /(?=\s*\()/;
-export const fnRegex = regexConcat(fnPrefix, name, parenStart);
-export const fnRegexGlobal = regexConcatGlobal(fnPrefix, name, parenStart);
+export const fnRegex = regexConcatI(fnPrefix, name, parenStart);
+export const fnRegexGlobal = regexConcat("g", fnPrefix, name, parenStart);
 
 const structPrefix = /\bstruct\s+/;
 const braceStart = /\s*{\s*/;
-export const structRegex = regexConcat(structPrefix, name, braceStart);
-export const structRegexGlobal = regexConcatGlobal(structPrefix, name, braceStart);
+export const structRegex = regexConcatI(structPrefix, name, braceStart);
+export const structRegexGlobal = regexConcat("g", structPrefix, name, braceStart);
 
 export const notFnDecl = /(?<!fn\s+)(?<!@\s*)/;
 
-export function regexConcat(...exp: RegExp[]): RegExp {
+export function regexConcat(flags:string, ...exp: RegExp[]): RegExp {
   const concat = exp.map(e => e.source).join("");
-  return new RegExp(concat, "i");
+  return new RegExp(concat, flags);
 }
 
-export function regexConcatGlobal(...exp: RegExp[]): RegExp {
-  const concat = exp.map(e => e.source).join("");
-  return new RegExp(concat, "ig");
+function regexConcatI(...exp: RegExp[]): RegExp {
+  return regexConcat("i", ...exp);
 }
 
 export function replaceTokens(text: string, replace: Record<string, string>): string {
