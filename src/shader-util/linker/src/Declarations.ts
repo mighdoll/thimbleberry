@@ -4,7 +4,7 @@ import {
   fnRegexGlobal,
   notFnDecl,
   parenStartAhead,
-  regexConcatGlobal,
+  regexConcat,
   structRegex,
   structRegexGlobal,
 } from "./Parsing.js";
@@ -76,8 +76,9 @@ export function structDecls(wgsl: string): string[] {
 }
 
 export function replaceFnDecl(text: string, fnName: string, newName: string): string {
-  const regex = new RegExp(`${fnPrefix.source}${fnName}`);
-  return text.replace(regex, `fn ${newName}`);
+  const nameRegex = new RegExp(fnName);
+  const declRegex = regexConcat("", fnPrefix, nameRegex, parenStartAhead);
+  return text.replace(declRegex, `fn ${newName}`);
 }
 
 export function replaceFnCalls(text: string, fnName: string, newName: string): string {
