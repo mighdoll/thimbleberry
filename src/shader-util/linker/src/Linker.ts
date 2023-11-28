@@ -66,6 +66,7 @@ function insertImportsRecursive(
   conflictCount: number
 ): string {
   const out: string[] = [];
+  const topOut: string[] = [];
   let importReplacing = false; // true while we're reading lines inside an importReplace
 
   // scan through the lines looking for #import directives
@@ -82,13 +83,17 @@ function insertImportsRecursive(
       const moduleName = groups?.importFrom;
       const _args = { importName, moduleName, registry, params, asRename };
       const args = { ..._args, imported, declarations, lineNum, line, conflictCount };
-      const text = importModule(args);
-      const resolved = resolveNameConflicts(text, declarations, conflictCount);
-      const { src, declared, conflicted } = resolved;
-
-      conflicted && conflictCount++;
-      out.push(src);
-      declAdd(declarations, declared);
+      const { src: insertSrc, topSrc = "" } = importModule(args);
+      const resolved = [insertSrc, topSrc].map(s => {
+        const result = resolveNameConflicts(s, declarations, conflictCount);
+        result.conflicted && conflictCount++;
+        return result;
+      });
+      out.push(resolved[0].src);
+      topOut.push(resolved[1].src);
+      resolved.map(({ declared }) => {
+        declAdd(declarations, declared);
+      });
     } else if (importReplacing) {
       const endImport = line.match(endImportRegex);
       if (endImport) {
@@ -98,7 +103,7 @@ function insertImportsRecursive(
       out.push(line);
     }
   });
-  return out.join("\n");
+  return out.join("\n").concat(topOut.join("\n"));
 }
 
 function checkImportReplace(
@@ -131,7 +136,15 @@ interface ImportModuleArgs {
   conflictCount: number;
 }
 
-function importModule(args: ImportModuleArgs): string {
+interface TextInsert {
+  src: string;
+  topSrc?: string;
+}
+
+const emptyInsert: TextInsert = { src: "" };
+
+/** import a module and return the text to be inserted */
+function importModule(args: ImportModuleArgs): TextInsert {
   const { importName, asRename, moduleName, registry, params } = args;
   const { imported, declarations, lineNum, line, conflictCount } = args;
 
@@ -140,13 +153,13 @@ function importModule(args: ImportModuleArgs): string {
     console.error(
       `#importReplace module export "${importName}" not found: at ${lineNum}\n>>\t${line}`
     );
-    return "";
+    return emptyInsert;
   }
 
   const importAs = asRename ?? moduleExport.export.name;
   const fullImport = fullImportName(importAs, moduleExport.module.name, params);
   if (imported.has(fullImport)) {
-    return "";
+    return emptyInsert;
   }
 
   imported.add(fullImport);
@@ -154,28 +167,29 @@ function importModule(args: ImportModuleArgs): string {
   const entries = moduleExport.export.params.map((p, i) => [p, params[i]]);
   const paramsRecord = Object.fromEntries(entries);
 
-  let text: string | undefined = undefined;
+  let texts: string[];
   const exportName = moduleExport.export.name;
 
   if (moduleExport.kind === "text") {
     const template = moduleExport.module.template;
-    const src = moduleExport.export.src;
-    const templated = applyTemplate(src, paramsRecord, template, registry);
-    text = replaceTokens(templated, paramsRecord);
+    const { src, topSrc = "" } = moduleExport.export;
+    const templated = [src, topSrc].map(s =>
+      applyTemplate(s, paramsRecord, template, registry)
+    );
+    texts = templated.map(s => replaceTokens(s, paramsRecord));
   } else if (moduleExport.kind === "function") {
-    text = moduleExport.export.generate(paramsRecord);
+    texts = [moduleExport.export.generate(paramsRecord)]; // TODO
   } else {
     console.error(`unexpected module export: ${JSON.stringify(moduleExport, null, 2)}`);
-    return "";
+    return emptyInsert;
   }
-  const withImports = insertImportsRecursive(
-    text,
-    registry,
-    imported,
-    declarations,
-    conflictCount
+  const withImports = texts.map(s =>
+    insertImportsRecursive(s, registry, imported, declarations, conflictCount)
   );
-  return renameExport(withImports, exportName, asRename);
+
+  const src = renameExport(withImports[0], exportName, asRename);
+  const topSrc = texts[1];
+  return { src, topSrc };
 }
 
 /** run a template processor if one is defined for this module */
@@ -185,7 +199,7 @@ function applyTemplate(
   template: string | undefined,
   registry: ModuleRegistry
 ): string {
-  if (template) {
+  if (text && template) {
     const applyTemplate = registry.getTemplate(template);
     if (applyTemplate) {
       return applyTemplate(text, templateParams);

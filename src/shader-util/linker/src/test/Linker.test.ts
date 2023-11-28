@@ -244,6 +244,30 @@ test("#import snippet w/o support functions", () => {
   expect(linked).contains('log(myVar, "i32");');
 });
 
+test("#import snippet w/ support functions", () => {
+  const module1 = `
+    var logVar: u32;
+
+    #template thimb2
+    #export log(logVar, logType)
+      log(logVar); 
+    #endInsert
+    fn log(myVar: u32) {} // #replace u32=logType
+  `;
+
+  const src = `
+    fn foo() {
+      myVar: i32 = 1;
+      #import log(myVar, i32)
+    }
+  `;
+  const registry = new ModuleRegistry(module1);
+  registry.registerTemplate(thimbTemplate);
+  const linked = linkWgsl(src, registry);
+  expect(linked).includes("log(myVar);");
+  expect(linked).includes("fn log(myVar: i32) {}");
+});
+
 test("#import with different names, resolve conflicting support function", () => {
   const module1 = `
     #export 
