@@ -19,7 +19,8 @@ export function parseModule(src: string, defaultModuleName?: string): TextModule
         `found export while parsing export line: ${lineNum}`
       );
       const params = exportMatch.groups?.params?.split(",").map(p => p.trim()) ?? [];
-      currentExport = { params };
+      const name = exportMatch.groups?.name;
+      currentExport = { params, name };
       currentExportLines = [];
     } else if (templateMatch) {
       template = templateMatch.groups?.name;
@@ -27,7 +28,6 @@ export function parseModule(src: string, defaultModuleName?: string): TextModule
       moduleName = moduleMatch.groups?.name;
     } else if (currentExport) {
       currentExportLines.push(line);
-      // TODO allow for explicitly named exports (and don't look for following fn or struct)
       if (currentExport.name === undefined) {
         const found = line.match(fnOrStructRegex);
         if (found) {

@@ -40,3 +40,14 @@ test("read #module", () => {
   const textModule = parseModule(myModule);
   expect(textModule.name).toBe("myModule");
 });
+
+
+test("parse #export log", () => {
+  const myModule = `
+    #export log(myVar)
+
+    _log(myVar)
+  `;
+  const textModule = parseModule(myModule);
+  expect(textModule.exports[0].name).toBe("log");
+});
