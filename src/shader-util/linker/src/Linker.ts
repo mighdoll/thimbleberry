@@ -84,7 +84,7 @@ export function linkWgsl(src: string, registry: ModuleRegistry): string {
   return insertImportsRecursive(src, registry, new Set(), declarations, 0);
 }
 
-/** process source text by finding #import directives and inserting the imported module text */
+/** Find #import directives in src text and insert the module export text */
 function insertImportsRecursive(
   src: string,
   registry: ModuleRegistry,
@@ -118,9 +118,7 @@ function insertImportsRecursive(
       });
       out.push(resolved[0].src);
       topOut.push(resolved[1].src);
-      resolved.map(({ declared }) => {
-        declAdd(declarations, declared);
-      });
+      resolved.map(({ declared }) => declAdd(declarations, declared));
     } else if (importReplacing) {
       const endImport = line.match(endImportRegex);
       if (endImport) {
@@ -133,6 +131,7 @@ function insertImportsRecursive(
   return out.join("\n").concat(topOut.join("\n"));
 }
 
+/** report an error for importReplace within importReplace */
 function checkImportReplace(
   replacing: boolean,
   groups: Record<string, string> | undefined,
@@ -166,7 +165,7 @@ interface ImportModuleArgs {
 }
 
 /** import a an exported entry from a module.
- * @return the text to be inserted, and the text to be put at the root level */
+ * @return the text to be inserted at the import and the text to be put at the root level */
 function importModule(args: ImportModuleArgs): string[] {
   const { importName, asRename, moduleName, registry, params } = args;
   const { imported, declarations, lineNum, line, conflictCount } = args;
@@ -205,7 +204,7 @@ function importModule(args: ImportModuleArgs): string[] {
     insertImportsRecursive(s, registry, imported, declarations, conflictCount)
   );
 
-  return [renameExport(withImports[0], exportName, asRename), texts[1]];
+  return [replaceText(withImports[0], exportName, asRename), texts[1]];
 }
 
 /** run a template, returning insert text src and root text src  */
@@ -258,7 +257,8 @@ function applyTemplate(
   return text;
 }
 
-function renameExport(text: string | undefined, find: string, replace?: string): string {
+/** optinally find and replace a string (to support import as renaming) */
+function replaceText(text: string | undefined, find: string, replace?: string): string {
   if (!text) {
     return "";
   } else if (!replace) {
