@@ -1,6 +1,6 @@
 ### wgsl-linker
 
-wgsl-linker is a small (2kb) extension to wgsl to support wgsl modules.
+wgsl-linker is a small (3kb) extension to wgsl to support wgsl modules.
 
 - import/export support, including import deduplication and token renaming
 - pluggable template engine for parameterized modules
