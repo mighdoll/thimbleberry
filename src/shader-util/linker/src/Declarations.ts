@@ -1,6 +1,7 @@
 import {
   braceStartAhead,
   colonBehind,
+  commaOrGtAhead,
   fnPrefix,
   fnRegex,
   fnRegexGlobal,
@@ -9,7 +10,8 @@ import {
   regexConcat,
   structPrefix,
   structRegex,
-  structRegexGlobal
+  structRegexGlobal,
+  ltBehind,
 } from "./Parsing.js";
 
 export interface DeclaredNames {
@@ -78,37 +80,36 @@ export function structDecls(wgsl: string): string[] {
 }
 
 export function replaceFnDecl(text: string, fnName: string, newName: string): string {
-  const nameRegex = new RegExp(fnName); 
+  const nameRegex = new RegExp(fnName);
   const declRegex = regexConcat("", fnPrefix, nameRegex, parenStartAhead);
   return text.replace(declRegex, `fn ${newName}`);
 }
 
 export function replaceFnCalls(text: string, fnName: string, newName: string): string {
-  const nameRegex = new RegExp(fnName); 
+  const nameRegex = new RegExp(fnName);
   const fnRegex = regexConcat("g", notFnDecl, nameRegex, parenStartAhead);
   return text.replaceAll(fnRegex, `${newName}`);
 }
 
-function replaceStructDecl(
-  text: string,
-  structName: string,
-  newName: string
-): string {
+function replaceStructDecl(text: string, structName: string, newName: string): string {
   const nameRegex = new RegExp(structName);
   const structRegex = regexConcat("", structPrefix, nameRegex, braceStartAhead);
   return text.replace(structRegex, `struct ${newName}`);
 }
 
-function replaceStructRefs(
-  text: string,
-  structName: string,
-  newName: string
-): string {
+function replaceStructRefs(text: string, structName: string, newName: string): string {
   const nameRegex = new RegExp(structName);
+  // replace ': MyStruct' with a: MyStruct_0
   const structTypeExpression = regexConcat("g", colonBehind, nameRegex);
   const expressionsReplaced = text.replaceAll(structTypeExpression, newName);
-  const structConstruct = regexConcat("g", notFnDecl, nameRegex, parenStartAhead);
-  return expressionsReplaced.replaceAll(structConstruct,newName);
+
+  // replace 'MyStruct(' with MyStruct_0(
+  const structConstructor = regexConcat("g", notFnDecl, nameRegex, parenStartAhead);
+  const constructReplaced = expressionsReplaced.replaceAll(structConstructor, newName);
+
+  // replace '<MyStruct' with <MyStruct_0
+  const structTemplate = regexConcat("g", ltBehind, nameRegex, commaOrGtAhead);
+  return constructReplaced.replaceAll(structTemplate, newName);
 }
 
 interface DeclRewrites {

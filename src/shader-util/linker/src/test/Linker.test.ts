@@ -301,6 +301,8 @@ test("resolve conflicting import support struct imports", () => {
     struct Elem {
       v: i32, 
     }
+    
+    var <workgroup> a: array<Elem, 64>;
   `;
 
   const src = `
@@ -319,9 +321,9 @@ test("resolve conflicting import support struct imports", () => {
   const origMatch = linked.matchAll(/\bElem\b/g);
   expect([...origMatch].length).toBe(1);
   const module1Match = linked.matchAll(/\bElem_0\b/g);
-  expect([...module1Match].length).toBe(3);
+  expect([...module1Match].length).toBe(4);
   const module2Match = linked.matchAll(/\bElem_1\b/g);
-  expect([...module2Match].length).toBe(3);
+  expect([...module2Match].length).toBe(4);
 });
 
 test("#import from code generator", () => {
