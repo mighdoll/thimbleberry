@@ -37,6 +37,7 @@ export const braceStartAhead = /(?=\s*{)/;
 export const structRegex = regexConcatI(structPrefix, name, braceStart);
 export const structRegexGlobal = regexConcat("g", structPrefix, name, braceStart);
 
+export const colonBehind = /(?<=:\s*)/;
 export const notFnDecl = /(?<!fn\s+)(?<!@\s*)/;
 
 export function regexConcat(flags:string, ...exp: RegExp[]): RegExp {

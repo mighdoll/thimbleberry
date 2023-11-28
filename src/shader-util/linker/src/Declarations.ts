@@ -1,5 +1,6 @@
 import {
   braceStartAhead,
+  colonBehind,
   fnPrefix,
   fnRegex,
   fnRegexGlobal,
@@ -8,7 +9,7 @@ import {
   regexConcat,
   structPrefix,
   structRegex,
-  structRegexGlobal,
+  structRegexGlobal
 } from "./Parsing.js";
 
 export interface DeclaredNames {
@@ -83,7 +84,7 @@ export function replaceFnDecl(text: string, fnName: string, newName: string): st
 }
 
 export function replaceFnCalls(text: string, fnName: string, newName: string): string {
-  const nameRegex = new RegExp(`(?<name>${fnName})`);
+  const nameRegex = new RegExp(`(?<name>${fnName})`); // TODO drop ?<name>
   const fnRegex = regexConcat("g", notFnDecl, nameRegex, parenStartAhead);
   return text.replaceAll(fnRegex, `${newName}`);
 }
@@ -96,6 +97,16 @@ function replaceStructDecl(
   const nameRegex = new RegExp(structName);
   const structRegex = regexConcat("", structPrefix, nameRegex, braceStartAhead);
   return text.replace(structRegex, `struct ${newName}`);
+}
+
+function replaceStructRefs(
+  text: string,
+  structName: string,
+  newName: string
+): string {
+  const nameRegex = new RegExp(structName);
+  const structTypeSpecifier = regexConcat("g", colonBehind, nameRegex);
+  return text.replaceAll(structTypeSpecifier, `${newName}`);
 }
 
 interface DeclRewrites {
@@ -117,12 +128,10 @@ export function rewriteConflicting(text: string, renames: DeclRewrites): string 
     newText = replaceFnDecl(newText, orig, deconflicted);
     newText = replaceFnCalls(newText, orig, deconflicted);
   });
-  console.log("writeConflicting structs", renames.structs);
   [...renames.structs.entries()].forEach(([orig, deconflicted]) => {
     newText = replaceStructDecl(newText, orig, deconflicted);
-    // newText = replaceFnCalls(newText, orig, deconflicted);
+    newText = replaceStructRefs(newText, orig, deconflicted);
   });
-  // TODO structs
   return newText;
 }
 

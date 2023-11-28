@@ -295,7 +295,7 @@ test.only("resolve conflicting import support struct imports", () => {
   const module1 = `
     #export 
     fn foo() {
-      e:Elem = Elem(1); 
+      e: Elem = Elem(1); 
     }
     
     struct Elem {
@@ -308,7 +308,7 @@ test.only("resolve conflicting import support struct imports", () => {
      #import foo as bar
 
      struct Elem {
-       other:f32; 
+       other: f32; 
      }
 
      foo();
