@@ -8,7 +8,8 @@ const optImportFrom = /(\s*from\s+(?<importFrom>[\w]+))?/;
 const endImport = /\s*#endImport/;
 const optParams = /\s*(\((?<params>[\w, ]*)\))?/;
 const name = /(?<name>[\w]+)/;
-export const exportRegex = regexConcatI(optComment, exportDirective, optParams);
+const optName = /(?<name>[\w]+)?/;
+export const exportRegex = regexConcatI(optComment, exportDirective, optName, optParams);
 export const importRegex = regexConcatI(
   optComment,
   importCmd,
@@ -42,7 +43,7 @@ export const notFnDecl = /(?<!fn\s+)(?<!@\s*)/;
 export const ltBehind = /(?<=<\s*)/;
 export const commaOrGtAhead = /(?=\s*(,|>))/;
 
-export function regexConcat(flags:string, ...exp: RegExp[]): RegExp {
+export function regexConcat(flags: string, ...exp: RegExp[]): RegExp {
   const concat = exp.map(e => e.source).join("");
   return new RegExp(concat, flags);
 }

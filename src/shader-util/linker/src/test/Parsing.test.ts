@@ -23,6 +23,12 @@ test("export regex with params", () => {
   expect(result?.groups?.params).toBe("a, b, c");
 });
 
+test("export regex with name and params", () => {
+  const result = "// #export foo(a, b, c)".match(exportRegex);
+  expect(result?.groups?.params).toBe("a, b, c");
+  expect(result?.groups?.name).toBe("foo");
+});
+
 test("template regex", () => {
   const matched = "// #template foo".match(templateRegex);
   expect(matched?.groups?.name).toBe("foo");
