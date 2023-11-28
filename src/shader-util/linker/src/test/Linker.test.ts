@@ -264,7 +264,7 @@ test("#import twice with different names", () => {
   expect([...matches].length).toBe(2);
 });
 
-test.only("#import with different names, resolve conflicting support function", () => {
+test("#import with different names, resolve conflicting support function", () => {
   const module1 = `
     #export 
     fn foo() { 

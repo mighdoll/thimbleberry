@@ -45,7 +45,7 @@ export interface GeneratorExport extends ExportBase {
 /** parse shader text for imports, return wgsl with all imports injected */
 export function linkWgsl(src: string, registry: ModuleRegistry): string {
   const declarations = globalDeclarations(src);
-  return insertImportsRecursive(src, registry, new Set(), declarations);
+  return insertImportsRecursive(src, registry, new Set(), declarations, 0);
 }
 
 function fullImportName(
@@ -61,7 +61,8 @@ function insertImportsRecursive(
   src: string,
   registry: ModuleRegistry,
   imported: Set<string>,
-  declarations: DeclaredNames
+  declarations: DeclaredNames,
+  conflictCount: number
 ): string {
   const out: string[] = [];
   let importReplacing = false; // true while we're reading lines inside an importReplace
@@ -86,12 +87,13 @@ function insertImportsRecursive(
 
       const moduleName = groups?.importFrom;
       const _args = { importName, moduleName, registry, params, asRename };
-      const args = { ..._args, imported, declarations, lineNum, line };
+      const args = { ..._args, imported, declarations, lineNum, line, conflictCount };
       const text = importModule(args);
-      const moduleDeclarations = globalDeclarations(text);
-      const { src, declared } = resolveNameConflicts(text, moduleDeclarations);
+      const resolved = resolveNameConflicts(text, declarations, conflictCount);
+      const { src, declared, conflicted } = resolved;
+      conflicted && conflictCount++;
       out.push(src);
-      declAdd(moduleDeclarations, declared);
+      declAdd(declarations, declared);
     } else if (importReplacing) {
       const endImport = line.match(endImportRegex);
       if (endImport) {
@@ -114,11 +116,12 @@ interface ImportModuleArgs {
   declarations: DeclaredNames;
   lineNum: number;
   line: string;
+  conflictCount: number;
 }
 
 function importModule(args: ImportModuleArgs): string {
   const { importName, asRename, moduleName, registry, params } = args;
-  const { imported, declarations, lineNum, line } = args;
+  const { imported, declarations, lineNum, line, conflictCount } = args;
 
   const moduleExport = registry.getModuleExport(importName, moduleName);
   if (!moduleExport) {
@@ -144,42 +147,17 @@ function importModule(args: ImportModuleArgs): string {
 
   if (moduleExport.kind === "text") {
     const template = moduleExport.module.template;
-    const exp = moduleExport.export;
-    text = importText(exp, template, registry, paramsRecord, imported, declarations);
+    const src = moduleExport.export.src;
+    const templated = applyTemplate(src, paramsRecord, template, registry);
+    text = replaceTokens(templated, paramsRecord);
   } else if (moduleExport.kind === "function") {
-    const exp = moduleExport.export;
-    text = importGenerator(exp, registry, paramsRecord, imported, declarations);
+    text = moduleExport.export.generate(paramsRecord);
   } else {
     console.error(`unexpected module export: ${JSON.stringify(moduleExport, null, 2)}`);
+    return "";
   }
-  return renameExport(text, exportName, asRename);
-}
-
-function importText(
-  textExport: TextExport,
-  template: string | undefined,
-  registry: ModuleRegistry,
-  paramsRecord: Record<string, string>,
-  imported: Set<string>,
-  declarations: DeclaredNames
-): string {
-  const patched = replaceTokens(textExport.src, paramsRecord);
-  const importText = insertImportsRecursive(patched, registry, imported, declarations);
-  const templated = applyTemplate(importText, paramsRecord, template, registry);
-
-  return templated;
-}
-
-function importGenerator(
-  generatorExport: GeneratorExport,
-  registry: ModuleRegistry,
-  paramsRecord: Record<string, string>,
-  imported: Set<string>,
-  declarations: DeclaredNames
-): string {
-  const generated = generatorExport.generate(paramsRecord);
-  const importText = insertImportsRecursive(generated, registry, imported, declarations);
-  return importText;
+  const withImports = insertImportsRecursive(text, registry, imported, declarations, conflictCount);
+  return renameExport(withImports, exportName, asRename);
 }
 
 /** run a template processor if one is defined for this module */

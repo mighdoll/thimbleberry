@@ -3,6 +3,7 @@ import {
   fnRegex,
   fnRegexGlobal,
   notFnDecl,
+  parenStartAhead,
   regexConcatGlobal,
   structRegex,
   structRegexGlobal,
@@ -13,7 +14,31 @@ export interface DeclaredNames {
   structs: Set<string>;
 }
 
-let conflictCount = 0;
+
+export interface Deconflicted {
+  src: string;
+  declared: DeclaredNames;
+  conflicted: boolean;
+}
+
+export function resolveNameConflicts(
+  text: string,
+  declared: DeclaredNames,
+  conflictCount: number
+): Deconflicted {
+  // rewrite text replacing confliced names
+  const moduleDeclarations = globalDeclarations(text);
+  const conflicts = declIntersection(declared, moduleDeclarations);
+  const renames = deconflictNames(conflicts, conflictCount);
+  const src = rewriteConflicting(text, renames);
+
+  // report new + old declared names
+  const newNames = rewrittenNames(renames);
+  const orig = declDifference(moduleDeclarations, conflicts);
+  const deconflictedNames = declUnion(orig, newNames);
+
+  return { src, declared: deconflictedNames, conflicted: !declIsEmpty(conflicts) };
+}
 
 export function globalDeclarations(wgsl: string): DeclaredNames {
   return {
@@ -61,33 +86,13 @@ export function replaceFnCalls(text: string, fnName: string, newName: string): s
   return text.replaceAll(fnRegex, `${newName}`);
 }
 
-interface Deconflicted {
-  src: string;
-  declared: DeclaredNames;
-}
-
-export function resolveNameConflicts(
-  text: string,
-  declared: DeclaredNames
-): Deconflicted {
-  const moduleDeclarations = globalDeclarations(text);
-  const conflicts = declIntersection(declared, moduleDeclarations);
-  const renames = deconflictNames(conflicts);
-  const deconflicted = rewriteConflicting(text, renames);
-
-  conflictCount++;
-  const orig = declDifference(moduleDeclarations, conflicts);
-  const newNames = rewriteNames(renames);
-  const deconflictedNames = declUnion(orig, newNames);
-  return { src: deconflicted, declared: deconflictedNames };
-}
 
 interface DeclRewrites {
   fns: Map<string, string>;
   structs: Map<string, string>;
 }
 
-function deconflictNames(conflicts: DeclaredNames): DeclRewrites {
+function deconflictNames(conflicts: DeclaredNames, conflictCount:number): DeclRewrites {
   const fns: Map<string, string> = new Map();
   const structs: Map<string, string> = new Map();
   conflicts.fns.forEach(name => fns.set(name, `${name}_${conflictCount}`));
@@ -105,7 +110,7 @@ export function rewriteConflicting(text: string, renames: DeclRewrites): string 
   return newText;
 }
 
-function rewriteNames(rewrites: DeclRewrites): DeclaredNames {
+function rewrittenNames(rewrites: DeclRewrites): DeclaredNames {
   const fns = new Set(rewrites.fns.values());
   const structs = new Set(rewrites.structs.values());
   return { fns, structs };
@@ -127,6 +132,11 @@ export function declUnion(a: DeclaredNames, b: DeclaredNames): DeclaredNames {
   const fns = union(a.fns, b.fns);
   const structs = union(a.structs, b.structs);
   return { fns, structs };
+}
+
+export function declIsEmpty(decl: DeclaredNames): boolean {
+  const { fns, structs } = decl;
+  return fns.size === 0 && structs.size === 0;
 }
 
 export function declAdd(base: DeclaredNames, add: DeclaredNames): void {
