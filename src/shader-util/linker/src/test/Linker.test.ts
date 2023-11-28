@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { thimbTemplate } from "../../../Template2.js";
-import { CodeGenFn, linkWgsl } from "../Linker.js";
+import { CodeGenFn, TextInsert, linkWgsl } from "../Linker.js";
 import { ModuleRegistry } from "../ModuleRegistry.js";
 
 test("apply simple importReplace", () => {
@@ -360,4 +360,25 @@ test("#import as with code generator", () => {
   registry.registerGenerator("foo", generate as CodeGenFn, ["name"]);
   const linked = linkWgsl(src, registry);
   expect(linked).contains("fn baz()");
+});
+
+test("#import code generator snippet with support", () => {
+  function generate(params: { name: string; logType: string }): TextInsert {
+    return {
+      src: `log(${params.name});`,
+      topSrc: `fn log(logVar: ${params.logType}) {}`,
+    };
+  }
+
+  const src = `
+    fn foo() {
+      let bar: i32 = 1
+      #import log(bar, i32) 
+    }
+  `;
+  const registry = new ModuleRegistry();
+  registry.registerGenerator("log", generate as CodeGenFn, ["name", "logType"]);
+  const linked = linkWgsl(src, registry);
+  expect(linked).contains("log(bar);");
+  expect(linked).contains("fn log(logVar: i32) {}");
 });

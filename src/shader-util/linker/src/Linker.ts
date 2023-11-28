@@ -37,7 +37,7 @@ export interface TextExport extends ExportBase {
   topSrc?: string; // to be inserted at top level of #import wgsl (not inside fn)
 }
 
-export type CodeGenFn = (params: Record<string, string>) => string;
+export type CodeGenFn = (params: Record<string, string>) => string | TextExport;
 
 export interface GeneratorExport extends ExportBase {
   generate: CodeGenFn;
@@ -136,7 +136,7 @@ interface ImportModuleArgs {
   conflictCount: number;
 }
 
-interface TextInsert {
+export interface TextInsert {
   src: string;
   topSrc?: string;
 }
@@ -178,7 +178,13 @@ function importModule(args: ImportModuleArgs): TextInsert {
     );
     texts = templated.map(s => replaceTokens(s, paramsRecord));
   } else if (moduleExport.kind === "function") {
-    texts = [moduleExport.export.generate(paramsRecord)]; // TODO
+    const result = moduleExport.export.generate(paramsRecord);
+    if (typeof result === "string") {
+      texts = [result];
+    } else {
+      const { src, topSrc = "" } = result;
+      texts = [src, topSrc];
+    }
   } else {
     console.error(`unexpected module export: ${JSON.stringify(moduleExport, null, 2)}`);
     return emptyInsert;
