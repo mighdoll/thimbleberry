@@ -2,47 +2,6 @@ import { expect, test } from "vitest";
 import { thimbTemplate } from "../../../Template2.js";
 import { CodeGenFn, linkWgsl } from "../Linker.js";
 import { ModuleRegistry } from "../ModuleRegistry.js";
-import { parseModule } from "../ParseModule.js";
-
-test("read simple fn export", () => {
-  const exportPrefix = `// #export`;
-  const src = `
-    fn one() -> i32 {
-      return 1;
-    }
-  `;
-  const module = parseModule(exportPrefix + "\n" + src);
-  expect(module.exports.length).toBe(1);
-  const firstExport = module.exports[0];
-  expect(firstExport.name).toBe("one");
-  expect(firstExport.params).deep.equals([]);
-  expect(firstExport.src).toBe(src);
-});
-
-test("read simple structexport", () => {
-  const exportPrefix = `// #export`;
-  const src = `
-    struct Elem {
-      sum: f32;
-    }
-  `;
-  const module = parseModule(exportPrefix + "\n" + src);
-  expect(module.exports.length).toBe(1);
-  const firstExport = module.exports[0];
-  expect(firstExport.name).toBe("Elem");
-  expect(firstExport.params).deep.equals([]);
-  expect(firstExport.src).toBe(src);
-});
-
-test("read #module", () => {
-  const myModule = `
-    // #module myModule
-    // #export 
-    fn foo() {}
-  `;
-  const textModule = parseModule(myModule);
-  expect(textModule.name).toBe("myModule");
-});
 
 test("apply simple importReplace", () => {
   const myModule = `
