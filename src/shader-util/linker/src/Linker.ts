@@ -61,7 +61,10 @@ export interface ExportBase {
   params: string[];
 }
 
-export interface TextExport extends ExportBase {
+export interface TextExport extends ExportBase, TextInsert {}
+
+/** a code fragment or two to be inserted */
+export interface TextInsert {
   /**  text to be inserted at #import location */
   src: string;
 
@@ -69,7 +72,7 @@ export interface TextExport extends ExportBase {
   rootSrc?: string;
 }
 
-export type CodeGenFn = (params: Record<string, string>) => string | TextExport;
+export type CodeGenFn = (params: Record<string, string>) => string | TextInsert;
 
 export interface GeneratorExport extends ExportBase {
   generate: CodeGenFn;
@@ -147,6 +150,8 @@ function checkImportReplace(
   }
 }
 
+const emptyImport = ["", ""];
+
 interface ImportModuleArgs {
   importName: string;
   asRename?: string;
@@ -159,13 +164,6 @@ interface ImportModuleArgs {
   line: string;
   conflictCount: number;
 }
-
-export interface TextInsert {
-  src: string;
-  rootSrc?: string;
-}
-
-const emptyImport = ["", ""];
 
 /** import a an exported entry from a module.
  * @return the text to be inserted, and the text to be put at the root level */
