@@ -31,8 +31,9 @@ export const parenStartAhead = /(?=\s*\()/;
 export const fnRegex = regexConcatI(fnPrefix, name, parenStart);
 export const fnRegexGlobal = regexConcat("g", fnPrefix, name, parenStart);
 
-const structPrefix = /\bstruct\s+/;
+export const structPrefix = /\bstruct\s+/;
 const braceStart = /\s*{\s*/;
+export const braceStartAhead = /(?=\s*{)/;
 export const structRegex = regexConcatI(structPrefix, name, braceStart);
 export const structRegexGlobal = regexConcat("g", structPrefix, name, braceStart);
 

@@ -1,10 +1,12 @@
 import {
+  braceStartAhead,
   fnPrefix,
   fnRegex,
   fnRegexGlobal,
   notFnDecl,
   parenStartAhead,
   regexConcat,
+  structPrefix,
   structRegex,
   structRegexGlobal,
 } from "./Parsing.js";
@@ -13,7 +15,6 @@ export interface DeclaredNames {
   fns: Set<string>;
   structs: Set<string>;
 }
-
 
 export interface Deconflicted {
   src: string;
@@ -76,7 +77,7 @@ export function structDecls(wgsl: string): string[] {
 }
 
 export function replaceFnDecl(text: string, fnName: string, newName: string): string {
-  const nameRegex = new RegExp(fnName);
+  const nameRegex = new RegExp(fnName); // TODO try adding \b
   const declRegex = regexConcat("", fnPrefix, nameRegex, parenStartAhead);
   return text.replace(declRegex, `fn ${newName}`);
 }
@@ -87,13 +88,22 @@ export function replaceFnCalls(text: string, fnName: string, newName: string): s
   return text.replaceAll(fnRegex, `${newName}`);
 }
 
+function replaceStructDecl(
+  text: string,
+  structName: string,
+  newName: string
+): string {
+  const nameRegex = new RegExp(structName);
+  const structRegex = regexConcat("", structPrefix, nameRegex, braceStartAhead);
+  return text.replace(structRegex, `struct ${newName}`);
+}
 
 interface DeclRewrites {
   fns: Map<string, string>;
   structs: Map<string, string>;
 }
 
-function deconflictNames(conflicts: DeclaredNames, conflictCount:number): DeclRewrites {
+function deconflictNames(conflicts: DeclaredNames, conflictCount: number): DeclRewrites {
   const fns: Map<string, string> = new Map();
   const structs: Map<string, string> = new Map();
   conflicts.fns.forEach(name => fns.set(name, `${name}_${conflictCount}`));
@@ -106,6 +116,11 @@ export function rewriteConflicting(text: string, renames: DeclRewrites): string 
   [...renames.fns.entries()].forEach(([orig, deconflicted]) => {
     newText = replaceFnDecl(newText, orig, deconflicted);
     newText = replaceFnCalls(newText, orig, deconflicted);
+  });
+  console.log("writeConflicting structs", renames.structs);
+  [...renames.structs.entries()].forEach(([orig, deconflicted]) => {
+    newText = replaceStructDecl(newText, orig, deconflicted);
+    // newText = replaceFnCalls(newText, orig, deconflicted);
   });
   // TODO structs
   return newText;

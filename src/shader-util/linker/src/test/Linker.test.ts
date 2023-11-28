@@ -10,7 +10,7 @@ test("read simple fn export", () => {
     fn one() -> i32 {
       return 1;
     }
-  `;
+  `;   
   const module = parseModule(exportPrefix + "\n" + src);
   expect(module.exports.length).toBe(1);
   const firstExport = module.exports[0];
@@ -291,6 +291,35 @@ test("#import with different names, resolve conflicting support function", () =>
   expect([...module2Match].length).toBe(2);
 });
 
+test.only("resolve conflicting import support struct imports", () => {
+  const module1 = `
+    #export 
+    fn foo() {
+      e:Elem = Elem(1); 
+    }
+    
+    struct Elem {
+      v: i32, 
+    }
+  `
+  
+  const src = `
+     #import foo 
+     #import foo as bar
+
+     struct Elem {
+       other:f32; 
+     }
+
+     foo();
+     bar();
+    `
+  const registry = new ModuleRegistry(module1);
+  const linked = linkWgsl(src, registry);
+  console.log(linked);
+
+});
+
 test("#import from code generator", () => {
   function generate(params: { name: string }): string {
     return `fn foo() { /* ${params.name}Impl */ }`;
@@ -323,9 +352,3 @@ test("#import as with code generator", () => {
   expect(linked).contains("fn baz()");
 });
 
-/*
-TODO
- . test renaming tokens to solve for multiple 
- . test import * 
- . test multiple exports in a module
-*/
