@@ -72,25 +72,19 @@ function insertImportsRecursive(
     const importMatch = line.match(importRegex);
     if (importMatch) {
       const groups = importMatch.groups;
+      importReplacing = checkImportReplace(importReplacing, groups, line, lineNum);
+
+      // import module text
       const importName = groups!.name;
       const params = groups?.params?.split(",").map(p => p.trim()) ?? [];
-
-      if (groups?.importCmd === "importReplace") {
-        console.assert(
-          !importReplacing,
-          `#importReplace while inside #importReplace line: ${lineNum}`
-        );
-        importReplacing = true;
-      }
-
       const asRename = groups?.importAs;
-
       const moduleName = groups?.importFrom;
       const _args = { importName, moduleName, registry, params, asRename };
       const args = { ..._args, imported, declarations, lineNum, line, conflictCount };
       const text = importModule(args);
       const resolved = resolveNameConflicts(text, declarations, conflictCount);
       const { src, declared, conflicted } = resolved;
+
       conflicted && conflictCount++;
       out.push(src);
       declAdd(declarations, declared);
@@ -104,6 +98,23 @@ function insertImportsRecursive(
     }
   });
   return out.join("\n");
+}
+
+function checkImportReplace(
+  replacing: boolean,
+  groups: Record<string, string> | undefined,
+  line: string,
+  lineNum: number
+): boolean {
+  if (groups?.importCmd === "importReplace") {
+    console.assert(
+      !replacing,
+      `#importReplace while inside #importReplace line: ${lineNum}\n>>\t${line}`
+    );
+    return true;
+  } else {
+    return replacing;
+  }
 }
 
 interface ImportModuleArgs {
@@ -156,7 +167,13 @@ function importModule(args: ImportModuleArgs): string {
     console.error(`unexpected module export: ${JSON.stringify(moduleExport, null, 2)}`);
     return "";
   }
-  const withImports = insertImportsRecursive(text, registry, imported, declarations, conflictCount);
+  const withImports = insertImportsRecursive(
+    text,
+    registry,
+    imported,
+    declarations,
+    conflictCount
+  );
   return renameExport(withImports, exportName, asRename);
 }
 
