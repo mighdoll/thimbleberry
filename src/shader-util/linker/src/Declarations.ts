@@ -105,8 +105,10 @@ function replaceStructRefs(
   newName: string
 ): string {
   const nameRegex = new RegExp(structName);
-  const structTypeSpecifier = regexConcat("g", colonBehind, nameRegex);
-  return text.replaceAll(structTypeSpecifier, `${newName}`);
+  const structTypeExpression = regexConcat("g", colonBehind, nameRegex);
+  const expressionsReplaced = text.replaceAll(structTypeExpression, newName);
+  const structConstruct = regexConcat("g", notFnDecl, nameRegex, parenStartAhead);
+  return expressionsReplaced.replaceAll(structConstruct,newName);
 }
 
 interface DeclRewrites {

@@ -10,7 +10,7 @@ test("read simple fn export", () => {
     fn one() -> i32 {
       return 1;
     }
-  `;   
+  `;
   const module = parseModule(exportPrefix + "\n" + src);
   expect(module.exports.length).toBe(1);
   const firstExport = module.exports[0];
@@ -301,8 +301,8 @@ test("resolve conflicting import support struct imports", () => {
     struct Elem {
       v: i32, 
     }
-  `
-  
+  `;
+
   const src = `
      #import foo 
      #import foo as bar
@@ -313,11 +313,15 @@ test("resolve conflicting import support struct imports", () => {
 
      foo();
      bar();
-    `
+    `;
   const registry = new ModuleRegistry(module1);
   const linked = linkWgsl(src, registry);
-  console.log(linked);
-
+  const origMatch = linked.matchAll(/\bElem\b/g);
+  expect([...origMatch].length).toBe(1);
+  const module1Match = linked.matchAll(/\bElem_0\b/g);
+  expect([...module1Match].length).toBe(3);
+  const module2Match = linked.matchAll(/\bElem_1\b/g);
+  expect([...module2Match].length).toBe(3);
 });
 
 test("#import from code generator", () => {
@@ -351,4 +355,3 @@ test("#import as with code generator", () => {
   const linked = linkWgsl(src, registry);
   expect(linked).contains("fn baz()");
 });
-
