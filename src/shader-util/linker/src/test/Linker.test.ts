@@ -366,7 +366,7 @@ test("#import code generator snippet with support", () => {
   function generate(params: { name: string; logType: string }): TextInsert {
     return {
       src: `log(${params.name});`,
-      topSrc: `fn log(logVar: ${params.logType}) {}`,
+      rootSrc: `fn log(logVar: ${params.logType}) {}`,
     };
   }
 

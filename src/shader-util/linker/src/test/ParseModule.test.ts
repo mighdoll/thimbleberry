@@ -64,5 +64,5 @@ test("parse #export log with #endInsert", () => {
   const firstExport = textModule.exports[0];
   expect(firstExport.name).toBe("log");
   expect(firstExport.src.trim()).toBe("_log(myVar);");
-  expect(firstExport.topSrc!.trim()).toBe("fn _log(myVar: i32) {}");
+  expect(firstExport.rootSrc!.trim()).toBe("fn _log(myVar: i32) {}");
 });

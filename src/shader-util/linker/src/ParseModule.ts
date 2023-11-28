@@ -53,7 +53,7 @@ export function parseModule(src: string, defaultModuleName?: string): TextModule
       console.warn("name not found for export", currentExport);
     }
     currentExport.src = insertLines.join("\n");
-    currentExport.topSrc = topLines && topLines.join("\n");
+    currentExport.rootSrc = topLines && topLines.join("\n");
     exports.push(currentExport as TextExport);
   }
 
