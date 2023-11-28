@@ -291,7 +291,7 @@ test("#import with different names, resolve conflicting support function", () =>
   expect([...module2Match].length).toBe(2);
 });
 
-test.only("resolve conflicting import support struct imports", () => {
+test("resolve conflicting import support struct imports", () => {
   const module1 = `
     #export 
     fn foo() {

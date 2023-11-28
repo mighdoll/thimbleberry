@@ -78,13 +78,13 @@ export function structDecls(wgsl: string): string[] {
 }
 
 export function replaceFnDecl(text: string, fnName: string, newName: string): string {
-  const nameRegex = new RegExp(fnName); // TODO try adding \b
+  const nameRegex = new RegExp(fnName); 
   const declRegex = regexConcat("", fnPrefix, nameRegex, parenStartAhead);
   return text.replace(declRegex, `fn ${newName}`);
 }
 
 export function replaceFnCalls(text: string, fnName: string, newName: string): string {
-  const nameRegex = new RegExp(`(?<name>${fnName})`); // TODO drop ?<name>
+  const nameRegex = new RegExp(fnName); 
   const fnRegex = regexConcat("g", notFnDecl, nameRegex, parenStartAhead);
   return text.replaceAll(fnRegex, `${newName}`);
 }
