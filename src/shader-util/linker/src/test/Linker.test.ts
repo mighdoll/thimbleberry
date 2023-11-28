@@ -223,6 +223,27 @@ test("#import twice with different names", () => {
   expect([...matches].length).toBe(2);
 });
 
+test("#import snippet w/o support functions", () => {
+  const module1 = `
+    var logVar: u32;
+
+    #template thimb2
+    #export log(logVar, logType)
+      log(logVar, "u32"); // #replace u32=logType
+  `;
+
+  const src = `
+    fn foo() {
+      myVar: i32 = 1;
+      #import log(myVar, i32)
+    }
+  `;
+  const registry = new ModuleRegistry(module1);
+  registry.registerTemplate(thimbTemplate);
+  const linked = linkWgsl(src, registry);
+  expect(linked).contains('log(myVar, "i32");');
+});
+
 test("#import with different names, resolve conflicting support function", () => {
   const module1 = `
     #export 
