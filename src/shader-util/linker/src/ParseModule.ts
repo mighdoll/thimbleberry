@@ -1,5 +1,11 @@
 import { TextExport, TextModule } from "./Linker.js";
-import { exportRegex, fnOrStructRegex, moduleRegex, templateRegex } from "./Parsing.js";
+import {
+  endInsertRegex,
+  exportRegex,
+  fnOrStructRegex,
+  moduleRegex,
+  templateRegex,
+} from "./Parsing.js";
 
 let unnamedModuleDex = 0;
 
@@ -8,11 +14,13 @@ export function parseModule(src: string, defaultModuleName?: string): TextModule
   let template: string | undefined;
   const exports: TextExport[] = [];
   let currentExport: Partial<TextExport> | undefined;
-  let currentExportLines: string[] = [];
-  let moduleName:string | undefined;
+  let insertLines: string[] = [];
+  let moduleName: string | undefined;
+  let topLines: string[] | undefined;
 
   src.split("\n").forEach((line, lineNum) => {
-    const { exportMatch, templateMatch, moduleMatch } = matchModuleDirectives(line);
+    const matches = matchModuleDirectives(line);
+    const { exportMatch, templateMatch, moduleMatch, endInsertMatch } = matches;
     if (exportMatch) {
       console.assert(
         currentExport === undefined,
@@ -21,13 +29,16 @@ export function parseModule(src: string, defaultModuleName?: string): TextModule
       const params = exportMatch.groups?.params?.split(",").map(p => p.trim()) ?? [];
       const name = exportMatch.groups?.name;
       currentExport = { params, name };
-      currentExportLines = [];
+      insertLines = [];
+      topLines = undefined;
     } else if (templateMatch) {
       template = templateMatch.groups?.name;
     } else if (moduleMatch) {
       moduleName = moduleMatch.groups?.name;
+    } else if (endInsertMatch) {
+      topLines = [];
     } else if (currentExport) {
-      currentExportLines.push(line);
+      topLines ? topLines.push(line) : insertLines.push(line);
       if (currentExport.name === undefined) {
         const found = line.match(fnOrStructRegex);
         if (found) {
@@ -41,7 +52,8 @@ export function parseModule(src: string, defaultModuleName?: string): TextModule
     if (currentExport.name === undefined) {
       console.warn("name not found for export", currentExport);
     }
-    currentExport.src = currentExportLines.join("\n");
+    currentExport.src = insertLines.join("\n");
+    currentExport.topSrc = topLines && topLines.join("\n");
     exports.push(currentExport as TextExport);
   }
 
@@ -53,6 +65,7 @@ interface ModuleDirectiveMatch {
   exportMatch?: RegExpMatchArray;
   templateMatch?: RegExpMatchArray;
   moduleMatch?: RegExpMatchArray;
+  endInsertMatch?: RegExpMatchArray;
 }
 
 function matchModuleDirectives(line: string): ModuleDirectiveMatch {
@@ -67,6 +80,10 @@ function matchModuleDirectives(line: string): ModuleDirectiveMatch {
   const moduleMatch = line.match(moduleRegex);
   if (moduleMatch) {
     return { moduleMatch };
+  }
+  const endInsertMatch = line.match(endInsertRegex);
+  if (endInsertMatch) {
+    return { endInsertMatch };
   }
 
   return {};

@@ -6,6 +6,7 @@ const importCmd = /\s*#(?<importCmd>(importReplace)|(import))\s+/;
 const optImportAs = /(\s*as\s+(?<importAs>[\w]+))?/;
 const optImportFrom = /(\s*from\s+(?<importFrom>[\w]+))?/;
 const endImport = /\s*#endImport/;
+const endInsert = /\s*#endInsert/;
 const optParams = /\s*(\((?<params>[\w, ]*)\))?/;
 const name = /(?<name>[\w]+)/;
 const optName = /(?<name>[\w]+)?/;
@@ -19,6 +20,7 @@ export const importRegex = regexConcatI(
   optImportFrom
 );
 export const endImportRegex = regexConcatI(optComment, endImport);
+export const endInsertRegex = regexConcatI(optComment, endInsert);
 export const templateRegex = regexConcatI(optComment, templateDirective, name);
 export const moduleRegex = regexConcatI(optComment, moduleDirective, name);
 export const tokenRegex = /\b(\w+)\b/gi;

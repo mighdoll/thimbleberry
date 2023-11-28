@@ -33,7 +33,8 @@ interface ExportBase {
 }
 
 export interface TextExport extends ExportBase {
-  src: string;
+  src: string; // to be inserted at #import location
+  topSrc?: string; // to be inserted at top level of #import wgsl (not inside fn)
 }
 
 export type CodeGenFn = (params: Record<string, string>) => string;
