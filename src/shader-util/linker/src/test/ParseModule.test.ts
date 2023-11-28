@@ -16,7 +16,7 @@ test("read simple fn export", () => {
   expect(firstExport.src).toBe(src);
 });
 
-test("read simple structexport", () => {
+test("read simple struct export", () => {
   const exportPrefix = `// #export`;
   const src = `
     struct Elem {
