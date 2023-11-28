@@ -107,7 +107,7 @@ function insertImportsRecursive(
       const moduleName = groups?.importFrom;
       const _args = { importName, moduleName, registry, params, asRename };
       const args = { ..._args, imported, declarations, lineNum, line, conflictCount };
-      const { src: insertSrc, rootSrc = "" } = importModule(args);
+      const [insertSrc, rootSrc] = importModule(args);
       const resolved = [insertSrc, rootSrc].map(s => {
         const result = resolveNameConflicts(s, declarations, conflictCount);
         result.conflicted && conflictCount++;
@@ -165,10 +165,11 @@ export interface TextInsert {
   rootSrc?: string;
 }
 
-const emptyInsert: TextInsert = { src: "" };
+const emptyImport = ["", ""];
 
-/** import a module and return the text to be inserted */
-function importModule(args: ImportModuleArgs): TextInsert {
+/** import a an exported entry from a module.
+ * @return the text to be inserted, and the text to be put at the root level */
+function importModule(args: ImportModuleArgs): string[] {
   const { importName, asRename, moduleName, registry, params } = args;
   const { imported, declarations, lineNum, line, conflictCount } = args;
 
@@ -177,13 +178,13 @@ function importModule(args: ImportModuleArgs): TextInsert {
     console.error(
       `#importReplace module export "${importName}" not found: at ${lineNum}\n>>\t${line}`
     );
-    return emptyInsert;
+    return emptyImport;
   }
 
   const importAs = asRename ?? moduleExport.export.name;
   const fullImport = fullImportName(importAs, moduleExport.module.name, params);
   if (imported.has(fullImport)) {
-    return emptyInsert;
+    return emptyImport;
   }
 
   imported.add(fullImport);
@@ -200,13 +201,13 @@ function importModule(args: ImportModuleArgs): TextInsert {
     texts = generateText(moduleExport.export, paramsRecord);
   } else {
     console.error(`unexpected module export: ${JSON.stringify(moduleExport, null, 2)}`);
-    return emptyInsert;
+    return emptyImport;
   }
   const withImports = texts.map(s =>
     insertImportsRecursive(s, registry, imported, declarations, conflictCount)
   );
 
-  return { src: renameExport(withImports[0], exportName, asRename), rootSrc: texts[1] };
+  return [renameExport(withImports[0], exportName, asRename), texts[1]];
 }
 
 /** run a template, returning insert text src and root text src  */
@@ -225,7 +226,7 @@ function templateText(
 function generateText(exp: GeneratorExport, params: Record<string, string>): string[] {
   const result = exp.generate(params);
   if (typeof result === "string") {
-    return [result];
+    return [result, ""];
   } else {
     const { src, rootSrc = "" } = result;
     return [src, rootSrc];
