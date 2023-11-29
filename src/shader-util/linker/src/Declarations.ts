@@ -14,36 +14,21 @@ import {
   ltBehind,
 } from "./Parsing.js";
 
-export interface DeclaredNames {
-  fns: Set<string>;
-  structs: Set<string>;
-}
-
 export interface Deconflicted {
   src: string;
   declared: DeclaredNames;
   conflicted: boolean;
 }
 
-export function resolveNameConflicts(
-  text: string,
-  declared: DeclaredNames,
-  conflictCount: number
-): Deconflicted {
-  // rewrite text replacing confliced names
-  const moduleDeclarations = globalDeclarations(text);
-  const conflicts = declIntersection(declared, moduleDeclarations);
-  const renames = deconflictNames(conflicts, conflictCount);
-  const src = rewriteConflicting(text, renames);
-
-  // report new + old declared names
-  const newNames = rewrittenNames(renames);
-  const orig = declDifference(moduleDeclarations, conflicts);
-  const deconflictedNames = declUnion(orig, newNames);
-
-  return { src, declared: deconflictedNames, conflicted: !declIsEmpty(conflicts) };
+export interface DeclaredNames {
+  fns: Set<string>;
+  structs: Set<string>;
 }
 
+/** find fn and struct declarations in a wgsl text
+ * (declared names need to be protected from
+ *  conflict with imported text declarations)
+ */
 export function globalDeclarations(wgsl: string): DeclaredNames {
   return {
     fns: new Set(fnDecls(wgsl)),
@@ -51,6 +36,29 @@ export function globalDeclarations(wgsl: string): DeclaredNames {
   };
 }
 
+/** rewrite a proposed wgsl text to avoid name conflict with already declared names
+ * @return the rewritten text and the of declared names
+ */
+export function resolveNameConflicts(
+  proposedText: string,
+  declared: DeclaredNames,
+  conflictCount: number
+): Deconflicted {
+  // rewrite text replacing confliced names
+  const moduleDeclarations = globalDeclarations(proposedText);
+  const conflicts = declIntersection(declared, moduleDeclarations);
+  const renames = deconflictNames(conflicts, conflictCount);
+  const src = rewriteConflicting(proposedText, renames);
+
+  // report new module names incl rewrites
+  const newNames = rewrittenNames(renames);
+  const unchangedModuleNames = declDifference(moduleDeclarations, conflicts);
+  const deconflictedNames = declUnion(unchangedModuleNames, newNames);
+
+  return { src, declared: deconflictedNames, conflicted: !declIsEmpty(conflicts) };
+}
+
+/** find function declarations in a wgsl text */
 export function fnDecls(wgsl: string): string[] {
   const matches = wgsl.matchAll(fnRegexGlobal);
   const fnNames = [...matches].flatMap(matchDecl => {
@@ -65,6 +73,7 @@ export function fnDecls(wgsl: string): string[] {
   return fnNames;
 }
 
+/** find struct declarations in a wgsl text */
 export function structDecls(wgsl: string): string[] {
   const matches = wgsl.matchAll(structRegexGlobal);
   const fnNames = [...matches].flatMap(matchDecl => {
@@ -79,16 +88,17 @@ export function structDecls(wgsl: string): string[] {
   return fnNames;
 }
 
-export function replaceFnDecl(text: string, fnName: string, newName: string): string {
-  const nameRegex = new RegExp(fnName);
-  const declRegex = regexConcat("", fnPrefix, nameRegex, parenStartAhead);
-  return text.replace(declRegex, `fn ${newName}`);
-}
-
+/** replace function calls in a wgsl text */
 export function replaceFnCalls(text: string, fnName: string, newName: string): string {
   const nameRegex = new RegExp(fnName);
   const fnRegex = regexConcat("g", notFnDecl, nameRegex, parenStartAhead);
   return text.replaceAll(fnRegex, `${newName}`);
+}
+
+function replaceFnDecl(text: string, fnName: string, newName: string): string {
+  const nameRegex = new RegExp(fnName);
+  const declRegex = regexConcat("", fnPrefix, nameRegex, parenStartAhead);
+  return text.replace(declRegex, `fn ${newName}`);
 }
 
 function replaceStructDecl(text: string, structName: string, newName: string): string {
@@ -117,6 +127,7 @@ interface DeclRewrites {
   structs: Map<string, string>;
 }
 
+/** @return a map of old name to renamed copy */
 function deconflictNames(conflicts: DeclaredNames, conflictCount: number): DeclRewrites {
   const fns: Map<string, string> = new Map();
   const structs: Map<string, string> = new Map();
@@ -125,7 +136,7 @@ function deconflictNames(conflicts: DeclaredNames, conflictCount: number): DeclR
   return { fns, structs };
 }
 
-export function rewriteConflicting(text: string, renames: DeclRewrites): string {
+function rewriteConflicting(text: string, renames: DeclRewrites): string {
   let newText = text;
   [...renames.fns.entries()].forEach(([orig, deconflicted]) => {
     newText = replaceFnDecl(newText, orig, deconflicted);
@@ -144,32 +155,33 @@ function rewrittenNames(rewrites: DeclRewrites): DeclaredNames {
   return { fns, structs };
 }
 
-export function declIntersection(a: DeclaredNames, b: DeclaredNames): DeclaredNames {
+/** modify some DeclaredNames to add more */
+export function declAdd(base: DeclaredNames, add: DeclaredNames): void {
+  base.fns = union(base.fns, add.fns);
+  base.structs = union(base.structs, add.structs);
+}
+
+function declIntersection(a: DeclaredNames, b: DeclaredNames): DeclaredNames {
   const fns = intersection(a.fns, b.fns);
   const structs = intersection(a.structs, b.structs);
   return { fns, structs };
 }
 
-export function declDifference(a: DeclaredNames, b: DeclaredNames): DeclaredNames {
-  const fns = difference(a.fns, b.fns);
-  const structs = difference(a.structs, b.structs);
-  return { fns, structs };
-}
-
-export function declUnion(a: DeclaredNames, b: DeclaredNames): DeclaredNames {
+function declUnion(a: DeclaredNames, b: DeclaredNames): DeclaredNames {
   const fns = union(a.fns, b.fns);
   const structs = union(a.structs, b.structs);
   return { fns, structs };
 }
 
-export function declIsEmpty(decl: DeclaredNames): boolean {
+function declIsEmpty(decl: DeclaredNames): boolean {
   const { fns, structs } = decl;
   return fns.size === 0 && structs.size === 0;
 }
 
-export function declAdd(base: DeclaredNames, add: DeclaredNames): void {
-  base.fns = union(base.fns, add.fns);
-  base.structs = union(base.structs, add.structs);
+function declDifference(a: DeclaredNames, b: DeclaredNames): DeclaredNames {
+  const fns = difference(a.fns, b.fns);
+  const structs = difference(a.structs, b.structs);
+  return { fns, structs };
 }
 
 function intersection<T>(a: Set<T>, b: Set<T>): Set<T> {
@@ -177,11 +189,11 @@ function intersection<T>(a: Set<T>, b: Set<T>): Set<T> {
   return new Set(both);
 }
 
+function union<T>(a: Set<T>, b: Set<T>): Set<T> {
+  return new Set([...a, ...b]);
+}
+
 function difference<T>(a: Set<T>, b: Set<T>): Set<T> {
   const diff = [...a.keys()].filter(k => !b.has(k));
   return new Set(diff);
-}
-
-function union<T>(a: Set<T>, b: Set<T>): Set<T> {
-  return new Set([...a, ...b]);
 }
