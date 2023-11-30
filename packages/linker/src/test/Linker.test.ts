@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { thimbTemplate } from "../../../Template2.js";
+import { thimbTemplate } from "../ReplaceTemplate.js";
 import { CodeGenFn, TextInsert, linkWgsl } from "../Linker.js";
 import { ModuleRegistry } from "../ModuleRegistry.js";
 
