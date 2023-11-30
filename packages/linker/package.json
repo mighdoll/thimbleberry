@@ -1,6 +1,6 @@
 {
   "name": "wgsl-linker",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "files": [
     "dist",
     "src"
@@ -12,16 +12,19 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
     },
     "./replace-template": {
-      "import": "./dist/ReplaceTemplate.mjs",
-      "require": "./dist/ReplaceTemplate.js"
+      "import": "./dist/ReplaceTemplate.js",
+      "require": "./dist/ReplaceTemplate.cjs",
+      "types" : "./dist/ReplaceTemplate.d.ts"
     }
   },
   "devDependencies": {
     "vite": "^5.0.2",
+    "vite-plugin-dts": "^3.6.4",
     "vite-tsconfig-paths": "^4.2.1",
     "vitest": "^0.31.1"
   }
