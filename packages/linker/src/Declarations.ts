@@ -12,6 +12,8 @@ import {
   structRegex,
   structRegexGlobal,
   ltBehind,
+  importRegex,
+  endImportRegex,
 } from "./Parsing.js";
 
 export interface Deconflicted {
@@ -30,10 +32,43 @@ export interface DeclaredNames {
  *  conflict with imported text declarations)
  */
 export function globalDeclarations(wgsl: string): DeclaredNames {
+  const stripped = stripImportReplace(wgsl);
   return {
-    fns: new Set(fnDecls(wgsl)),
-    structs: new Set(structDecls(wgsl)),
+    fns: new Set(fnDecls(stripped)),
+    structs: new Set(structDecls(stripped)),
   };
+}
+
+/** remove importReplaced blocks from wgsl text, lest we match them as declarations */
+function stripImportReplace(wgsl: string): string {
+  let importReplaceActive = false;
+  const lines = wgsl.split("\n").flatMap(line => {
+    const { importReplace, endImport } = matchImportReplace(line);
+    if (importReplace) {
+      importReplaceActive = true;
+      return [];
+    }
+    if (endImport) {
+      importReplaceActive = false;
+      return [];
+    } else if (importReplaceActive) {
+      return [];
+    } else {
+      return [line];
+    }
+  });
+  return lines.join("\n");
+}
+
+function matchImportReplace(line: string): any {
+  const importMatch = line.match(importRegex);
+  if (importMatch && importMatch.groups?.importCmd === "importReplace") {
+    return { importReplace: true };
+  }
+  if (line.match(endImportRegex)) {
+    return { endImport: true };
+  }
+  return {};
 }
 
 /** rewrite a proposed wgsl text to avoid name conflict with already declared names
@@ -45,14 +80,14 @@ export function resolveNameConflicts(
   conflictCount: number
 ): Deconflicted {
   // rewrite text replacing confliced names
-  const moduleDeclarations = globalDeclarations(proposedText);
-  const conflicts = declIntersection(declared, moduleDeclarations);
+  const moduleDeclared = globalDeclarations(proposedText);
+  const conflicts = declIntersection(declared, moduleDeclared);
   const renames = deconflictNames(conflicts, conflictCount);
   const src = rewriteConflicting(proposedText, renames);
 
   // report new module names incl rewrites
   const newNames = rewrittenNames(renames);
-  const unchangedModuleNames = declDifference(moduleDeclarations, conflicts);
+  const unchangedModuleNames = declDifference(moduleDeclared, conflicts);
   const deconflictedNames = declUnion(unchangedModuleNames, newNames);
 
   return { src, declared: deconflictedNames, conflicted: !declIsEmpty(conflicts) };
