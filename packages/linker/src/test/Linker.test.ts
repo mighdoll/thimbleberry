@@ -382,3 +382,34 @@ test("#import code generator snippet with support", () => {
   expect(linked).contains("log(bar);");
   expect(linked).contains("fn log(logVar: i32) {}");
 });
+
+test("import transitive conflicts with main", () => {
+  const module1 = `
+    #export 
+    fn grand() {
+      /* grandImpl */
+    }
+  `;
+  const module2 = `
+    #export
+    fn mid() { grand(); }
+
+    #importReplace grand
+      fn grand() {/* placeholder */}
+    #endImport
+  `;
+  const src = `
+    #import mid
+
+    fn main() {
+      mid();
+    }
+
+    fn grand() {
+      /* main impl */
+    }
+  `;
+  const registry = new ModuleRegistry(module1, module2);
+  const linked = linkWgsl(src, registry);
+  expect(linked).includes("mid() { grand_0(); }");
+});
