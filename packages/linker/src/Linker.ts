@@ -1,11 +1,10 @@
-import { ModuleRegistry, TextModuleExport } from "./ModuleRegistry.js";
-import { endImportRegex, importRegex, replaceTokens } from "./Parsing.js";
 import {
-  DeclaredNames,
   declAdd,
   globalDeclarations,
-  resolveNameConflicts,
+  resolveNameConflicts
 } from "./Declarations.js";
+import { ModuleRegistry, TextModuleExport } from "./ModuleRegistry.js";
+import { endImportRegex, importRegex, replaceTokens } from "./Parsing.js";
 
 /*
  * The linker supports import/export of wgsl code fragments.
@@ -80,8 +79,7 @@ export interface GeneratorExport extends ExportBase {
 
 /** parse shader text for imports, return wgsl with all imports injected */
 export function linkWgsl(src: string, registry: ModuleRegistry): string {
-  const declarations = globalDeclarations(src);
-  return insertImportsRecursive(src, registry, new Set(), declarations, 0);
+  return insertImportsRecursive(src, registry, new Set(), 0);
 }
 
 /** Find #import directives in src text and insert the module export text */
@@ -89,12 +87,13 @@ function insertImportsRecursive(
   src: string,
   registry: ModuleRegistry,
   imported: Set<string>,
-  declarations: DeclaredNames,
   conflictCount: number
 ): string {
   const out: string[] = [];
   const topOut: string[] = [];
   let importReplacing = false; // true while we're reading lines inside an importReplace
+
+  const declarations = globalDeclarations(src);
 
   // scan through the lines looking for #import directives
   src.split("\n").forEach((line, lineNum) => {
@@ -109,7 +108,7 @@ function insertImportsRecursive(
       const asRename = groups?.importAs;
       const moduleName = groups?.importFrom;
       const _args = { importName, moduleName, registry, params, asRename };
-      const args = { ..._args, imported, declarations, lineNum, line, conflictCount };
+      const args = { ..._args, imported, lineNum, declarations, line, conflictCount };
       const [insertSrc, rootSrc] = importModule(args);
       const resolved = [insertSrc, rootSrc].map(s => {
         const result = resolveNameConflicts(s, declarations, conflictCount);
@@ -158,7 +157,6 @@ interface ImportModuleArgs {
   registry: ModuleRegistry;
   params: string[];
   imported: Set<string>;
-  declarations: DeclaredNames;
   lineNum: number;
   line: string;
   conflictCount: number;
@@ -168,7 +166,7 @@ interface ImportModuleArgs {
  * @return the text to be inserted at the import and the text to be put at the root level */
 function importModule(args: ImportModuleArgs): string[] {
   const { importName, asRename, moduleName, registry, params } = args;
-  const { imported, declarations, lineNum, line, conflictCount } = args;
+  const { imported, lineNum, line, conflictCount } = args;
 
   const moduleExport = registry.getModuleExport(importName, moduleName);
   if (!moduleExport) {
@@ -201,10 +199,11 @@ function importModule(args: ImportModuleArgs): string[] {
     return emptyImport;
   }
   const withImports = texts.map(s =>
-    insertImportsRecursive(s, registry, imported, declarations, conflictCount)
+    insertImportsRecursive(s, registry, imported, conflictCount)
   );
 
-  return [replaceText(withImports[0], exportName, asRename), texts[1]];
+  const insertText = replaceText(withImports[0], exportName, asRename);
+  return [insertText, texts[1]];
 }
 
 /** run a template, returning insert text src and root text src  */
