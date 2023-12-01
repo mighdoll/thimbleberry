@@ -413,3 +413,23 @@ test("import transitive conflicts with main", () => {
   const linked = linkWgsl(src, registry);
   expect(linked).includes("mid() { grand_0(); }");
 });
+
+test("external param applied to template", () => {
+  const module1 = `
+    #template thimb2
+    #export(threads) 
+    fn foo() {
+      for (var step = 0; step < 4; step++) { //#replace 4=threads
+      }
+    }
+  `;
+  const src = `
+    #import foo(workgroupThreads)
+    foo();
+  `;
+  const registry = new ModuleRegistry(module1);
+  registry.registerTemplate(thimbTemplate);
+  const params = { workgroupThreads: 128 };
+  const linked = linkWgsl(src, registry, params);
+  expect(linked).includes("step < 128");
+});

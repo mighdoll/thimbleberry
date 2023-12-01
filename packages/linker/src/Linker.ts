@@ -1,8 +1,4 @@
-import {
-  declAdd,
-  globalDeclarations,
-  resolveNameConflicts
-} from "./Declarations.js";
+import { declAdd, globalDeclarations, resolveNameConflicts } from "./Declarations.js";
 import { ModuleRegistry, TextModuleExport } from "./ModuleRegistry.js";
 import { endImportRegex, importRegex, replaceTokens } from "./Parsing.js";
 
@@ -78,8 +74,12 @@ export interface GeneratorExport extends ExportBase {
 }
 
 /** parse shader text for imports, return wgsl with all imports injected */
-export function linkWgsl(src: string, registry: ModuleRegistry): string {
-  return insertImportsRecursive(src, registry, new Set(), 0);
+export function linkWgsl(
+  src: string,
+  registry: ModuleRegistry,
+  params: Record<string, any> = {}
+): string {
+  return insertImportsRecursive(src, registry, new Set(), 0, params);
 }
 
 /** Find #import directives in src text and insert the module export text */
@@ -87,7 +87,8 @@ function insertImportsRecursive(
   src: string,
   registry: ModuleRegistry,
   imported: Set<string>,
-  conflictCount: number
+  conflictCount: number,
+  extParams: Record<string, any>
 ): string {
   const out: string[] = [];
   const topOut: string[] = [];
@@ -107,7 +108,7 @@ function insertImportsRecursive(
       const params = groups?.params?.split(",").map(p => p.trim()) ?? [];
       const asRename = groups?.importAs;
       const moduleName = groups?.importFrom;
-      const _args = { importName, moduleName, registry, params, asRename };
+      const _args = { importName, moduleName, registry, params, extParams, asRename };
       const args = { ..._args, imported, lineNum, declarations, line, conflictCount };
       const [insertSrc, rootSrc] = importModule(args);
       const resolved = [insertSrc, rootSrc].map(s => {
@@ -157,6 +158,7 @@ interface ImportModuleArgs {
   registry: ModuleRegistry;
   params: string[];
   imported: Set<string>;
+  extParams: Record<string, any>;
   lineNum: number;
   line: string;
   conflictCount: number;
@@ -165,7 +167,7 @@ interface ImportModuleArgs {
 /** import a an exported entry from a module.
  * @return the text to be inserted at the import and the text to be put at the root level */
 function importModule(args: ImportModuleArgs): string[] {
-  const { importName, asRename, moduleName, registry, params } = args;
+  const { importName, asRename, moduleName, registry, params, extParams } = args;
   const { imported, lineNum, line, conflictCount } = args;
 
   const moduleExport = registry.getModuleExport(importName, moduleName);
@@ -185,21 +187,23 @@ function importModule(args: ImportModuleArgs): string[] {
   imported.add(fullImport);
 
   const entries = moduleExport.export.params.map((p, i) => [p, params[i]]);
-  const paramsRecord = Object.fromEntries(entries);
+  const importParams = Object.fromEntries(entries);
+  // console.log("importParams", importParams);;
+  // console.log("extParams", extParams);;
 
   let texts: string[];
   const exportName = moduleExport.export.name;
 
   if (moduleExport.kind === "text") {
-    texts = templateText(moduleExport, paramsRecord, registry);
+    texts = templateText(moduleExport, importParams, extParams, registry);
   } else if (moduleExport.kind === "function") {
-    texts = generateText(moduleExport.export, paramsRecord);
+    texts = generateText(moduleExport.export, { ...importParams, ...extParams });
   } else {
     console.error(`unexpected module export: ${JSON.stringify(moduleExport, null, 2)}`);
     return emptyImport;
   }
   const withImports = texts.map(s =>
-    insertImportsRecursive(s, registry, imported, conflictCount)
+    insertImportsRecursive(s, registry, imported, conflictCount, extParams)
   );
 
   const insertText = replaceText(withImports[0], exportName, asRename);
@@ -209,13 +213,32 @@ function importModule(args: ImportModuleArgs): string[] {
 /** run a template, returning insert text src and root text src  */
 function templateText(
   moduleExport: TextModuleExport,
-  params: Record<string, string>,
+  importParams: Record<string, string>,
+  extParams: Record<string, string>,
   registry: ModuleRegistry
 ): string[] {
   const template = moduleExport.module.template;
   const { src, rootSrc = "" } = moduleExport.export;
-  const templated = [src, rootSrc].map(s => applyTemplate(s, params, template, registry));
-  return templated.map(s => replaceTokens(s, params));
+  const importWithExt = mapForward(importParams, extParams);
+  const templated = [src, rootSrc].map(s =>
+    applyTemplate(s, { ...extParams, ...importWithExt }, template, registry)
+  );
+
+  return templated.map(s => replaceTokens(s, importParams)); // replace import params
+}
+
+/** return a new record by replacing values in 'a' with 'b' as a map.
+ * values in 'a' that are not in 'b' are unchanged.
+ */
+function mapForward(
+  a: Record<string, string>,
+  b: Record<string, any>
+): Record<string, any> {
+  const combined = Object.entries(a).map(([key, value]) => {
+    const mappedValue = value in b ? b[value] : value;
+    return [key, mappedValue];
+  });
+  return Object.fromEntries(combined);
 }
 
 /** run a src generator fn, returning insert text src and root text src  */

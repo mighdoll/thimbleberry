@@ -230,12 +230,6 @@ importers:
         specifier: ^0.31.1
         version: 0.31.1
 
-  src/shader-util/linker:
-    devDependencies:
-      vite:
-        specifier: ^5.0.2
-        version: 5.0.2
-
 packages:
 
   /@babel/code-frame@7.21.4:
