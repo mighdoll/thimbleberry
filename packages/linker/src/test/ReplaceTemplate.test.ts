@@ -5,7 +5,7 @@ import {
   parseReplaceDirective,
   replaceRegex,
   scan,
-} from "../../../packages/linker/src/ReplaceTemplate.js";
+} from "../ReplaceTemplate.js";
 
 test("#replace regex", () => {
   const result = `//#replace 4=threads`.match(replaceRegex);
