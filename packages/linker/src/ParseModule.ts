@@ -16,29 +16,30 @@ export function parseModule(src: string, defaultModuleName?: string): TextModule
   let currentExport: Partial<TextExport> | undefined;
   let insertLines: string[] = [];
   let moduleName: string | undefined;
-  let topLines: string[] | undefined;
+  let rootLines: string[] | undefined;
 
-  src.split("\n").forEach((line, lineNum) => {
+  src.split("\n").forEach(line => {
     const matches = matchModuleDirectives(line);
     const { exportMatch, templateMatch, moduleMatch, endInsertMatch } = matches;
     if (exportMatch) {
-      console.assert(
-        currentExport === undefined,
-        `found export while parsing export line: ${lineNum}`
-      );
-      const params = exportMatch.groups?.params?.split(",").map(p => p.trim()) ?? [];
-      const name = exportMatch.groups?.name;
-      currentExport = { params, name };
+      pushCurrentExport();
+
+      const groups = exportMatch.groups;
+      currentExport = {
+        params: groups?.params?.split(",").map(p => p.trim()) ?? [],
+        name: groups?.name,
+      };
       insertLines = [];
-      topLines = undefined;
+      rootLines = undefined;
+
     } else if (templateMatch) {
       template = templateMatch.groups?.name;
     } else if (moduleMatch) {
       moduleName = moduleMatch.groups?.name;
     } else if (endInsertMatch) {
-      topLines = [];
+      rootLines = [];
     } else if (currentExport) {
-      topLines ? topLines.push(line) : insertLines.push(line);
+      rootLines ? rootLines.push(line) : insertLines.push(line);
       if (currentExport.name === undefined) {
         const found = line.match(fnOrStructRegex);
         if (found) {
@@ -48,17 +49,21 @@ export function parseModule(src: string, defaultModuleName?: string): TextModule
     }
   });
 
-  if (currentExport) {
-    if (currentExport.name === undefined) {
-      console.warn("name not found for export", currentExport);
-    }
-    currentExport.src = insertLines.join("\n");
-    currentExport.rootSrc = topLines && topLines.join("\n");
-    exports.push(currentExport as TextExport);
-  }
+  pushCurrentExport();
 
   const name = moduleName ?? defaultModuleName ?? `module${unnamedModuleDex++}`;
   return { exports, name, template };
+
+  function pushCurrentExport(): void {
+    if (currentExport) {
+      if (currentExport.name === undefined) {
+        console.warn("name not found for export", currentExport);
+      }
+      currentExport.src = insertLines.join("\n");
+      currentExport.rootSrc = rootLines && rootLines.join("\n");
+      exports.push(currentExport as TextExport);
+    }
+  }
 }
 
 interface ModuleDirectiveMatch {

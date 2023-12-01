@@ -1,0 +1,12 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`multiple exports 1`] = `
+"
+    fn foo() { }
+    fn bar() { }
+  
+    foo();
+    bar();
+  
+"
+`;

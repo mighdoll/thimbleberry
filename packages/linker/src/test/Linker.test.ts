@@ -433,3 +433,21 @@ test("external param applied to template", () => {
   const linked = linkWgsl(src, registry, params);
   expect(linked).includes("step < 128");
 });
+
+test("multiple exports", () => {
+  const module1 = `
+    #export
+    fn foo() { }
+    #export
+    fn bar() { }
+  `;
+  const src = `
+    #import foo
+    #import bar
+    foo();
+    bar();
+  `;
+  const registry = new ModuleRegistry(module1);
+  const linked = linkWgsl(src, registry);
+  expect(linked).toMatchSnapshot();
+});
