@@ -89,7 +89,7 @@ export class ModuleRegistry {
     } else {
       const moduleNames = exports.map(e => e.module.name).join(", ");
       console.warn(
-        `Multiple modules export ${exportName}. (${moduleNames}) ` +
+        `Multiple modules export "${exportName}". (${moduleNames}) ` +
           `Use "#import ${exportName} from <moduleName>" to select which one import`
       );
     }
