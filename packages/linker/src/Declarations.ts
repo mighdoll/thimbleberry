@@ -30,11 +30,10 @@ export interface DeclaredNames {
  * (declared names need to be protected from
  *  conflict with imported text declarations)
  */
-export function globalDeclarations(wgsl: string, params:Record<string, any>): DeclaredNames {
-  const stripped = stripIfDirectives(wgsl, params);
+export function globalDeclarations(wgsl: string): DeclaredNames {
   return {
-    fns: new Set(fnDecls(stripped)),
-    structs: new Set(structDecls(stripped)),
+    fns: new Set(fnDecls(wgsl)),
+    structs: new Set(structDecls(wgsl)),
   };
 }
 
@@ -45,13 +44,15 @@ export function resolveNameConflicts(
   proposedText: string,
   declared: DeclaredNames,
   conflictCount: number,
-  params:Record<string, any>
+  params: Record<string, any>
 ): Deconflicted {
   // rewrite text replacing confliced names
-  const moduleDeclared = globalDeclarations(proposedText, params);
+  const stripped = stripIfDirectives(proposedText, params);
+
+  const moduleDeclared = globalDeclarations(stripped);
   const conflicts = declIntersection(declared, moduleDeclared);
   const renames = deconflictNames(conflicts, conflictCount);
-  const src = rewriteConflicting(proposedText, renames);
+  const src = rewriteConflicting(stripped, renames);
 
   // report new module names incl rewrites
   const newNames = rewrittenNames(renames);

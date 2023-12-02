@@ -94,8 +94,8 @@ function insertImportsRecursive(
   const out: string[] = [];
   const topOut: string[] = [];
 
-  const declarations = globalDeclarations(src, extParams);
   const stripped = stripIfDirectives(src, extParams);
+  const declarations = globalDeclarations(stripped);
 
   // scan through the lines looking for #import directives
   stripped.split("\n").forEach((line, lineNum) => {
