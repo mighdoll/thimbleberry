@@ -102,18 +102,6 @@ Imported text is transformed as follows:
 `// #<directive>` all directives may be placed inside comments
 so wgsl code formatters and other tools won't get confused.
 
-`// #importReplace name` a variant of import to support static typechecking.
-The following text will be visible to static typechecking, but will
-be replaced with the dynamically generated import by the linker.
-
-`// #endImport` end the importReplace.
-
-- example:
-  ```
-  // #importReplace rand(u32) as random
-  fn random()->u32 {} // static declaration for typechecking
-  // #endImport
-  ```
 
 ### #export sections
 
