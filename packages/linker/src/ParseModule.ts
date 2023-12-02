@@ -1,5 +1,6 @@
 import { TextExport, TextModule } from "./Linker.js";
 import {
+  endExportRegex,
   endInsertRegex,
   exportRegex,
   fnOrStructRegex,
@@ -20,7 +21,8 @@ export function parseModule(src: string, defaultModuleName?: string): TextModule
 
   src.split("\n").forEach(line => {
     const matches = matchModuleDirectives(line);
-    const { exportMatch, templateMatch, moduleMatch, endInsertMatch } = matches;
+    const { exportMatch, endInsertMatch, endExportMatch } = matches;
+    const { templateMatch, moduleMatch } = matches;
     if (exportMatch) {
       pushCurrentExport();
 
@@ -29,15 +31,14 @@ export function parseModule(src: string, defaultModuleName?: string): TextModule
         params: groups?.params?.split(",").map(p => p.trim()) ?? [],
         name: groups?.name,
       };
-      insertLines = [];
-      rootLines = undefined;
-
     } else if (templateMatch) {
       template = templateMatch.groups?.name;
     } else if (moduleMatch) {
       moduleName = moduleMatch.groups?.name;
     } else if (endInsertMatch) {
       rootLines = [];
+    } else if (endExportMatch) {
+      pushCurrentExport();
     } else if (currentExport) {
       rootLines ? rootLines.push(line) : insertLines.push(line);
       if (currentExport.name === undefined) {
@@ -62,6 +63,10 @@ export function parseModule(src: string, defaultModuleName?: string): TextModule
       currentExport.src = insertLines.join("\n");
       currentExport.rootSrc = rootLines && rootLines.join("\n");
       exports.push(currentExport as TextExport);
+
+      currentExport = undefined;
+      rootLines = undefined;
+      insertLines = [];
     }
   }
 }
@@ -71,6 +76,7 @@ interface ModuleDirectiveMatch {
   templateMatch?: RegExpMatchArray;
   moduleMatch?: RegExpMatchArray;
   endInsertMatch?: RegExpMatchArray;
+  endExportMatch?: RegExpMatchArray;
 }
 
 function matchModuleDirectives(line: string): ModuleDirectiveMatch {
@@ -89,6 +95,10 @@ function matchModuleDirectives(line: string): ModuleDirectiveMatch {
   const endInsertMatch = line.match(endInsertRegex);
   if (endInsertMatch) {
     return { endInsertMatch };
+  }
+  const endExportMatch = line.match(endExportRegex);
+  if (endExportMatch) {
+    return { endExportMatch };
   }
 
   return {};

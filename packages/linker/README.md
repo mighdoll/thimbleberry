@@ -60,8 +60,10 @@ that can be imported.
 `#export name` export the following text with the provided name.
 
 `#endInsert` text between the `#export` and `#endInsert` will be imported at the location
-of the `#import`. Text below the `#endInsert` will be inserted at the root level 
+of the `#import`. Text below the `#endInsert` will be exported and inserted at the root level 
 (at the bottom of the text).
+
+`#endExport` end an `#export`.
 
 `#export (param1, param2, ...)` optional parameters to customize exported text.
 The linker will globally string replace params in the exported text

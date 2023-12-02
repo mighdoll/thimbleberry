@@ -440,3 +440,19 @@ test("nested #if", () => {
   const linked = linkWgsl(src, registry, params);
   expect(linked).toMatchSnapshot();
 });
+
+test("#endExport", () => {
+  const module1 = `
+    struct Foo {
+    //  #export field
+      sum: u32;
+    // #endExport
+    }`;
+  const src = `
+    struct MyStruct {
+      // #import field
+    }`;
+  const registry = new ModuleRegistry(module1);
+  const linked = linkWgsl(src, registry);
+  expect(linked).toMatchSnapshot();
+});

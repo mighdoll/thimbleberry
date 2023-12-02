@@ -1,5 +1,12 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`#endExport 1`] = `
+"
+    struct MyStruct {
+      sum: u32;
+    }"
+`;
+
 exports[`#if 1`] = `
 "
       foo();
