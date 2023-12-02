@@ -1,12 +1,6 @@
 import { declAdd, globalDeclarations, resolveNameConflicts } from "./Declarations.js";
 import { ModuleRegistry, TextModuleExport } from "./ModuleRegistry.js";
-import {
-  endImportRegex,
-  endifRegex,
-  ifRegex,
-  importRegex,
-  replaceTokens,
-} from "./Parsing.js";
+import { endImportRegex, importRegex, replaceTokens } from "./Parsing.js";
 import { stripIfDirectives } from "./Preprocess.js";
 
 /*
@@ -87,11 +81,6 @@ export function linkWgsl(
   params: Record<string, any> = {}
 ): string {
   return insertImportsRecursive(src, registry, new Set(), 0, params);
-}
-
-interface IfState {
-  name: string;
-  valid: boolean;
 }
 
 /** Find #import directives in src text and insert the module export text */
