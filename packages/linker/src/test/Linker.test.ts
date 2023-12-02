@@ -451,3 +451,35 @@ test("multiple exports", () => {
   const linked = linkWgsl(src, registry);
   expect(linked).toMatchSnapshot();
 });
+
+test("#if", () => {
+  const src = `
+    #if foo
+      foo();
+    #endif
+    #if bar
+      bar();
+    #endif
+  `;
+  const registry = new ModuleRegistry();
+  const params = { foo: true, bar: false };
+  const linked = linkWgsl(src, registry, params);
+  expect(linked).toMatchSnapshot();
+});
+
+test("nested #if", () => {
+  const src = `
+    #if foo
+      #if bar
+        foo();
+      #endif
+      #if zap
+        zap();
+      #endif
+    #endif
+  `;
+  const registry = new ModuleRegistry();
+  const params = { foo: true, bar: false, zap: true };
+  const linked = linkWgsl(src, registry, params);
+  expect(linked).toMatchSnapshot();
+});

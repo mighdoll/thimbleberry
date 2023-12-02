@@ -1,5 +1,11 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`#if 1`] = `
+"
+      foo();
+  "
+`;
+
 exports[`multiple exports 1`] = `
 "
     fn foo() { }
@@ -9,4 +15,10 @@ exports[`multiple exports 1`] = `
     bar();
   
 "
+`;
+
+exports[`nested #if 1`] = `
+"
+        zap();
+  "
 `;

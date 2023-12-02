@@ -1,6 +1,8 @@
 const optComment = /(\s*\/\/)?/;
 const exportDirective = /\s*#export\s*/;
 const moduleDirective = /\s*#module\s*/;
+const ifDirective = /\s*#if\s+/;
+const endifDirective = /\s*#endif\b/;
 const templateDirective = /\s*#template\s*/;
 const importCmd = /\s*#(?<importCmd>(importReplace)|(import))\s+/;
 const optImportAs = /(\s*as\s+(?<importAs>[\w]+))?/;
@@ -21,6 +23,8 @@ export const importRegex = regexConcatI(
 );
 export const endImportRegex = regexConcatI(optComment, endImport);
 export const endInsertRegex = regexConcatI(optComment, endInsert);
+export const ifRegex = regexConcat("", optComment, ifDirective, name);
+export const endifRegex = regexConcat("", optComment, endifDirective);
 export const templateRegex = regexConcatI(optComment, templateDirective, name);
 export const moduleRegex = regexConcatI(optComment, moduleDirective, name);
 export const tokenRegex = /\b(\w+)\b/gi;
