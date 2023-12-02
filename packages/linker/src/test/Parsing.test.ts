@@ -35,11 +35,11 @@ test("template regex", () => {
 });
 
 test("import regex w/params", () => {
-  const src = "// #importReplace reduceWorkgroup( param1, param2 )";
+  const src = "// #import reduceWorkgroup( param1, param2 )";
   const result = src.match(importRegex);
   expect(result?.groups?.params).toBe(" param1, param2 ");
   expect(result?.groups?.name).toBe("reduceWorkgroup");
-  expect(result?.groups?.importCmd).toBe("importReplace");
+  expect(result?.groups?.importCmd).toBe("import");
 });
 
 test("import regex #import", () => {
@@ -63,10 +63,10 @@ test("#import foo(a,b,c) as bar", () => {
   expect(matches?.groups?.importAs).toBe("bar");
 });
 
-test("#importReplace foo(1,2,3) from zap", () => {
-  const matches = "#importReplace foo(1,2,3) from zap".match(importRegex);
+test("#import foo(1,2,3) from zap", () => {
+  const matches = "#import foo(1,2,3) from zap".match(importRegex);
   expect(matches?.groups?.name).toBe("foo");
-  expect(matches?.groups?.importCmd).toBe("importReplace");
+  expect(matches?.groups?.importCmd).toBe("import");
   expect(matches?.groups?.importFrom).toBe("zap");
   expect(matches?.groups?.params).toBe("1,2,3");
 });
@@ -105,7 +105,7 @@ test("find fn decl", () => {
   const src = `
     // comment
     fn foo() { }
-  `
+  `;
   const matches = src.match(fnRegex);
   expect(matches?.groups?.name).toBe("foo");
 });
@@ -115,7 +115,7 @@ test("find fn decl across two lines", () => {
     // comment
     fn foo
     () { }
-  `
+  `;
   const matches = src.match(fnRegex);
   expect(matches?.groups?.name).toBe("foo");
 });

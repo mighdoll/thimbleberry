@@ -93,10 +93,8 @@ function insertImportsRecursive(
 ): string {
   const out: string[] = [];
   const topOut: string[] = [];
-  let importReplacing = false; // true while we're reading lines inside an importReplace
 
   const declarations = globalDeclarations(src, extParams);
-
   const stripped = stripIfDirectives(src, extParams);
 
   // scan through the lines looking for #import directives
@@ -104,7 +102,6 @@ function insertImportsRecursive(
     const importMatch = line.match(importRegex);
     if (importMatch) {
       const groups = importMatch.groups;
-      importReplacing = checkImportReplace(importReplacing, groups, line, lineNum);
 
       // import module text
       const importName = groups!.name;
@@ -122,35 +119,12 @@ function insertImportsRecursive(
       out.push(resolved[0].src);
       topOut.push(resolved[1].src);
       resolved.map(({ declared }) => declAdd(declarations, declared));
-    } else if (importReplacing) {
-      const endImport = line.match(endImportRegex);
-      if (endImport) {
-        importReplacing = false;
-      }
     } else {
       out.push(line);
     }
   });
 
   return out.join("\n").concat(topOut.join("\n"));
-}
-
-/** report an error for importReplace within importReplace */
-function checkImportReplace(
-  replacing: boolean,
-  groups: Record<string, string> | undefined,
-  line: string,
-  lineNum: number
-): boolean {
-  if (groups?.importCmd === "importReplace") {
-    console.assert(
-      !replacing,
-      `#importReplace while inside #importReplace line: ${lineNum}\n>>\t${line}`
-    );
-    return true;
-  } else {
-    return replacing;
-  }
 }
 
 const emptyImport = ["", ""];
