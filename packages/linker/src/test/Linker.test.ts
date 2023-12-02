@@ -3,27 +3,22 @@ import { thimbTemplate } from "../ReplaceTemplate.js";
 import { CodeGenFn, TextInsert, linkWgsl } from "../Linker.js";
 import { ModuleRegistry } from "../ModuleRegistry.js";
 
-test("apply simple importReplace", () => {
+test("simple #import", () => {
   const myModule = `
-  // #export
-  fn reduceWorkgroup(localId: u32) {
-    // do reduce
-  }`;
+    // #export
+    fn foo() { /* fooImpl */ }
+  `;
 
   const src = `
-    // #importReplace reduceWorkgroup
-    fn reduceWorkgroup(localId: u32) {} 
-    // #endImport
-    reduceWorkgroup(localId); // call the imported function
+    // #import foo
+    foo();
   `;
   const registry = new ModuleRegistry(myModule);
-
   const linked = linkWgsl(src, registry);
-  expect(linked).includes("do reduce");
-  expect(linked).includes("call the imported function");
+  expect(linked).includes("fooImpl");
 });
 
-test("importReplace with parameter", () => {
+test("import with parameter", () => {
   const myModule = `
   // these are just for typechecking the module, they're not included when the export is imported
   struct Elem {
@@ -48,10 +43,7 @@ test("importReplace with parameter", () => {
     }
     var <workgroup> myWork: array<MyElem, 128>; 
 
-    // #importReplace reduceWorkgroup(myWork)
-    fn reduceWorkgroup(localId: u32) {} 
-    // #endImport
-
+    // #import reduceWorkgroup(myWork)
     reduceWorkgroup(localId); // call the imported function
   `;
   const registry = new ModuleRegistry(myModule);
@@ -61,7 +53,7 @@ test("importReplace with parameter", () => {
   expect(linked).not.includes("work[");
 });
 
-test("transitive importReplace", () => {
+test("transitive import", () => {
   const binOpModule = `
   // #export(Elem) 
   fn binaryOp(a: Elem, b: Elem) -> Elem {
@@ -69,58 +61,22 @@ test("transitive importReplace", () => {
   }
     `;
   const reduceModule = `
-  struct MyElem {
-    sum: f32,
-  }
-  var <workgroup> work: array<MyElem, 64>;
-
   #export(work)
-  fn reduceWorkgroup(localId: u32) {
-      let workDex = localId << 1u;
-      for (var step = 1u; step < 4u; step <<= 1u) { //#replace 4=threads
-          workgroupBarrier();
-          if localId % step == 0u {
-              work[workDex].sum = binaryOp(work[workDex], work[workDex + step]);
-          }
-      }
+  fn reduceWorkgroup(index:u32) {
+      let combined = binaryOp(work[index], work[index + 1u]);
   }
 
-  #importReplace binaryOp(MyElem)
-  fn binaryOp(a: MyElem, b: MyElem) -> MyElem {}
-  #endImport
+  #import binaryOp(MyElem)
   `;
   const src = `
-    struct MyElem {
-      sum: u32;
-    }
-    var <workgroup> myWork: array<MyElem, 128>;
-
-    // #importReplace reduceWorkgroup(myWork)
-    fn reduceWorkgroup(localId: u32) {}
-    // #endImport
-
+    // #import reduceWorkgroup(myWork)
     reduceWorkgroup(localId); // call the imported function
   `;
   const registry = new ModuleRegistry(binOpModule, reduceModule);
   const linked = linkWgsl(src, registry);
-  expect(linked).includes("myWork[workDex]");
+  expect(linked).includes("myWork[index]");
   expect(linked).not.includes("work[");
   expect(linked).includes("binOpImpl");
-});
-
-test("#import w/o replace", () => {
-  const myModule = `
-    // #export
-    fn foo() { /* fooImpl */ }
-  `;
-
-  const src = `
-    // #import foo
-    foo();
-  `;
-  const registry = new ModuleRegistry(myModule);
-  const linked = linkWgsl(src, registry);
-  expect(linked).includes("fooImpl");
 });
 
 test("import with template replace", () => {
