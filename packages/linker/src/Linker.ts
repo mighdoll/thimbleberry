@@ -1,6 +1,6 @@
 import { declAdd, globalDeclarations, resolveNameConflicts } from "./Declarations.js";
 import { ModuleRegistry, TextModuleExport } from "./ModuleRegistry.js";
-import { endImportRegex, importRegex, replaceTokens } from "./Parsing.js";
+import { importRegex, replaceTokens } from "./Parsing.js";
 import { stripIfDirectives } from "./Preprocess.js";
 
 /*
@@ -151,7 +151,7 @@ function importModule(args: ImportModuleArgs): string[] {
   const moduleExport = registry.getModuleExport(importName, moduleName);
   if (!moduleExport) {
     console.error(
-      `#importReplace module export "${importName}" not found: at ${lineNum}\n>>\t${line}`
+      `#import "${importName}" not found: at ${lineNum}\n>>\t${line}`
     );
     return emptyImport;
   }

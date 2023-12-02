@@ -7,7 +7,6 @@ const templateDirective = /\s*#template\s*/;
 const importCmd = /\s*#(?<importCmd>(import))\s+/;
 const optImportAs = /(\s*as\s+(?<importAs>[\w]+))?/;
 const optImportFrom = /(\s*from\s+(?<importFrom>[\w]+))?/;
-const endImport = /\s*#endImport/;
 const endInsert = /\s*#endInsert/;
 const optParams = /\s*(\((?<params>[\w, ]*)\))?/;
 const name = /(?<name>[\w]+)/;
@@ -21,7 +20,6 @@ export const importRegex = regexConcatI(
   optImportAs,
   optImportFrom
 );
-export const endImportRegex = regexConcatI(optComment, endImport);
 export const endInsertRegex = regexConcatI(optComment, endInsert);
 export const ifRegex = regexConcat("", optComment, ifDirective, name);
 export const endifRegex = regexConcat("", optComment, endifDirective);
