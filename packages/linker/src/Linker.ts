@@ -1,6 +1,13 @@
 import { declAdd, globalDeclarations, resolveNameConflicts } from "./Declarations.js";
 import { ModuleRegistry, TextModuleExport } from "./ModuleRegistry.js";
-import { endImportRegex, endifRegex, ifRegex, importRegex, replaceTokens } from "./Parsing.js";
+import {
+  endImportRegex,
+  endifRegex,
+  ifRegex,
+  importRegex,
+  replaceTokens,
+} from "./Parsing.js";
+import { stripIfDirectives } from "./Preprocess.js";
 
 /*
  * The linker supports import/export of wgsl code fragments.
@@ -98,13 +105,14 @@ function insertImportsRecursive(
   const out: string[] = [];
   const topOut: string[] = [];
   let importReplacing = false; // true while we're reading lines inside an importReplace
-  const ifStack: IfState[] = [];
 
-  const declarations = globalDeclarations(src);
+  const declarations = globalDeclarations(src, extParams);
+
+  const stripped = stripIfDirectives(src, extParams);
 
   // scan through the lines looking for #import directives
-  src.split("\n").forEach((line, lineNum) => {
-    const { importMatch, ifMatch: ifdefMatch, endifMatch } = matchLinkDirectives(line);
+  stripped.split("\n").forEach((line, lineNum) => {
+    const importMatch = line.match(importRegex);
     if (importMatch) {
       const groups = importMatch.groups;
       importReplacing = checkImportReplace(importReplacing, groups, line, lineNum);
@@ -118,52 +126,24 @@ function insertImportsRecursive(
       const args = { ..._args, imported, lineNum, declarations, line, conflictCount };
       const [insertSrc, rootSrc] = importModule(args);
       const resolved = [insertSrc, rootSrc].map(s => {
-        const result = resolveNameConflicts(s, declarations, conflictCount);
+        const result = resolveNameConflicts(s, declarations, conflictCount, extParams);
         result.conflicted && conflictCount++;
         return result;
       });
       out.push(resolved[0].src);
       topOut.push(resolved[1].src);
       resolved.map(({ declared }) => declAdd(declarations, declared));
-    } else if (ifdefMatch) {
-      const name = ifdefMatch.groups!.name;
-      ifStack.push({ name, valid: extParams[name] });
-    } else if (endifMatch) {
-      ifStack.pop();
     } else if (importReplacing) {
       const endImport = line.match(endImportRegex);
       if (endImport) {
         importReplacing = false;
       }
     } else {
-      if (ifStack.length === 0 || ifStack.every(s => s.valid)) {
-        out.push(line);
-      }
+      out.push(line);
     }
   });
 
   return out.join("\n").concat(topOut.join("\n"));
-}
-interface MatchLinkDirectives {
-  importMatch?: RegExpMatchArray;
-  ifMatch?: RegExpMatchArray;
-  endifMatch?: RegExpMatchArray;
-}
-
-function matchLinkDirectives(line: string): MatchLinkDirectives {
-  const importMatch = line.match(importRegex);
-  if (importMatch) {
-    return { importMatch };
-  }
-  const ifMatch = line.match(ifRegex);
-  if (ifMatch) {
-    return { ifMatch };
-  }
-  const endifMatch = line.match(endifRegex);
-  if (endifMatch) {
-    return { endifMatch };
-  }
-  return {};
 }
 
 /** report an error for importReplace within importReplace */

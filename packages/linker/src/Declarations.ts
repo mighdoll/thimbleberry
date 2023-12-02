@@ -5,16 +5,15 @@ import {
   fnPrefix,
   fnRegex,
   fnRegexGlobal,
+  ltBehind,
   notFnDecl,
   parenStartAhead,
   regexConcat,
   structPrefix,
   structRegex,
-  structRegexGlobal,
-  ltBehind,
-  importRegex,
-  endImportRegex,
+  structRegexGlobal
 } from "./Parsing.js";
+import { stripIfDirectives } from "./Preprocess.js";
 
 export interface Deconflicted {
   src: string;
@@ -31,44 +30,12 @@ export interface DeclaredNames {
  * (declared names need to be protected from
  *  conflict with imported text declarations)
  */
-export function globalDeclarations(wgsl: string): DeclaredNames {
-  const stripped = stripImportReplace(wgsl);
+export function globalDeclarations(wgsl: string, params:Record<string, any>): DeclaredNames {
+  const stripped = stripIfDirectives(wgsl, params);
   return {
     fns: new Set(fnDecls(stripped)),
     structs: new Set(structDecls(stripped)),
   };
-}
-
-/** remove importReplaced blocks from wgsl text, lest we match them as declarations */
-function stripImportReplace(wgsl: string): string {
-  let importReplaceActive = false;
-  const lines = wgsl.split("\n").flatMap(line => {
-    const { importReplace, endImport } = matchImportReplace(line);
-    if (importReplace) {
-      importReplaceActive = true;
-      return [];
-    }
-    if (endImport) {
-      importReplaceActive = false;
-      return [];
-    } else if (importReplaceActive) {
-      return [];
-    } else {
-      return [line];
-    }
-  });
-  return lines.join("\n");
-}
-
-function matchImportReplace(line: string): any {
-  const importMatch = line.match(importRegex);
-  if (importMatch && importMatch.groups?.importCmd === "importReplace") {
-    return { importReplace: true };
-  }
-  if (line.match(endImportRegex)) {
-    return { endImport: true };
-  }
-  return {};
 }
 
 /** rewrite a proposed wgsl text to avoid name conflict with already declared names
@@ -77,10 +44,11 @@ function matchImportReplace(line: string): any {
 export function resolveNameConflicts(
   proposedText: string,
   declared: DeclaredNames,
-  conflictCount: number
+  conflictCount: number,
+  params:Record<string, any>
 ): Deconflicted {
   // rewrite text replacing confliced names
-  const moduleDeclared = globalDeclarations(proposedText);
+  const moduleDeclared = globalDeclarations(proposedText, params);
   const conflicts = declIntersection(declared, moduleDeclared);
   const renames = deconflictNames(conflicts, conflictCount);
   const src = rewriteConflicting(proposedText, renames);

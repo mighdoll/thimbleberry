@@ -394,9 +394,10 @@ test("import transitive conflicts with main", () => {
     #export
     fn mid() { grand(); }
 
-    #importReplace grand
+    #import grand
+    #if not
       fn grand() {/* placeholder */}
-    #endImport
+    #endif
   `;
   const src = `
     #import mid
