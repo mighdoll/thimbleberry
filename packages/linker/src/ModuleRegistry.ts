@@ -3,10 +3,9 @@ import {
   GeneratorExport,
   GeneratorModule,
   TextExport,
-  TextModule
+  TextModule,
 } from "./Linker.js";
 import { parseModule } from "./ParseModule.js";
-
 
 /** A named function to transform code fragments (e.g. by inserting parameters) */
 export interface Template {
@@ -44,8 +43,7 @@ export class ModuleRegistry {
 
   /** register modules' exports */
   registerModules(...sources: string[]): void {
-    const modules = sources.map(src => parseModule(src));
-    modules.forEach(m => this.addTextModule(m));
+    sources.forEach(src => this.registerOneModule(src));
   }
 
   /** register one module's exports  */
