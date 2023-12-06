@@ -20,7 +20,10 @@ test("key value pairs regex", () => {
 test("replaceDirective", () => {
   const result = parseReplaceDirective(`// #replace 4=threads "quoted str"=foo`)!;
   const { replaceKeys, bareLine } = result;
-  expect(replaceKeys).to.deep.equal({ 4: "threads", "quoted str": "foo" });
+  expect(replaceKeys).to.deep.equal([
+    ["4", "threads"],
+    ["quoted str", "foo"],
+  ]);
   expect(bareLine).to.equal("// ");
 });
 
@@ -38,7 +41,13 @@ test("simple #replace", () => {
 
 test("double #replace", () => {
   const src = `for (var x=4; x < 8; x++) { //#replace 4=start 8=end`;
-  const tbd = `for (var x=128; x < 256; x++) { //`;
-  const result = applyTemplate(src, { start: 128, end: 256});
-  expect(result).equals(tbd);
+  const exp = `for (var x=128; x < 256; x++) { //`;
+  const result = applyTemplate(src, { start: 128, end: 256 });
+  expect(result).equals(exp);
+});
+
+test("double #replace 2", () => {
+  const src = `histogram: array<f32, 128>; // #replace f32=elemType 128=buckets`;
+  const result = applyTemplate(src, { elemType: "u32", buckets: 4 });
+  expect(result).toMatchSnapshot();
 });

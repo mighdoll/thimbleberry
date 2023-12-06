@@ -27,8 +27,8 @@ export function applyTemplate(wgsl: string, dict: { [key: string]: any }): strin
   const edit = wgsl.split("\n").flatMap((line, i) => {
     const replaceFound = parseReplaceDirective(line);
     if (replaceFound) {
-      const { replaceKeys: xy, bareLine: lineWithoutDirective } = replaceFound;
-      return changeLine(lineWithoutDirective, xy, i + 1);
+      const { replaceKeys, bareLine } = replaceFound;
+      return changeLine(bareLine, replaceKeys, i + 1);
     } else {
       return [line];
     }
@@ -38,12 +38,11 @@ export function applyTemplate(wgsl: string, dict: { [key: string]: any }): strin
   /** apply all the replaces patches to the line */
   function changeLine(
     line: string,
-    replaces: Record<string, string>,
+    replaces: [string, string][],
     lineNum: number
   ): string[] {
     // scan through the patches, applying each patch and accumulating the patchedPrefx
-    const kvs = Object.entries(replaces);
-    const patched = scan(kvs, patchOne, { patchedPrefix: "", suffix: line });
+    const patched = scan(replaces, patchOne, { patchedPrefix: "", suffix: line });
 
     // result is the patched prefixes plus any remaining suffix
     const prefixes = patched.map(p => p.patchedPrefix);
@@ -60,22 +59,23 @@ export function applyTemplate(wgsl: string, dict: { [key: string]: any }): strin
       if (found >= 0) {
         const start = text.slice(0, found);
         const suffix = text.slice(found + key.length);
-        const replaceValue = dict[replaceKey] || missingKey(replaceKey);
+        const replaceValue = dict[replaceKey] || missingValue(replaceKey);
         return { patchedPrefix: start + replaceValue, suffix };
       } else {
+        console.warn(`replace key not found: ${key} in line ${lineNum}:\n>> ${line}`);
         return current;
       }
     }
 
-    function missingKey(key: string): string {
-      console.warn(`replace key not found: ${key} in line ${lineNum}:\n>> ${line}`);
+    function missingValue(key: string): string {
+      console.warn(`replace value not found: ${key} in line ${lineNum}:\n>> ${line}`);
       return `??${replaceKey}??`;
     }
   }
 }
 
 interface ReplaceDirective {
-  replaceKeys: Record<string, string>; // keys in the #replace directive
+  replaceKeys: [string, string][]; // keys in the #replace directive
   bareLine: string; // line w/o the #replace directive
 }
 
@@ -98,7 +98,7 @@ export function parseReplaceDirective(line: string): ReplaceDirective | undefine
     const end = line.slice(matchStart + match[0].length);
     const bareLine = start + end;
     return {
-      replaceKeys: Object.fromEntries(entries),
+      replaceKeys: entries as [string, string][],
       bareLine,
     };
   } else {
