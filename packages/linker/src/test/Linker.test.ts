@@ -456,3 +456,18 @@ test("#endExport", () => {
   const linked = linkWgsl(src, registry);
   expect(linked).toMatchSnapshot();
 });
+
+test("#template in src", () => {
+  const src = `
+    #template thimb2
+    fn main() {
+      for (var step = 0; step < 4; step++) { //#replace 4=threads
+      }
+    }
+  `;
+  const registry = new ModuleRegistry();
+  registry.registerTemplate(thimbTemplate);
+  const params = { threads: 128 };
+  const linked = linkWgsl(src, registry, params);
+  expect(linked).includes("step < 128");
+});

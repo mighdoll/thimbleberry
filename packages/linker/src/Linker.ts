@@ -1,5 +1,6 @@
 import { declAdd, globalDeclarations, resolveNameConflicts } from "./Declarations.js";
 import { ModuleRegistry, TextModuleExport } from "./ModuleRegistry.js";
+import { parseModule } from "./ParseModule.js";
 import { importRegex, replaceTokens } from "./Parsing.js";
 import { stripIfDirectives } from "./Preprocess.js";
 
@@ -83,6 +84,22 @@ export function linkWgsl(
   return insertImportsRecursive(src, registry, new Set(), 0, params);
 }
 
+function applyLinkedTemplate(
+  src: string,
+  registry: ModuleRegistry,
+  extParams: Record<string, any>
+): string {
+  const textModule = parseModule(src);
+  if (textModule.template) {
+    const templateFn = registry.getTemplate(textModule.template);
+
+    if (templateFn) {
+      return templateFn(src, extParams);
+    }
+  }
+  return src;
+}
+
 /** Find #import directives in src text and insert the module export text */
 function insertImportsRecursive(
   src: string,
@@ -95,10 +112,11 @@ function insertImportsRecursive(
   const topOut: string[] = [];
 
   const stripped = stripIfDirectives(src, extParams);
-  const declarations = globalDeclarations(stripped);
+  const templated = applyLinkedTemplate(stripped, registry, extParams);
+  const declarations = globalDeclarations(templated);
 
   // scan through the lines looking for #import directives
-  stripped.split("\n").forEach((line, lineNum) => {
+  templated.split("\n").forEach((line, lineNum) => {
     const importMatch = line.match(importRegex);
     if (importMatch) {
       const groups = importMatch.groups;
@@ -150,9 +168,7 @@ function importModule(args: ImportModuleArgs): string[] {
 
   const moduleExport = registry.getModuleExport(importName, moduleName);
   if (!moduleExport) {
-    console.error(
-      `#import "${importName}" not found: at ${lineNum}\n>>\t${line}`
-    );
+    console.error(`#import "${importName}" not found: at ${lineNum}\n>>\t${line}`);
     return emptyImport;
   }
 
