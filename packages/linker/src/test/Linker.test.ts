@@ -483,3 +483,18 @@ test("#if !foo", () => {
   const linked = linkWgsl(src, registry, params);
   expect(linked).includes("bar();");
 });
+
+test("#if #else", () => {
+  const src = `
+    #if foo
+      foo();
+    #else
+      bar();
+    #endif
+  `
+  const registry = new ModuleRegistry();
+  const params = { };
+  const linked = linkWgsl(src, registry, params);
+  expect(linked).not.includes("foo();");
+  expect(linked).includes("bar();");
+});
