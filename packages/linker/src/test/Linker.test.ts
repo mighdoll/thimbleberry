@@ -471,3 +471,15 @@ test("#template in src", () => {
   const linked = linkWgsl(src, registry, params);
   expect(linked).includes("step < 128");
 });
+
+test("#if !foo", () => {
+  const src = `
+    #if !foo
+      bar();
+    #endif
+  `
+  const registry = new ModuleRegistry();
+  const params = { };
+  const linked = linkWgsl(src, registry, params);
+  expect(linked).includes("bar();");
+});

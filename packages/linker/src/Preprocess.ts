@@ -14,7 +14,9 @@ export function stripIfDirectives(src: string, params: Record<string, any>): str
 
     if (ifMatch) {
       const name = ifMatch.groups!.name;
-      ifStack.push({ name, valid: params[name] });
+      const invert = ifMatch.groups!.bang;
+      const valid = invert ? !params[name] : params[name];
+      ifStack.push({ name, valid});
     } else if (endifMatch) {
       ifStack.pop();
     } else {

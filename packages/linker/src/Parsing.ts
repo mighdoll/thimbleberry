@@ -12,6 +12,7 @@ const endExport = /\s*#endExport/;
 const optParams = /\s*(\((?<params>[\w, ]*)\))?/;
 const name = /(?<name>[\w]+)/;
 const optName = /(?<name>[\w]+)?/;
+const optBang = /(?<bang>!)?/;
 export const exportRegex = regexConcatI(optComment, exportDirective, optName, optParams);
 export const importRegex = regexConcatI(
   optComment,
@@ -23,7 +24,7 @@ export const importRegex = regexConcatI(
 );
 export const endInsertRegex = regexConcatI(optComment, endInsert);
 export const endExportRegex = regexConcatI(optComment, endExport);
-export const ifRegex = regexConcatI(optComment, ifDirective, name);
+export const ifRegex = regexConcatI(optComment, ifDirective, optBang, name);
 export const endifRegex = regexConcatI(optComment, endifDirective);
 export const templateRegex = regexConcatI(optComment, templateDirective, name);
 export const moduleRegex = regexConcatI(optComment, moduleDirective, name);
