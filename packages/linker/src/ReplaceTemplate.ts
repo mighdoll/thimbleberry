@@ -21,7 +21,7 @@ export const replacerTemplate = {
  * A simple templating scheme for wgsl shaders
  *
  * line-of-text // #replace find=replaceKey find2=replaceKey2
- *  - replaces "find" and "find2" in line-of-text with values from the dictionary
+ *  - replaces "find" and "find2" in line of text with values from the dictionary
  */
 export function applyTemplate(wgsl: string, dict: { [key: string]: any }): string {
   const edit = wgsl.split("\n").flatMap((line, i) => {

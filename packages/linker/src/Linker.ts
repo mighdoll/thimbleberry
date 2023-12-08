@@ -75,7 +75,7 @@ export interface GeneratorExport extends ExportBase {
   generate: CodeGenFn;
 }
 
-/** parse shader text for imports, return wgsl with all imports injected */
+/** parse source text for #import directives, return wgsl with all imports injected */
 export function linkWgsl(
   src: string,
   registry: ModuleRegistry,
@@ -84,6 +84,8 @@ export function linkWgsl(
   return insertImportsRecursive(src, registry, new Set(), 0, params);
 }
 
+/** If a #template is specified in the source, run the named template engine over 
+ * the source text, and return the result. Otherwise return the source text unchanged. */
 function applyLinkedTemplate(
   src: string,
   registry: ModuleRegistry,
