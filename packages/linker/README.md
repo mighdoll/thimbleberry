@@ -2,10 +2,11 @@
 
 Features include:
 
-- import / export support in wgsl, including import deduplication and token renaming
-- parameterize exports via pluggable templating or code generation
+- import / export support in wgsl (including import deduplication and token renaming)
+- dynamic exports via pluggable template engines, or code generation functions
 - compatible with static wgsl tools like code formatters and wgsl-analyzer
-- small (about 3kb)
+- supports #if #else #endif, and #replace
+- small (about 3kb). No build step required.
 
 #### Simple Example
 
@@ -13,12 +14,10 @@ Exporting a wgsl function in `randModule.wgsl`:
 
 ```
 #export
-fn rand() -> u32 {
-  /* ... */
-}
+fn rand() -> u32 { /* ... */ }
 ```
 
-Importing a wgsl function in a shader `myShader.wgsl`:
+Importing a wgsl function `myShader.wgsl`:
 
 ```
 #import rand
@@ -28,28 +27,28 @@ fn myFn() {
 }
 ```
 
-Linking imports to get wgsl in `myDriver.ts`:
+Load wgsl strings, and then link them together in `myDriver.ts`:
 
 ```
-import rand from "./randModule.wgsl?raw";  // ?raw is vite syntax. See Build Support.
-import myShader from "./myShader.wgsl?raw";
+import randWgsl from "./randModule.wgsl?raw";  // ?raw is vite syntax. See Build Support.
+import myShaderWgsl from "./myShader.wgsl?raw";
 
-const registry = new ModuleRegistry(rand); // register the linkable exports
-const code = linkWgsl(myShader, registry); // merge any imported text
-device.createShaderModule({ code });       // pass the wgsl string to WebGPU
+const registry = new ModuleRegistry(randWgsl); // register the linkable exports
+const code = linkWgsl(myShaderWgsl, registry); // merge any imported text
+device.createShaderModule({ code });           // pass the wgsl string to WebGPU
 ```
 
 ### Main API
 
-`linkWgsl(src, registry)` merge any imports into src.
-
 `new ModuleRegistry(wgslFragment1, wgslFragment2)` register wgsl modules for imports to use.
 
+`linkWgsl(src, registry, params?)` merge any imported wgsl fragments into src with optional dynamic parameters.
+
+#### Advanced features
 `registry.registerTemplate()` register a template function for transforming text.
 
 `registry.registerGenerator(name, fn, params?, moduleName?)` register a code generation function
 that can be imported.
-
 
 ### Syntax
 
@@ -89,7 +88,7 @@ match export parameters.
 
 Imported text is transformed as follows:
 
-1. apply templates if any and string replace import/export parameters 
+1. apply templates if any then string replace import/export parameters 
   (or run code generation function)
 1. rewrite the export named if 'as newName' is provided
 1. rename support functions or structs (and their references) to avoid name conflicts. 
@@ -98,11 +97,31 @@ Imported text is transformed as follows:
 (and add any root level import text at the bottom).
 
 
+### Custom Code Generation
+An export can be customized by the importing code:
+1. **`#export` parameters** export parameters are replaced with the corresponding `#import` parameters in the exported text. Useful e.g. to map types to the importer's environment.
+
+Users can also provide runtime parameters to `linkWgsl` for templates or code generation.
+1. **template parameters** exports can specify a template engine to process their text 
+via the `#template` directive. 
+
+    The available `replacer` engine processes `#replace` directives to find and replace text on a line with dynamic variables.
+1. **code generation functions** `#import`s can be fulfilled by javascript/typescript 
+functions that generate wgsl.
+Just register a function with the `ModuleRegistry` along with a name so that it can be `#import`ed.
+
+The `#import` syntax is the same for all types of exports, 
+so the developer of exports can switch transparently between different generation techniques
+without requiring the importer to make any changes.
 
 #### Support for Static WGSL Tools.
 
 `// #<directive>` all directives may be placed inside comments
 so wgsl code formatters and other tools won't get confused.
+
+`#if typecheck 
+fn foo(){} 
+#endif` place static declarations in an `#if <false>` clause. The declarations will be visible to static wgsl typecheckers during development, and safely removed at runtime.
 
 
 ### #export sections
