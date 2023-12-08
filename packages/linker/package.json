@@ -10,6 +10,7 @@
     "test": "vitest"
   },
   "type": "module",
+  "repository": "github:mighdoll/thimbleberry",
   "exports": {
     ".": {
       "import": "./dist/index.js",
