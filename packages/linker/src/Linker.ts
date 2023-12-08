@@ -15,7 +15,7 @@ import { stripIfDirectives } from "./Preprocess.js";
  * that generates code fragments on demand.
  *
  * Exports are grouped into modules for organizational purposes. Modules
- * share a name, and text modules can each have their own templating scheme.
+ * share a name, and text modules can each have their own templating engine.
  *
  * Imports are resolved when linkWgsl is called, by scanning code
  * fragments for #import statements. Importing is recursive, exported

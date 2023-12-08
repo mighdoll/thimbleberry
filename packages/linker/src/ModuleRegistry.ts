@@ -31,7 +31,13 @@ export interface GeneratorModuleExport {
 /** unique index for naming otherwise unnamed generator modules */
 let unnamedCodeDex = 0;
 
-/** A container of exportable code fragments, code generator functions, and template processors */
+/** 
+ * A ModuleRegistry collects exportable code fragments, code generator functions, 
+ * and template processors. 
+ *
+ * The ModuleRegistry provides everything required for linkWgsl to process 
+ * #import statements and generate a complete wgsl shader.
+*/
 export class ModuleRegistry {
   // map from export names to a map of module names to exports
   private exports = new Map<string, ModuleExport[]>();
