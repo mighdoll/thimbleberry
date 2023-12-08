@@ -12,8 +12,8 @@ interface Patched {
   suffix: string;
 }
 
-export const thimbTemplate = {
-  name: "thimb2",
+export const replacerTemplate = {
+  name: "replacer",
   applyTemplate
 };
 

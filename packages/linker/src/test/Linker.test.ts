@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { thimbTemplate } from "../ReplaceTemplate.js";
+import { replacerTemplate } from "../ReplaceTemplate.js";
 import { CodeGenFn, TextInsert, linkWgsl } from "../Linker.js";
 import { ModuleRegistry } from "../ModuleRegistry.js";
 
@@ -81,7 +81,7 @@ test("transitive import", () => {
 
 test("import with template replace", () => {
   const myModule = `
-    #template thimb2
+    #template replacer
     #export(threads) 
     fn foo() {
       for (var step = 0; step < 4; step++) { //#replace 4=threads
@@ -93,7 +93,7 @@ test("import with template replace", () => {
     foo();
   `;
   const registry = new ModuleRegistry(myModule);
-  registry.registerTemplate(thimbTemplate);
+  registry.registerTemplate(replacerTemplate);
   const linked = linkWgsl(src, registry);
   expect(linked).includes("step < 128");
 });
@@ -183,7 +183,7 @@ test("#import snippet w/o support functions", () => {
   const module1 = `
     var logVar: u32;
 
-    #template thimb2
+    #template replacer
     #export log(logVar, logType)
       log(logVar, "u32"); // #replace u32=logType
   `;
@@ -195,7 +195,7 @@ test("#import snippet w/o support functions", () => {
     }
   `;
   const registry = new ModuleRegistry(module1);
-  registry.registerTemplate(thimbTemplate);
+  registry.registerTemplate(replacerTemplate);
   const linked = linkWgsl(src, registry);
   expect(linked).contains('log(myVar, "i32");');
 });
@@ -204,7 +204,7 @@ test("#import snippet w/ support functions", () => {
   const module1 = `
     var logVar: u32;
 
-    #template thimb2
+    #template replacer
     #export log(logVar, logType)
       log(logVar); 
     #endInsert
@@ -218,7 +218,7 @@ test("#import snippet w/ support functions", () => {
     }
   `;
   const registry = new ModuleRegistry(module1);
-  registry.registerTemplate(thimbTemplate);
+  registry.registerTemplate(replacerTemplate);
   const linked = linkWgsl(src, registry);
   expect(linked).includes("log(myVar);");
   expect(linked).includes("fn log(myVar: i32) {}");
@@ -373,7 +373,7 @@ test("import transitive conflicts with main", () => {
 
 test("external param applied to template", () => {
   const module1 = `
-    #template thimb2
+    #template replacer
     #export(threads) 
     fn foo() {
       for (var step = 0; step < 4; step++) { //#replace 4=threads
@@ -385,7 +385,7 @@ test("external param applied to template", () => {
     foo();
   `;
   const registry = new ModuleRegistry(module1);
-  registry.registerTemplate(thimbTemplate);
+  registry.registerTemplate(replacerTemplate);
   const params = { workgroupThreads: 128 };
   const linked = linkWgsl(src, registry, params);
   expect(linked).includes("step < 128");
@@ -459,14 +459,14 @@ test("#endExport", () => {
 
 test("#template in src", () => {
   const src = `
-    #template thimb2
+    #template replacer
     fn main() {
       for (var step = 0; step < 4; step++) { //#replace 4=threads
       }
     }
   `;
   const registry = new ModuleRegistry();
-  registry.registerTemplate(thimbTemplate);
+  registry.registerTemplate(replacerTemplate);
   const params = { threads: 128 };
   const linked = linkWgsl(src, registry, params);
   expect(linked).includes("step < 128");
