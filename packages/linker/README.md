@@ -6,7 +6,7 @@ Features include:
 - dynamic exports via pluggable template engines, or code generation functions
 - compatible with static wgsl tools like code formatters and wgsl-analyzer
 - supports #if #else #endif, and #replace
-- small (about 3kb). No build step required.
+- small (about 3kb). Link at runtime, no build step required.
 
 #### Simple Example
 
@@ -62,7 +62,7 @@ that can be imported.
 of the `#import`. Text below the `#endInsert` will be exported and inserted at the root level 
 (at the bottom of the text).
 
-`#endExport` end an `#export`.
+`#endExport` end an `#export` section.
 
 `#export (param1, param2, ...)` optional parameters to customize exported text.
 The linker will globally string replace params in the exported text
@@ -88,9 +88,11 @@ match export parameters.
 
 Imported text is transformed as follows:
 
-1. apply templates if any then string replace import/export parameters 
-  (or run code generation function)
-1. rewrite the export named if 'as newName' is provided
+1. apply templates if any then string replace import/export parameters. 
+
+    (alternately, run a code generation function to generate the text)
+
+1. rewrite the export for 'as newName' is 
 1. rename support functions or structs (and their references) to avoid name conflicts. 
 1. recursively import any imports in the imported text
 1. insert tranformed import code at #import location 
@@ -182,7 +184,7 @@ them as strings with whatever build tool you use, e.g.:
 
 - A build plugin to register all relevant module files would be handy.
 
-- Publishing wgsl modules as esm modules aka glslify.
+- It'd be fun to publishing wgsl modules as esm modules aka glslify.
 
-- Bindings, global variables, and consts can be imported, but are not rewritten.
+- Bindings, global variables, and consts can be imported, but are not rewritten to avoid conflicts.
   Perhaps in a future version.
