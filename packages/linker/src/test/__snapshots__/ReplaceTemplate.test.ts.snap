@@ -1,3 +1,0 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`double #replace 2 1`] = `"histogram: array<u32, 4>; // "`;
