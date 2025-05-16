@@ -1,5 +1,6 @@
 import { Sliceable } from "./Sliceable";
 
+/** TODO remove */
 export type GPUElementFormat = "f32" | "u8" | "u32" | "u64" | "i32" | "i8";
 
 // prettier-ignore
@@ -27,7 +28,7 @@ export type WgslElementType =
 export async function withBufferCopy<T>(
   device: GPUDevice,
   buffer: GPUBuffer,
-  fmt: GPUElementFormat,
+  fmt: WgslElementType,
   fn: (data: Sliceable<number>) => T
 ): Promise<T> {
   const size = buffer.size;
@@ -54,7 +55,7 @@ export async function withBufferCopy<T>(
 export async function copyBuffer(
   device: GPUDevice,
   buffer: GPUBuffer,
-  fmt: GPUElementFormat = "u32"
+  fmt: WgslElementType = "u32"
 ): Promise<number[]> {
   return withBufferCopy(device, buffer, fmt, d => [...d]);
 }
@@ -80,24 +81,28 @@ export async function printBuffer(
 }
 
 /** return the TypedArray for a gpu element format
- * (helpful if you want to map the gpu buffer to a ) */
+ * (helpful if you want to map the gpu buffer to a cpu TypedArray */
 export function arrayForType(
-  type: "f32" | "u8" | "u32" | "u64" | "i32" | "i8",
+  type: WgslElementType,
   data: ArrayBuffer
 ): Float32Array | Uint8Array | Uint32Array | Int32Array | Int8Array {
-  switch (type) {
-    case "f32":
-      return new Float32Array(data);
-    case "u8":
-      return new Uint8Array(data);
-    case "u64":
-    case "u32":
-      return new Uint32Array(data);
-    case "i32":
-      return new Int32Array(data);
-    case "i8":
-      return new Int8Array(data);
+  if (type === "f32" || type.endsWith("f") || type.endsWith("h")) {
+    return new Float32Array(data);
   }
+  if (type === "u8") {
+    return new Uint8Array(data);
+  }
+  if (type === "u32") {
+    return new Uint32Array(data);
+  }
+  if (type === "i32") {
+    return new Int32Array(data);
+  }
+  if (type === "i8") {
+    return new Int8Array(data);
+  }
+  throw new Error(`Unknown type: ${type}`);
+}
 
 /** @return number of bytes per element in an array, including alignment padding */
 export function elementStride(fmt: WgslElementType): number {
