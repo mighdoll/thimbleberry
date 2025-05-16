@@ -1,10 +1,10 @@
 {
   "name": "thimbleberry",
-  "version": "0.2.9",
-  "description": "",
+  "version": "0.2.10",
+  "description": "WebGPU utilities",
   "type": "module",
   "scripts": {
-    "prepublish": "rimraf dist && pnpm run build && pnpm run build:shaders && pnpm run build:types",
+    "prepublishOnly": "rimraf dist && pnpm run build && pnpm run build:shaders && pnpm run build:types",
     "build": "esbuild src/shader-util/index.ts --bundle --format=esm  --packages=external --loader:.wgsl=text --sourcemap --outfile=dist/thimbleberry.js",
     "build:shaders": "esbuild src/shaders/index.ts --bundle --format=esm  --packages=external --loader:.wgsl=text --sourcemap --outfile=dist/shaders.js",
     "build:types": "tsc --project tsconfig.build.json",
@@ -35,7 +35,8 @@
     "src"
   ],
   "keywords": [
-    "webgpu",
+    "WebGPU",
+    "WGSL",
     "reactive",
     "debug"
   ],
