@@ -1,4 +1,5 @@
 import {
+  TypedArray,
   Vec2,
   arrayToArrayBuffer,
   componentByteSize,
@@ -31,7 +32,7 @@ export function makeTexture(
 /** @return a test texture from the supplied array buffer data */
 export function textureFromArray(
   device: GPUDevice,
-  data: ArrayBuffer,
+  data: TypedArray,
   size: Vec2,
   format: GPUTextureFormat = "r16float",
   label?: string

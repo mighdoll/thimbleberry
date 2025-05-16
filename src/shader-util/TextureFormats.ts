@@ -60,7 +60,7 @@ export function bufferToSliceable(
 export function arrayToArrayBuffer(
   format: GPUTextureFormat,
   data: number[]
-): ArrayBuffer & Sliceable<number> & HasArrayBuffer {
+): TypedArray {
   const converted = gpuArrayFormat(format, data);
   if (converted) {
     return converted;
@@ -76,9 +76,14 @@ export function arrayToArrayBuffer(
   }
 }
 
-interface HasArrayBuffer {
-  buffer: ArrayBuffer;
-}
+export type TypedArray =
+  | Float32Array
+  | Uint8Array
+  | Uint16Array
+  | Uint32Array
+  | Int32Array
+  | Int16Array
+  | Int8Array;
 
 /** Return a typed array for the appropriate gpu format type
  *
@@ -87,8 +92,9 @@ interface HasArrayBuffer {
  */
 function gpuArrayFormat(
   format: GPUTextureFormat,
-  data: number[] | ArrayBuffer
-): (ArrayBuffer & Sliceable<number> & HasArrayBuffer) | undefined {
+  inData: number[] | ArrayBufferLike
+): TypedArray | undefined {
+  const data = inData as ArrayBuffer;
   switch (format) {
     case "r8uint":
     case "rg8uint":
