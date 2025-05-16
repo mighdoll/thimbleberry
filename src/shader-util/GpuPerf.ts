@@ -1,4 +1,3 @@
-import { dwarn } from "berry-pretty";
 import { GpuPerfMark, GpuPerfReport, GpuPerfSpan } from "./GpuPerfReport";
 import { partitionBySize, Sliceable } from "./Sliceable";
 import { trackUse } from "./TrackUse";
@@ -90,48 +89,6 @@ export class GpuTiming {
     this.marks.length = 0;
     this.spans.length = 0;
     this.sessionNum = sessionEpoch++;
-  }
-
-  /** start a timing span in the session.
-   *
-   * Note, prefer the timestampWrites() api on Metal for now.
-   */
-  span(label: string, commands: GPUCommandEncoder): StartedSpan {
-    const startDex = this.stampDex;
-    this.writeTimestamp(commands);
-    let complete = false;
-    const currentSession = this.sessionNum;
-
-    const end = (commands: GPUCommandEncoder): CompletedSpan => {
-      if (!complete) {
-        if (this.sessionNum !== currentSession) {
-          dwarn("gpuTiming: session changed before span completed", label);
-          return { label, _startDex: 0, _endDex: 0 };
-        }
-
-        this.spans.push({ label, startDex, endDex: this.stampDex });
-        this.writeTimestamp(commands);
-        complete = true;
-      }
-      return { label, _startDex: startDex, _endDex: this.stampDex };
-    };
-
-    return {
-      end,
-    };
-  }
-
-  /** mark a moment in the session
-   *
-   * Note, prefer the timestampWrites() api on Metal for now.
-   */
-  mark(label: string, commands: GPUCommandEncoder): void {
-    const markInfo: MarkInfo = {
-      label,
-      stampDex: this.stampDex,
-    };
-    this.marks.push(markInfo);
-    this.writeTimestamp(commands);
   }
 
   /**
@@ -239,15 +196,6 @@ export class GpuTiming {
     });
 
     return { marks: markReport, spans: spanReport };
-  }
-
-  private writeTimestamp(commands: GPUCommandEncoder): void {
-    if (this.stampDex >= this.querySet.count) {
-      console.error("gpuTiming: exceeded max size");
-      return;
-    }
-
-    commands.writeTimestamp(this.querySet, this.stampDex++);
   }
 
   /** allocate a reusable buffer for collecting timing data */
