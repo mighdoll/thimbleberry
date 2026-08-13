@@ -1,0 +1,6 @@
+allowBuilds:
+  core-js: true
+  cypress: true
+  esbuild: true
+  sharp: true
+  workerd: true
